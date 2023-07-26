@@ -1,20 +1,4 @@
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-
-#include "filesystem.h"
-#include "shader.h"
-#include "camera.h"
-#include "model.h"
-
-#include <iostream>
+#include "renderer.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_cursor_callback(GLFWwindow* window, double xpos, double ypos);
