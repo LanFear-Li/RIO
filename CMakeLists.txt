@@ -36,10 +36,17 @@ include_directories("${CMAKE_BINARY_DIR}/cmake")
 
 # Load all extern header files.
 include_directories("${CMAKE_SOURCE_DIR}/include")
+include_directories("${CMAKE_SOURCE_DIR}/src/imgui")
 
 # Load all source and header files.
-file(GLOB SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp")
-file(GLOB HEADERS "${CMAKE_SOURCE_DIR}/src/*.hpp")
+function(get_source_file_recursive source_dir result)
+    file(GLOB_RECURSE source "${source_dir}/*.cpp")
+    file(GLOB_RECURSE header "${source_dir}/*.h" "${source_dir}/*.hpp")
+    set(${result} ${source} ${header} PARENT_SCOPE)
+endfunction()
 
-add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+set(SOURCES)
+get_source_file_recursive("${CMAKE_SOURCE_DIR}/src" SOURCES)
+
+add_executable(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(${PROJECT_NAME} ${LIBS})
