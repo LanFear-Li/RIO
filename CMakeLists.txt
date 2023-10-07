@@ -10,17 +10,24 @@ set(CMAKE_CXX_EXTENSIONS ON)
 # Find the required packages.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
+if (WIN32)
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+endif (WIN32)
+
+link_directories(${CMAKE_SOURCE_DIR}/lib)
+
 find_package(GLM REQUIRED)
 message(STATUS "GLM included at ${GLM_INCLUDE_DIR}")
 find_package(GLFW3 REQUIRED)
 message(STATUS "Found GLFW3 in ${GLFW3_INCLUDE_DIR}")
-find_package(ASSIMP REQUIRED)
+find_package(assimp REQUIRED)
 message(STATUS "Found ASSIMP in ${ASSIMP_INCLUDE_DIR}")
 
 # Create static libraries required for other projects.
 set(STATIC_LIBRARY_DIR ${CMAKE_SOURCE_DIR}/lib/)
 if (WIN32)
-    # TODO: Add Windows libraries.
+    set(LIBS glfw3 opengl32 assimp-vc142-mt freetype irrKlang)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 elseif (UNIX)
     set(LIBS ${GLFW3_LIBRARY} X11 Xrandr Xinerama Xi Xxf86vm Xcursor GL dl pthread freetype ${ASSIMP_LIBRARY})
 endif (WIN32)
