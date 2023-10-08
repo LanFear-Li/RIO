@@ -22,6 +22,21 @@
 const unsigned int SCR_WIDTH = 1000;
 const unsigned int SCR_HEIGHT = 800;
 
+extern float lastX;
+extern float lastY;
+
+// mouse
+extern bool firstMouse;
+extern bool rightMousePressd;
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+
+void mouse_cursor_callback(GLFWwindow* window, double xpos, double ypos);
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+
 class Renderer
 {
 public:
@@ -36,31 +51,16 @@ private:
     void processInput(GLFWwindow *window);
 
     void register_rx();
-    static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-    static void mouse_cursor_callback(GLFWwindow* window, double xpos, double ypos);
-    static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
-    static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
-    // window
     GLFWwindow* window{};
-
-    // camera
-    Camera *camera{};
 
     Shader *shader{};
     Model *model{};
-
-    float lastX = SCR_WIDTH / 2.0f;
-    float lastY = SCR_HEIGHT / 2.0f;
 
     // timing
     float moveSpeed = 1.0f;
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;
-
-    // mouse
-    bool firstMouse = true;
-    bool rightMousePressd = false;
 
     bool upKeyPressed = false;
     bool downKeyPressed = false;

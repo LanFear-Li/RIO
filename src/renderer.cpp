@@ -2,12 +2,21 @@
 
 #include <utility>
 
+float lastX = SCR_WIDTH / 2.0f;
+float lastY = SCR_HEIGHT / 2.0f;
+
+// mouse
+bool firstMouse = true;
+bool rightMousePressd = false;
+
+// cmaera
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+
 Renderer::Renderer()
 {
     config();
 
-    // camera, shader and model creation
-    camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
+    // shader and model creation
     shader = new Shader(FileSystem::getPath("/shaders/shader.vert").c_str(), FileSystem::getPath("/shaders/shader.frag").c_str());
     model = new Model(FileSystem::getPath("assets/models/nanosuit/nanosuit.obj"));
 
@@ -98,8 +107,8 @@ void Renderer::run()
         shader->use();
 
         // view/projection transformations
-        glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view = camera->GetViewMatrix();
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 view = camera.GetViewMatrix();
         shader->setMat4("projection", projection);
         shader->setMat4("view", view);
 
@@ -144,14 +153,14 @@ void Renderer::processInput(GLFWwindow *window)
         glfwSetWindowShouldClose(window, true);
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        camera->ProcessKeyboard(FORWARD, deltaTime * moveSpeed);
+        camera.ProcessKeyboard(FORWARD, deltaTime * moveSpeed);
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera->ProcessKeyboard(BACKWARD, deltaTime * moveSpeed);
+        camera.ProcessKeyboard(BACKWARD, deltaTime * moveSpeed);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera->ProcessKeyboard(LEFT, deltaTime * moveSpeed);
+        camera.ProcessKeyboard(LEFT, deltaTime * moveSpeed);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera->ProcessKeyboard(RIGHT, deltaTime * moveSpeed);
+        camera.ProcessKeyboard(RIGHT, deltaTime * moveSpeed);
 
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
         upKeyPressed = true;
@@ -173,7 +182,7 @@ void Renderer::processInput(GLFWwindow *window)
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
-void Renderer::framebuffer_size_callback(GLFWwindow* window, int width, int height)
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
@@ -182,53 +191,43 @@ void Renderer::framebuffer_size_callback(GLFWwindow* window, int width, int heig
 
 // glfw: whenever the mouse moves, this callback is called
 // -------------------------------------------------------
-void Renderer::mouse_cursor_callback(GLFWwindow* window, double xposIn, double yposIn)
+void mouse_cursor_callback(GLFWwindow* window, double xposIn, double yposIn)
 {
-    auto* instance = static_cast<Renderer*>(glfwGetWindowUserPointer(window));
-    if (instance) {
-        cout << "mouse_cursor_callback" << endl;
-        if (!instance->rightMousePressd) {
-            return;
-        }
-
-        float xpos = static_cast<float>(xposIn);
-        float ypos = static_cast<float>(yposIn);
-
-        if (instance->firstMouse) {
-            instance->lastX = xpos;
-            instance->lastY = ypos;
-            instance->firstMouse = false;
-        }
-
-        float xoffset = xpos - instance->lastX;
-        float yoffset = instance->lastY - ypos; // reversed since y-coordinates go from bottom to top
-
-        instance->lastX = xpos;
-        instance->lastY = ypos;
-
-        instance->camera->ProcessMouseMovement(xoffset, yoffset);
+    if (!rightMousePressd) {
+        return;
     }
+
+    float xpos = static_cast<float>(xposIn);
+    float ypos = static_cast<float>(yposIn);
+
+    if (firstMouse) {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+
+    lastX = xpos;
+    lastY = ypos;
+
+    camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
-void Renderer::mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
-    auto* instance = static_cast<Renderer*>(glfwGetWindowUserPointer(window));
-    if (instance) {
-        if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
-            instance->rightMousePressd = true;
-        } else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
-            instance->rightMousePressd = false;
-            instance->firstMouse = true;
-        }
+    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+        rightMousePressd = true;
+    } else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
+        rightMousePressd = false;
+        firstMouse = true;
     }
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
 // ----------------------------------------------------------------------
-void Renderer::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    auto* instance = static_cast<Renderer*>(glfwGetWindowUserPointer(window));
-    if (instance) {
-        instance->camera->ProcessMouseScroll(static_cast<float>(yoffset));
-    }
+    camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
