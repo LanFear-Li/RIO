@@ -12,12 +12,16 @@ bool rightMousePressd = false;
 // cmaera
 Camera camera(glm::vec3(0.0f, 10.0f, 15.0f));
 
+// lighting
+glm::vec3 lightPos(1.0f, 10.0f, 5.0f);
+
 Renderer::Renderer()
 {
     config();
 
     // shader and model creation
     shader = new Shader(FileSystem::getPath("/shaders/shader.vert").c_str(), FileSystem::getPath("/shaders/shader.frag").c_str());
+    lightShader = new Shader(FileSystem::getPath("/shaders/light.vert").c_str(), FileSystem::getPath("/shaders/light.frag").c_str());
     model = new Model(FileSystem::getPath("assets/models/nanosuit/nanosuit.obj"));
 
     register_rx();
@@ -74,6 +78,60 @@ void Renderer::load()
     // configure global opengl state
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
+
+    float light_vert[] = {
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+    };
+
+    glGenBuffers(1, &lightVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, lightVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(light_vert), light_vert, GL_STATIC_DRAW);
+
+    glGenVertexArrays(1, &lightVAO);
+    glBindVertexArray(lightVAO);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
 }
 
 void Renderer::run()
@@ -112,12 +170,28 @@ void Renderer::run()
         shader->setMat4("projection", projection);
         shader->setMat4("view", view);
 
+        shader->setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+        shader->setVec3("lightPos", lightPos);
+        shader->setVec3("viewPos", camera.Position);
+
         // render the loaded model
         glm::mat4 mat_model = glm::mat4(1.0f);
         mat_model = glm::translate(mat_model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
         mat_model = glm::scale(mat_model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
         shader->setMat4("model", mat_model);
         model->Draw(*shader);
+
+        // render the light object
+        lightShader->use();
+        lightShader->setMat4("projection", projection);
+        lightShader->setMat4("view", view);
+        mat_model = glm::mat4(1.0f);
+        mat_model = glm::translate(mat_model, lightPos);
+        mat_model = glm::scale(mat_model, glm::vec3(0.2f));
+        lightShader->setMat4("model", mat_model);
+
+        glBindVertexArray(lightVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // ImGui::Render();
         // ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

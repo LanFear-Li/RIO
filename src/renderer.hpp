@@ -57,6 +57,9 @@ private:
     Shader *shader{};
     Model *model{};
 
+    Shader *lightShader{};
+    unsigned int lightVBO{}, lightVAO{};
+
     // timing
     float moveSpeed = 1.0f;
     float deltaTime = 0.0f;
