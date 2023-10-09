@@ -10,7 +10,7 @@ bool firstMouse = true;
 bool rightMousePressd = false;
 
 // cmaera
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(glm::vec3(0.0f, 10.0f, 15.0f));
 
 Renderer::Renderer()
 {
@@ -149,28 +149,44 @@ void Renderer::register_rx()
 // ---------------------------------------------------------------------------------------------------------
 void Renderer::processInput(GLFWwindow *window)
 {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
+    }
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
         camera.ProcessKeyboard(FORWARD, deltaTime * moveSpeed);
     }
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, deltaTime * moveSpeed);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime * moveSpeed);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, deltaTime * moveSpeed);
 
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        camera.ProcessKeyboard(BACKWARD, deltaTime * moveSpeed);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        camera.ProcessKeyboard(LEFT, deltaTime * moveSpeed);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        camera.ProcessKeyboard(RIGHT, deltaTime * moveSpeed);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+        camera.ProcessKeyboard(UP, deltaTime * moveSpeed);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+        camera.ProcessKeyboard(DOWN, deltaTime * moveSpeed);
+    }
+
+    // Control move speed with up and down.
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
         upKeyPressed = true;
     }
+
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_RELEASE && upKeyPressed) {
         moveSpeed = moveSpeed * 2.0f;
         upKeyPressed = false;
     }
 
-    // Control move speed with up and down.
     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
         downKeyPressed = true;
     }
