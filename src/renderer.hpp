@@ -22,6 +22,9 @@
 const unsigned int SCR_WIDTH = 1000;
 const unsigned int SCR_HEIGHT = 800;
 
+const unsigned int SHADOW_WIDTH = 1024;
+const unsigned int SHADOW_HEIGHT = 1024;
+
 extern float lastX;
 extern float lastY;
 
@@ -48,17 +51,37 @@ public:
     static void exit();
 
 private:
-    void processInput(GLFWwindow *window);
+    void process_input(GLFWwindow *window);
 
-    void register_rx();
+    void register_callback();
+
+    void create_depth_map();
+
+    void render_plane();
+
+    void render_cube();
+
+    void render_scene(Shader &shader);
+
+    unsigned int load_texture(const char* path);
 
     GLFWwindow* window{};
 
     Shader *shader{};
-    Model *model{};
-
+    Shader *depthShader{};
     Shader *lightShader{};
+
+    // models and textures
+    Model *model{};
+    unsigned int woodTexture{};
+
+    // shadow object
+    unsigned int depthMapFBO{}, depthMap{};
+
+    // scene buffer object
     unsigned int lightVBO{}, lightVAO{};
+    unsigned int cubeVBO{}, cubeVAO{};
+    unsigned int planeVBO{}, planeVAO{};
 
     // timing
     float moveSpeed = 1.0f;
