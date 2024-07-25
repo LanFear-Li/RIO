@@ -1,5 +1,5 @@
 #include "filesystem.hpp"
-#include "root_directory.h"
+#include <iostream>
 
 std::string FileSystem::getPath(const std::string &path)
 {
@@ -10,7 +10,7 @@ std::string FileSystem::getPath(const std::string &path)
 std::string const& FileSystem::getRoot()
 {
     static char const *envRoot = getenv("LOGL_ROOT_PATH");
-    static char const *givenRoot = (envRoot != nullptr ? envRoot : logl_root);
+    static char const *givenRoot = (envRoot != nullptr ? envRoot : PROJECT_SOURCE_DIR);
     static std::string root = (givenRoot != nullptr ? givenRoot : "");
     return root;
 }
