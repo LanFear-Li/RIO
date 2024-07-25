@@ -1,4 +1,5 @@
 #include "renderer.hpp"
+#include "stb_image.h"
 
 #include <utility>
 
@@ -20,13 +21,13 @@ Renderer::Renderer()
     config();
 
     // init shader
-    shader = new Shader(FileSystem::getPath("/shaders/shader.vert").c_str(), FileSystem::getPath("/shaders/shader.frag").c_str());
-    depthShader = new Shader(FileSystem::getPath("/shaders/depth.vert").c_str(), FileSystem::getPath("/shaders/depth.frag").c_str());
-    lightShader = new Shader(FileSystem::getPath("/shaders/light.vert").c_str(), FileSystem::getPath("/shaders/light.frag").c_str());
+    shader = new Shader(FileSystem::getPath("runtime/shaders/shader.vert").c_str(), FileSystem::getPath("runtime/shaders/shader.frag").c_str());
+    depthShader = new Shader(FileSystem::getPath("runtime/shaders/depth.vert").c_str(), FileSystem::getPath("runtime/shaders/depth.frag").c_str());
+    lightShader = new Shader(FileSystem::getPath("runtime/shaders/light.vert").c_str(), FileSystem::getPath("runtime/shaders/light.frag").c_str());
 
     // init model and texture
-    model = new Model(FileSystem::getPath("assets/models/nanosuit/nanosuit.obj"));
-    woodTexture = load_texture(FileSystem::getPath("assets/textures/wood.png").c_str());
+    model = new Model(FileSystem::getPath("runtime/assets/models/nanosuit/nanosuit.obj"));
+    woodTexture = Model::load_texture(FileSystem::getPath("runtime/assets/textures/wood.png").c_str());
 
     register_callback();
 }
@@ -449,45 +450,6 @@ void Renderer::render_scene(Shader &shader)
     mat_model = glm::scale(mat_model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
     shader.setMat4("model", mat_model);
     model->Draw(shader);
-}
-
-// utility function for loading a 2D texture from file
-// ---------------------------------------------------
-unsigned int Renderer::load_texture(const char* path)
-{
-    unsigned int textureID;
-    glGenTextures(1, &textureID);
-
-    int width, height, nrComponents;
-    unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
-    if (data)
-    {
-        GLenum format;
-        if (nrComponents == 1)
-            format = GL_RED;
-        else if (nrComponents == 3)
-            format = GL_RGB;
-        else if (nrComponents == 4)
-            format = GL_RGBA;
-
-        glBindTexture(GL_TEXTURE_2D, textureID);
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT); // for this tutorial: use GL_CLAMP_TO_EDGE to prevent semi-transparent borders. Due to interpolation it takes texels from next repeat
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        stbi_image_free(data);
-    }
-    else
-    {
-        std::cout << "Texture failed to load at path: " << path << std::endl;
-        stbi_image_free(data);
-    }
-
-    return textureID;
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

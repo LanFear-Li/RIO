@@ -4,7 +4,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <stb_image.h>
+
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -37,6 +37,8 @@ public:
 
     // draws the model, and thus all its meshes
     void Draw(Shader &shader);
+
+    static unsigned int load_texture(const char* path);
 
 private:
     // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.

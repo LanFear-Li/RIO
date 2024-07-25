@@ -22,9 +22,6 @@ target_include_directories(glad PUBLIC vendor/glad/include)
 
 add_subdirectory(vendor/glm)
 
-add_library(stb INTERFACE)
-target_include_directories(stb INTERFACE vendor/stb)
-
 file(GLOB IMGUI_SOURCES vendor/imgui/*.cpp)
 add_library(imgui ${IMGUI_SOURCES})
 target_include_directories(imgui PUBLIC vendor/imgui)
@@ -43,7 +40,7 @@ get_source_file_recursive("${CMAKE_SOURCE_DIR}/src" SOURCES)
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 if (WIN32)
-    set(LIBS glfw glad assimp glm stb imgui)
+    set(LIBS glfw glad assimp glm imgui)
 elseif (UNIX)
     message(FATAL_ERROR "RIO currently don't support unix-like system." )
 endif (WIN32)

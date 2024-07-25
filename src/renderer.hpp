@@ -63,8 +63,6 @@ private:
 
     void render_scene(Shader &shader);
 
-    unsigned int load_texture(const char* path);
-
     GLFWwindow* window{};
 
     Shader *shader{};
