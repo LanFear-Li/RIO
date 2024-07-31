@@ -1,5 +1,7 @@
 #include "camera.hpp"
 
+#include <iostream>
+
 Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
     : Front(glm::vec3(0.0f, 0.0f, -1.0f)),
       MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
@@ -27,9 +29,16 @@ glm::mat4 Camera::GetViewMatrix() const
     return glm::lookAt(Position, Position + Front, Up);
 }
 
+glm::mat4 Camera::GetProjectionMatrix() const
+{
+    return glm::perspective(glm::radians(Zoom), (float)scr_width / (float)scr_height, 0.1f, 100.0f);
+}
+
 void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
 {
     float velocity = MovementSpeed * deltaTime;
+
+    std::cout << velocity << std::endl;
     if (direction == FORWARD) {
         Position += Front * velocity;
     }
@@ -47,10 +56,12 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
     }
 
     if (direction == UP) {
+        std::cout << "UP, " << std::endl;
         Position += WorldUp * velocity;
     }
 
     if (direction == DOWN) {
+        std::cout << "DOWN" << std::endl;
         Position -= WorldUp * velocity;
     }
 }

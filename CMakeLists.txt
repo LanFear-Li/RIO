@@ -27,17 +27,10 @@ add_library(imgui ${IMGUI_SOURCES})
 target_include_directories(imgui PUBLIC vendor/imgui)
 target_link_libraries(imgui PUBLIC glfw)
 
-# Load all source and header files.
-function(get_source_file_recursive source_dir result)
-    file(GLOB_RECURSE source "${source_dir}/*.cpp")
-    file(GLOB_RECURSE header "${source_dir}/*.h" "${source_dir}/*.hpp")
-    set(${result} ${source} ${header} PARENT_SCOPE)
-endfunction()
-
-set(SOURCES)
-get_source_file_recursive("${CMAKE_SOURCE_DIR}/src" SOURCES)
-
-add_executable(${PROJECT_NAME} ${SOURCES})
+file(GLOB_RECURSE HEADERS src/*.hpp)
+file(GLOB_RECURSE SOURCES src/*.cpp src/*.c)
+add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
+target_include_directories(${PROJECT_NAME} PRIVATE src)
 
 if (WIN32)
     set(LIBS glfw glad assimp glm imgui)

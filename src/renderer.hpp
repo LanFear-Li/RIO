@@ -18,6 +18,10 @@
 
 #include <iostream>
 
+#include "render/pass.hpp"
+#include "scene/scene.hpp"
+#include "io/window.hpp"
+
 // settings
 const unsigned int SCR_WIDTH = 1000;
 const unsigned int SCR_HEIGHT = 800;
@@ -32,27 +36,16 @@ extern float lastY;
 extern bool firstMouse;
 extern bool rightMousePressd;
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-
-void mouse_cursor_callback(GLFWwindow* window, double xpos, double ypos);
-
-void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
-
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-
 class Renderer
 {
 public:
     Renderer();
 
-    void config();
     void load();
     void run();
     static void exit();
 
 private:
-    void process_input(GLFWwindow *window);
-
     void register_callback();
 
     void create_depth_map();
@@ -63,15 +56,9 @@ private:
 
     void render_scene(Shader &shader);
 
-    GLFWwindow* window{};
-
-    Shader *shader{};
-    Shader *depthShader{};
-    Shader *lightShader{};
-
-    // models and textures
-    Model *model{};
-    unsigned int woodTexture{};
+    Window window_render;
+    Scene scene;
+    Pass pass;
 
     // shadow object
     unsigned int depthMapFBO{}, depthMap{};
@@ -83,8 +70,6 @@ private:
 
     // timing
     float moveSpeed = 1.0f;
-    float deltaTime = 0.0f;
-    float lastFrame = 0.0f;
 
     bool upKeyPressed = false;
     bool downKeyPressed = false;
