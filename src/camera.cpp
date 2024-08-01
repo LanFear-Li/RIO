@@ -31,7 +31,7 @@ glm::mat4 Camera::GetViewMatrix() const
 
 glm::mat4 Camera::GetProjectionMatrix() const
 {
-    return glm::perspective(glm::radians(Zoom), (float)scr_width / (float)scr_height, 0.1f, 100.0f);
+    return glm::perspective(glm::radians(Zoom), (float)cameraWidth / (float)cameraHeight, 0.1f, 100.0f);
 }
 
 void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)

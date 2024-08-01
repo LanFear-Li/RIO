@@ -2,13 +2,13 @@
 
 #include <iostream>
 
-void GlfwErrorLogFunc(int error, const char *desc) {
+void GlfwErrorLogFunc(int error, const char *desc)
+{
     std::cerr << "glfw error: " << desc << std::endl;
 }
 
 void GlfwCursorPosCallback(GLFWwindow *glfw_window, double x, double y)
 {
-    // TODO: Bind mouse callback.
     auto window = reinterpret_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
 
     if (window->firstMouse){
@@ -40,7 +40,21 @@ void GlfwKeyCallback(GLFWwindow *glfw_window, int key, int scancode, int action,
     window->key_callback_(glfw_window, key, action);
 }
 
-Window::Window(int width, int height, const char *title)
+void GlfwResizeCallback(GLFWwindow *glfw_window, int width, int height) {
+    auto window = reinterpret_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
+    glViewport(0, 0, width, height);
+
+    float width_scale, height_scale;
+    glfwGetWindowContentScale(glfw_window, &width_scale, &height_scale);
+
+    width /= width_scale;
+    height /= height_scale;
+    if (window->screenWidth != width || window->screenHeight != height) {
+        window->resize_callback_(glfw_window, width, height);
+    }
+}
+
+Window::Window(int width, int height, const char *title) : screenWidth(width), screenHeight(height)
 {
     glfwSetErrorCallback(GlfwErrorLogFunc);
     glfwInit();
@@ -51,32 +65,37 @@ Window::Window(int width, int height, const char *title)
 
     // glfw window creation
     // --------------------
-    gl_window = glfwCreateWindow(width, height, title, nullptr, nullptr);
-    if (gl_window == nullptr) {
+    glWindow = glfwCreateWindow(width, height, title, nullptr, nullptr);
+    if (glWindow == nullptr) {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
         return;
     }
-    glfwMakeContextCurrent(gl_window);
+    glfwMakeContextCurrent(glWindow);
 
-    glfwSetWindowUserPointer(gl_window, this);
+    glfwSetWindowUserPointer(glWindow, this);
 
-    glfwSetKeyCallback(gl_window, GlfwKeyCallback);
-    glfwSetCursorPosCallback(gl_window, GlfwCursorPosCallback);
-    // glfwSetFramebufferSizeCallback(gl_window, GlfwResizeCallback);
+    glfwSetKeyCallback(glWindow, GlfwKeyCallback);
+    glfwSetCursorPosCallback(glWindow, GlfwCursorPosCallback);
+    glfwSetFramebufferSizeCallback(glWindow, GlfwResizeCallback);
 
     // tell GLFW to capture our mouse
-    glfwSetInputMode(gl_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    glfwSetInputMode(glWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return;
     }
+
+    // Bind framebuffer resolution.
+    int frame_width, frame_height;
+    glfwGetFramebufferSize(glWindow, &frame_width, &frame_height);
+    glViewport(0, 0, frame_width, frame_height);
 }
 
 void Window::mainLoop(const std::function<void()> &func)
 {
-    while (!glfwWindowShouldClose(gl_window)) {
+    while (!glfwWindowShouldClose(glWindow)) {
         glfwPollEvents();
 
         auto currentFrame = static_cast<float>(glfwGetTime());
@@ -85,7 +104,7 @@ void Window::mainLoop(const std::function<void()> &func)
 
         func();
 
-        glfwSwapBuffers(gl_window);
+        glfwSwapBuffers(glWindow);
     }
 }
 

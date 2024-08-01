@@ -18,7 +18,7 @@
 #include "scene/scene.hpp"
 #include "io/window.hpp"
 
-// settings
+// default settings
 const unsigned int SCR_WIDTH = 1000;
 const unsigned int SCR_HEIGHT = 800;
 

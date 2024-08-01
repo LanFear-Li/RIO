@@ -35,7 +35,10 @@ public:
     float lastX = 0.0f;
     float lastY = 0.0f;
 
-    GLFWwindow *gl_window = nullptr;
+    uint32_t screenWidth;
+    uint32_t screenHeight;
+
+    GLFWwindow *glWindow = nullptr;
 
     friend void GlfwCursorPosCallback(GLFWwindow *window, double x, double y);
     friend void GlfwKeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);

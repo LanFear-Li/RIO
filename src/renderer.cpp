@@ -9,10 +9,13 @@
 glm::vec3 lightPos(1.0f, 10.0f, 5.0f);
 
 Renderer::Renderer() :
-    window_render(SCR_WIDTH, SCR_HEIGHT, "Renderer"),
+    window_render(SCR_WIDTH, SCR_HEIGHT, "RIO: Render In OpenGL"),
     scene(), pass()
 {
     pass.shaderInit();
+
+    scene.camera.cameraWidth = window_render.screenWidth;
+    scene.camera.cameraHeight = window_render.screenHeight;
 
     load_model_to_scene(scene, FileSystem::getPath("runtime/assets/models/nanosuit/nanosuit.obj"));
 }
@@ -82,7 +85,7 @@ void Renderer::load()
 
 void Renderer::run()
 {
-    // Bind window callback.
+    // Bind key, mouse, resize callback for window.
     std::vector<bool> key_state = std::vector<bool>(1025, false);
     window_render.setKeyCallback([&](GLFWwindow* glfw_window, int key, int action) mutable {
         if (key >= 0 && key <= 1024) {
@@ -91,13 +94,17 @@ void Renderer::run()
         }
     });
 
-    // Bind mouse callback.
     window_render.setMouseCallback([&, this](GLFWwindow* glfw_window, uint32_t state, float x, float y, float last_x, float last_y) {
         if (state == Window::MOUSE_RIGHT) {
             float xoffset = x - last_x;
             float yoffset = last_y - y;
             scene.camera.ProcessMouseMovement(xoffset, yoffset);
         }
+    });
+
+    window_render.setResizeCallback([&cam = scene.camera](GLFWwindow* glfw_window, uint32_t width, uint32_t height) {
+        cam.cameraWidth = width;
+        cam.cameraHeight = height;
     });
 
     auto process_key = [&key_state, &cam = scene.camera] (float dt) {
@@ -114,7 +121,6 @@ void Renderer::run()
 
     // Start window mainloop.
     window_render.mainLoop([&]() {
-        glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         scene.render(pass);
