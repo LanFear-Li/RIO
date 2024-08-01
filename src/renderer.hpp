@@ -7,10 +7,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-// #include "imgui.h"
-// #include "imgui_impl_glfw.h"
-// #include "imgui_impl_opengl3.h"
-
 #include "filesystem.hpp"
 #include "shader.hpp"
 #include "camera.hpp"
@@ -28,13 +24,6 @@ const unsigned int SCR_HEIGHT = 800;
 
 const unsigned int SHADOW_WIDTH = 1024;
 const unsigned int SHADOW_HEIGHT = 1024;
-
-extern float lastX;
-extern float lastY;
-
-// mouse
-extern bool firstMouse;
-extern bool rightMousePressd;
 
 class Renderer
 {

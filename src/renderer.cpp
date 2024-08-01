@@ -5,13 +5,6 @@
 
 #include "io/loader.hpp"
 
-float lastX = SCR_WIDTH / 2.0f;
-float lastY = SCR_HEIGHT / 2.0f;
-
-// mouse
-bool firstMouse = true;
-bool rightMousePressd = false;
-
 // lighting
 glm::vec3 lightPos(1.0f, 10.0f, 5.0f);
 
@@ -98,9 +91,9 @@ void Renderer::run()
         }
     });
 
-    // TODO: Bind mouse, resize callback.
+    // Bind mouse callback.
     window_render.setMouseCallback([&, this](GLFWwindow* glfw_window, uint32_t state, float x, float y, float last_x, float last_y) {
-        if (state == Window::MOUSE_LEFT) {
+        if (state == Window::MOUSE_RIGHT) {
             float xoffset = x - last_x;
             float yoffset = last_y - y;
             scene.camera.ProcessMouseMovement(xoffset, yoffset);
@@ -115,8 +108,8 @@ void Renderer::run()
         if (key_state[GLFW_KEY_E]) cam.ProcessKeyboard(Camera_Movement::UP, dt);
         if (key_state[GLFW_KEY_Q]) cam.ProcessKeyboard(Camera_Movement::DOWN, dt);
 
-        // if (key_state[GLFW_KEY_UP]) scene.camera->speed_up();
-        // if (key_state[GLFW_KEY_DOWN]) scene.camera->speed_down();
+        if (key_state[GLFW_KEY_UP]) cam.IncreaseSpeed();
+        if (key_state[GLFW_KEY_DOWN]) cam.DecreaseSpeed();
     };
 
     // Start window mainloop.

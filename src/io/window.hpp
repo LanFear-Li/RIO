@@ -31,6 +31,10 @@ public:
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;
 
+    bool firstMouse = true;
+    float lastX = 0.0f;
+    float lastY = 0.0f;
+
     GLFWwindow *gl_window = nullptr;
 
     friend void GlfwCursorPosCallback(GLFWwindow *window, double x, double y);

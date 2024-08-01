@@ -9,6 +9,29 @@ void GlfwErrorLogFunc(int error, const char *desc) {
 void GlfwCursorPosCallback(GLFWwindow *glfw_window, double x, double y)
 {
     // TODO: Bind mouse callback.
+    auto window = reinterpret_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
+
+    if (window->firstMouse){
+        window->lastX = x;
+        window->lastY = y;
+        window->firstMouse = false;
+    }
+
+    uint32_t state = 0;
+    if (glfwGetMouseButton(glfw_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+        state |= Window::MOUSE_LEFT;
+    }
+    if (glfwGetMouseButton(glfw_window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+        state |= Window::MOUSE_RIGHT;
+    }
+    if (glfwGetMouseButton(glfw_window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS) {
+        state |= Window::MOUSE_MIDDLE;
+    }
+
+    window->mouse_callback_(glfw_window, state, x, y, window->lastX, window->lastY);
+
+    window->lastX = x;
+    window->lastY = y;
 }
 
 void GlfwKeyCallback(GLFWwindow *glfw_window, int key, int scancode, int action, int mods)
@@ -39,7 +62,7 @@ Window::Window(int width, int height, const char *title)
     glfwSetWindowUserPointer(gl_window, this);
 
     glfwSetKeyCallback(gl_window, GlfwKeyCallback);
-    // glfwSetCursorPosCallback(gl_window, GlfwCursorPosCallback);
+    glfwSetCursorPosCallback(gl_window, GlfwCursorPosCallback);
     // glfwSetFramebufferSizeCallback(gl_window, GlfwResizeCallback);
 
     // tell GLFW to capture our mouse

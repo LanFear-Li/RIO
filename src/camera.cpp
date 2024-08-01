@@ -38,7 +38,6 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
 {
     float velocity = MovementSpeed * deltaTime;
 
-    std::cout << velocity << std::endl;
     if (direction == FORWARD) {
         Position += Front * velocity;
     }
@@ -56,13 +55,25 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
     }
 
     if (direction == UP) {
-        std::cout << "UP, " << std::endl;
         Position += WorldUp * velocity;
     }
 
     if (direction == DOWN) {
-        std::cout << "DOWN" << std::endl;
         Position -= WorldUp * velocity;
+    }
+}
+
+void Camera::IncreaseSpeed(float deltaSpeed)
+{
+    MovementSpeed += deltaSpeed;
+}
+
+void Camera::DecreaseSpeed(float deltaSpeed)
+{
+    if (MovementSpeed > deltaSpeed + 1.0f) {
+        MovementSpeed -= deltaSpeed;
+    } else {
+        std::cout << "Camera speed reached minimum limit." << std::endl;
     }
 }
 
@@ -75,12 +86,12 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constr
     Pitch += yoffset;
 
     // make sure that when pitch is out of bounds, screen doesn't get flipped
-    if (constrainPitch)
-    {
-        if (Pitch > 89.0f)
+    if (constrainPitch) {
+        if (Pitch > 89.0f) {
             Pitch = 89.0f;
-        if (Pitch < -89.0f)
+        } else if (Pitch < -89.0f) {
             Pitch = -89.0f;
+        }
     }
 
     // update Front, Right and Up Vectors using the updated Euler angles
