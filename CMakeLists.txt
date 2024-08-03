@@ -22,6 +22,9 @@ target_include_directories(glad PUBLIC vendor/glad/include)
 
 add_subdirectory(vendor/glm)
 
+add_library(stb INTERFACE)
+target_include_directories(stb INTERFACE vendor/stb)
+
 file(GLOB IMGUI_SOURCES vendor/imgui/*.cpp)
 add_library(imgui ${IMGUI_SOURCES})
 target_include_directories(imgui PUBLIC vendor/imgui)
@@ -33,7 +36,7 @@ add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 
 if (WIN32)
-    set(LIBS glfw glad assimp glm imgui)
+    set(LIBS glfw glad assimp glm stb imgui)
 elseif (UNIX)
     message(FATAL_ERROR "RIO currently don't support unix-like system." )
 endif (WIN32)

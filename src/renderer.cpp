@@ -1,5 +1,4 @@
 #include "renderer.hpp"
-#include "stb_image.h"
 
 #include <utility>
 
