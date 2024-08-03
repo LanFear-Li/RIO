@@ -1,12 +1,11 @@
 #pragma once
 
-#include <vector>
-
-#include "render/pass.hpp"
-#include "camera.hpp"
-
-#include "model.hpp"
+#include "scene/camera.hpp"
+#include "scene/model.hpp"
 #include "scene/light.hpp"
+#include "render/pass.hpp"
+
+#include <vector>
 
 struct Scene
 {

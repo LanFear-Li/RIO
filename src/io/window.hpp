@@ -1,9 +1,9 @@
 #pragma once
 
-#include <functional>
-
 #include <glad/glad.h>
 #include <glfw/glfw3.h>
+
+#include <functional>
 
 struct Window
 {

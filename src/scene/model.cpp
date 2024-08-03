@@ -1,6 +1,9 @@
 #include "model.hpp"
 
-#include "stb_image.h"
+#include <glad/glad.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <stb_image.h>
 
 Model::Model(string const &path, bool gamma) : gammaCorrection(gamma)
 {

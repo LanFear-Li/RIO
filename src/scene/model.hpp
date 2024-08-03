@@ -1,16 +1,11 @@
 #pragma once
 
-#include <glad/glad.h>
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+#include "scene/mesh.hpp"
+#include "render/shader.hpp"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-
-#include "mesh.hpp"
-#include "shader.hpp"
 
 #include <string>
 #include <fstream>

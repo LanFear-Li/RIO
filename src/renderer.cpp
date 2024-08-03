@@ -1,8 +1,11 @@
 #include "renderer.hpp"
 
-#include <utility>
-
 #include "io/loader.hpp"
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+#include <utility>
 
 Renderer::Renderer() :
     window_render(SCR_WIDTH, SCR_HEIGHT, "RIO: Render In OpenGL"),

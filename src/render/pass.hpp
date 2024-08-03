@@ -1,7 +1,7 @@
 #pragma once
 
-#include "model.hpp"
-#include "shader.hpp"
+#include "scene/model.hpp"
+#include "render/shader.hpp"
 
 struct Pass
 {
