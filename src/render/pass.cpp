@@ -7,6 +7,12 @@ void Pass::shaderInit()
     shader = Shader(FileSystem::getPath("runtime/shaders/shader.vert").c_str(), FileSystem::getPath("runtime/shaders/shader.frag").c_str());
 }
 
+void Pass::prepare()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glEnable(GL_DEPTH_TEST);
+}
+
 void Pass::active()
 {
     shader.use();

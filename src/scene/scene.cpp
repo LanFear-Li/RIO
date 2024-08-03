@@ -7,9 +7,9 @@ void Scene::render(Pass &render_pass)
     for (auto &model : model_list) {
         glm::vec3 lightPos(1.0f, 10.0f, 5.0f);
 
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
+        render_pass.prepare();
         render_pass.active();
+
         auto &shader = render_pass.shader;
         shader.setMat4("projection", camera.GetProjectionMatrix());
         shader.setMat4("view", camera.GetViewMatrix());

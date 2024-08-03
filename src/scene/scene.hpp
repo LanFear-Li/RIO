@@ -4,7 +4,9 @@
 
 #include "render/pass.hpp"
 #include "camera.hpp"
+
 #include "model.hpp"
+#include "scene/light.hpp"
 
 struct Scene
 {
@@ -16,4 +18,5 @@ public:
 
     Camera camera;
     std::vector<Model *> model_list;
+    std::vector<PointLight *> point_light_list;
 };

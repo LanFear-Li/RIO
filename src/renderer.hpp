@@ -29,37 +29,10 @@ class Renderer
 {
 public:
     Renderer();
-
-    void load();
     void run();
-    static void exit();
 
 private:
-    void register_callback();
-
-    void create_depth_map();
-
-    void render_plane();
-
-    void render_cube();
-
-    void render_scene(Shader &shader);
-
     Window window_render;
     Scene scene;
     Pass pass;
-
-    // shadow object
-    unsigned int depthMapFBO{}, depthMap{};
-
-    // scene buffer object
-    unsigned int lightVBO{}, lightVAO{};
-    unsigned int cubeVBO{}, cubeVAO{};
-    unsigned int planeVBO{}, planeVAO{};
-
-    // timing
-    float moveSpeed = 1.0f;
-
-    bool upKeyPressed = false;
-    bool downKeyPressed = false;
 };

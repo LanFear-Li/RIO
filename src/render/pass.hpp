@@ -9,6 +9,7 @@ public:
     Pass() = default;
 
     void shaderInit();
+    void prepare();
     void active();
     void render(Model &model);
 

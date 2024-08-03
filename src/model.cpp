@@ -1,6 +1,5 @@
 #include "model.hpp"
 
-#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 Model::Model(string const &path, bool gamma) : gammaCorrection(gamma)
