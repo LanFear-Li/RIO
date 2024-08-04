@@ -1,5 +1,6 @@
 #include "loader.hpp"
 
+#include <nlohmann/json.hpp>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 

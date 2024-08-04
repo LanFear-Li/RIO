@@ -44,7 +44,6 @@ public:
     float MouseSensitivity;
     float Zoom;
 
-    // TODO: Link with window resolution.
     uint32_t cameraWidth = 1000;
     uint32_t cameraHeight = 800;
 

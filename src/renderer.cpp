@@ -7,16 +7,13 @@
 
 #include <utility>
 
-Renderer::Renderer() :
-    window_render(SCR_WIDTH, SCR_HEIGHT, "RIO: Render In OpenGL"),
-    scene(), pass()
+Renderer::Renderer(std::string scene_name) :
+    window_render(SCR_WIDTH, SCR_HEIGHT, "RIO: Render In OpenGL"), pass()
 {
+    scene = std::make_unique<Scene>(scene_name);
+    load_model_to_scene(*scene, FileSystem::getPath("runtime/assets/models/nanosuit/nanosuit.obj"));
+
     pass.shaderInit();
-
-    scene.camera.cameraWidth = window_render.screenWidth;
-    scene.camera.cameraHeight = window_render.screenHeight;
-
-    load_model_to_scene(scene, FileSystem::getPath("runtime/assets/models/nanosuit/nanosuit.obj"));
 }
 
 void Renderer::run()
@@ -34,32 +31,32 @@ void Renderer::run()
         if (state == Window::MOUSE_RIGHT) {
             float xoffset = x - last_x;
             float yoffset = last_y - y;
-            scene.camera.ProcessMouseMovement(xoffset, yoffset);
+            scene->camera->ProcessMouseMovement(xoffset, yoffset);
         }
     });
 
-    window_render.setResizeCallback([&cam = scene.camera](GLFWwindow* glfw_window, uint32_t width, uint32_t height) {
-        cam.cameraWidth = width;
-        cam.cameraHeight = height;
+    window_render.setResizeCallback([&cam = scene->camera](GLFWwindow* glfw_window, uint32_t width, uint32_t height) {
+        cam->cameraWidth = width;
+        cam->cameraHeight = height;
     });
 
-    auto process_key = [&key_state, &cam = scene.camera] (float dt) {
-        if (key_state[GLFW_KEY_W]) cam.ProcessKeyboard(Camera_Movement::FORWARD, dt);
-        if (key_state[GLFW_KEY_S]) cam.ProcessKeyboard(Camera_Movement::BACKWARD, dt);
-        if (key_state[GLFW_KEY_A]) cam.ProcessKeyboard(Camera_Movement::LEFT, dt);
-        if (key_state[GLFW_KEY_D]) cam.ProcessKeyboard(Camera_Movement::RIGHT, dt);
-        if (key_state[GLFW_KEY_E]) cam.ProcessKeyboard(Camera_Movement::UP, dt);
-        if (key_state[GLFW_KEY_Q]) cam.ProcessKeyboard(Camera_Movement::DOWN, dt);
+    auto process_key = [&key_state, &cam = scene->camera] (float dt) {
+        if (key_state[GLFW_KEY_W]) cam->ProcessKeyboard(Camera_Movement::FORWARD, dt);
+        if (key_state[GLFW_KEY_S]) cam->ProcessKeyboard(Camera_Movement::BACKWARD, dt);
+        if (key_state[GLFW_KEY_A]) cam->ProcessKeyboard(Camera_Movement::LEFT, dt);
+        if (key_state[GLFW_KEY_D]) cam->ProcessKeyboard(Camera_Movement::RIGHT, dt);
+        if (key_state[GLFW_KEY_E]) cam->ProcessKeyboard(Camera_Movement::UP, dt);
+        if (key_state[GLFW_KEY_Q]) cam->ProcessKeyboard(Camera_Movement::DOWN, dt);
 
-        if (key_state[GLFW_KEY_UP]) cam.IncreaseSpeed();
-        if (key_state[GLFW_KEY_DOWN]) cam.DecreaseSpeed();
+        if (key_state[GLFW_KEY_UP]) cam->IncreaseSpeed();
+        if (key_state[GLFW_KEY_DOWN]) cam->DecreaseSpeed();
     };
 
     // Start window mainloop.
     window_render.mainLoop([&]() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        scene.render(pass);
+        scene->render(pass);
 
         process_key(window_render.deltaTime);
     });

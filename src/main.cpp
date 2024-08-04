@@ -2,7 +2,7 @@
 
 int main()
 {
-    Renderer renderer;
+    Renderer renderer("default-scene");
     renderer.run();
     return 0;
 }
