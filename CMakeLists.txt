@@ -28,18 +28,21 @@ target_include_directories(stb INTERFACE vendor/stb)
 add_library(json INTERFACE)
 target_include_directories(json INTERFACE vendor/json/include)
 
+add_subdirectory(vendor/pep-cprep)
+
 file(GLOB IMGUI_SOURCES vendor/imgui/*.cpp)
 add_library(imgui ${IMGUI_SOURCES})
 target_include_directories(imgui PUBLIC vendor/imgui)
 target_link_libraries(imgui PUBLIC glfw)
 
+# Include all source codes and link dependencies.
 file(GLOB_RECURSE HEADERS src/*.hpp)
 file(GLOB_RECURSE SOURCES src/*.cpp src/*.c)
 add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 
 if (WIN32)
-    set(LIBS glfw glad assimp glm stb imgui json)
+    set(LIBS glfw glad assimp glm stb imgui json pep-cprep)
 elseif (UNIX)
     message(FATAL_ERROR "RIO currently don't support unix-like system." )
 endif (WIN32)
