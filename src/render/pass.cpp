@@ -22,9 +22,5 @@ void Pass::active()
 
 void Pass::render(Model &model)
 {
-    glm::mat4 mat_model = glm::mat4(1.0f);
-    mat_model = glm::translate(mat_model, glm::vec3(0.0f, 0.0f, 0.0f));
-    mat_model = glm::scale(mat_model, glm::vec3(1.0f, 1.0f, 1.0f));
-    shader->setMat4("model", mat_model);
     model.Draw(*shader);
 }

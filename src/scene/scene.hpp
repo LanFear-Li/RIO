@@ -19,5 +19,5 @@ public:
 
     std::unique_ptr<Camera> camera;
     std::vector<Model *> model_list;
-    std::vector<PointLight *> point_light_list;
+    std::vector<std::unique_ptr<PointLight>> point_light_list;
 };

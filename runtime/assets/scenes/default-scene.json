@@ -1,6 +1,20 @@
 {
     "camera": {
-        "pos": [0, 10, 15],
+        "position": [0, 10, 15],
         "resolution": [1000, 800]
+    },
+    "lights": {
+        "point-light-1": {
+            "position": [1, 10, 5],
+            "color": [1, 1, 1],
+            "radius": 1,
+            "intensity": 1
+        },
+        "point-light-2": {
+            "position": [1, 10, -5],
+            "color": [5, 5, 5],
+            "radius": 1,
+            "intensity": 1
+        }
     }
 }
