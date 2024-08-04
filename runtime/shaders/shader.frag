@@ -1,4 +1,5 @@
-#version 330 core
+#include "util/math.glsl"
+
 out vec4 FragColor;
 
 in vec2 TexCoords;
@@ -61,8 +62,8 @@ vec3 blinn_phong(vec3 objectColor, vec3 lightColor, vec3 lightPos)
     float specularStrength = 0.5;
     vec3 viewDir = normalize(viewPos - FragPos);
 
-    vec3 half = normalize(lightDir + viewDir);
-    float spec = pow(max(dot(norm, half), 0.0), 32);
+    vec3 half_vec = normalize(lightDir + viewDir);
+    float spec = pow(max(dot(norm, half_vec), 0.0), 32);
     vec3 specular = specularStrength * spec * lightColor;
 
     vec3 result = (ambient + diffuse + specular) * objectColor;

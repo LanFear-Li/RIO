@@ -19,6 +19,17 @@ public:
     // ------------------------------------------------------------------------
     Shader(const char *vertexPath, const char *fragmentPath, const char *geometryPath = nullptr);
 
+private:
+    std::string glsl_version = "#version 450\n";
+    std::string path_vertex;
+    std::string path_fragment;
+    std::string path_geometry;
+
+    // utility function for checking shader compilation/linking errors.
+    // ------------------------------------------------------------------------
+    void checkCompileErrors(GLuint shader, std::string type);
+
+public:
     // activate the shader
     // ------------------------------------------------------------------------
     void use();
@@ -56,9 +67,4 @@ public:
 
     // ------------------------------------------------------------------------
     void setMat4(const std::string &name, const glm::mat4 &mat) const;
-
-private:
-    // utility function for checking shader compilation/linking errors.
-    // ------------------------------------------------------------------------
-    void checkCompileErrors(GLuint shader, std::string type);
 };
