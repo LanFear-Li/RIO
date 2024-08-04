@@ -7,27 +7,30 @@
 
 #include <utility>
 
-Renderer::Renderer(std::string scene_name) :
-    window_render(SCR_WIDTH, SCR_HEIGHT, "RIO: Render In OpenGL"), pass()
+Renderer::Renderer(std::string scene_name)
 {
     scene = std::make_unique<Scene>(scene_name);
-    load_model_to_scene(*scene, FileSystem::getPath("runtime/assets/models/nanosuit/nanosuit.obj"));
 
-    pass.shaderInit();
+    auto &camera = scene->camera;
+    window = std::make_unique<Window>(camera->cameraWidth, camera->cameraHeight, "RIO: Render In OpenGL");
+
+    pass = std::make_unique<Pass>("shader");
+
+    load_model_to_scene(*scene, FileSystem::getPath("runtime/assets/models/nanosuit/nanosuit.obj"));
 }
 
 void Renderer::run()
 {
     // Bind key, mouse, resize callback for window.
     std::vector<bool> key_state = std::vector<bool>(1025, false);
-    window_render.setKeyCallback([&](GLFWwindow* glfw_window, int key, int action) mutable {
+    window->setKeyCallback([&](GLFWwindow* glfw_window, int key, int action) mutable {
         if (key >= 0 && key <= 1024) {
             if (action == GLFW_PRESS) key_state[key] = true;
             else if (action == GLFW_RELEASE) key_state[key] = false;
         }
     });
 
-    window_render.setMouseCallback([&, this](GLFWwindow* glfw_window, uint32_t state, float x, float y, float last_x, float last_y) {
+    window->setMouseCallback([&, this](GLFWwindow* glfw_window, uint32_t state, float x, float y, float last_x, float last_y) {
         if (state == Window::MOUSE_RIGHT) {
             float xoffset = x - last_x;
             float yoffset = last_y - y;
@@ -35,7 +38,7 @@ void Renderer::run()
         }
     });
 
-    window_render.setResizeCallback([&cam = scene->camera](GLFWwindow* glfw_window, uint32_t width, uint32_t height) {
+    window->setResizeCallback([&cam = scene->camera](GLFWwindow* glfw_window, uint32_t width, uint32_t height) {
         cam->cameraWidth = width;
         cam->cameraHeight = height;
     });
@@ -53,12 +56,12 @@ void Renderer::run()
     };
 
     // Start window mainloop.
-    window_render.mainLoop([&]() {
+    window->mainLoop([&]() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        scene->render(pass);
+        scene->render(*pass);
 
-        process_key(window_render.deltaTime);
+        process_key(window->deltaTime);
     });
 
     glfwTerminate();

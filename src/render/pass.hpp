@@ -3,15 +3,17 @@
 #include "scene/model.hpp"
 #include "render/shader.hpp"
 
+#include <memory>
+
 struct Pass
 {
 public:
-    Pass() = default;
+    Pass() = delete;
+    Pass(std::string shader_name);
 
-    void shaderInit();
     void prepare();
     void active();
     void render(Model &model);
 
-    Shader shader;
+    std::unique_ptr<Shader> shader;
 };

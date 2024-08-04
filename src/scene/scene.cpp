@@ -34,12 +34,12 @@ void Scene::render(Pass &render_pass)
         render_pass.active();
 
         auto &shader = render_pass.shader;
-        shader.setMat4("projection", camera->GetProjectionMatrix());
-        shader.setMat4("view", camera->GetViewMatrix());
+        shader->setMat4("projection", camera->GetProjectionMatrix());
+        shader->setMat4("view", camera->GetViewMatrix());
 
-        shader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-        shader.setVec3("lightPos", lightPos);
-        shader.setVec3("viewPos", camera->Position);
+        shader->setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+        shader->setVec3("lightPos", lightPos);
+        shader->setVec3("viewPos", camera->Position);
         render_pass.render(*model);
     }
 }

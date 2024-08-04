@@ -21,7 +21,7 @@ public:
     void run();
 
 private:
-    Window window_render;
+    std::unique_ptr<Window> window;
     std::unique_ptr<Scene> scene;
-    Pass pass;
+    std::unique_ptr<Pass> pass;
 };

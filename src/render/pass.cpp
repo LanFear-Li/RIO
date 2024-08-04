@@ -2,9 +2,11 @@
 
 #include "io/filesystem.hpp"
 
-void Pass::shaderInit()
+Pass::Pass(std::string shader_name)
 {
-    shader = Shader(FileSystem::getPath("runtime/shaders/shader.vert").c_str(), FileSystem::getPath("runtime/shaders/shader.frag").c_str());
+    std::string vert_path = "runtime/shaders/" + shader_name + ".vert";
+    std::string frag_path = "runtime/shaders/" + shader_name + ".frag";
+    shader = std::make_unique<Shader>(FileSystem::getPath(vert_path).c_str(), FileSystem::getPath(frag_path).c_str());
 }
 
 void Pass::prepare()
@@ -15,7 +17,7 @@ void Pass::prepare()
 
 void Pass::active()
 {
-    shader.use();
+    shader->use();
 }
 
 void Pass::render(Model &model)
@@ -23,6 +25,6 @@ void Pass::render(Model &model)
     glm::mat4 mat_model = glm::mat4(1.0f);
     mat_model = glm::translate(mat_model, glm::vec3(0.0f, 0.0f, 0.0f));
     mat_model = glm::scale(mat_model, glm::vec3(1.0f, 1.0f, 1.0f));
-    shader.setMat4("model", mat_model);
-    model.Draw(shader);
+    shader->setMat4("model", mat_model);
+    model.Draw(*shader);
 }
