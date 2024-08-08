@@ -32,35 +32,35 @@ void Pass::render(Mesh &mesh, Material &material)
     if (material.normal_map != nullptr) {
         glActiveTexture(GL_TEXTURE0 + 0);
         glUniform1i(glGetUniformLocation(shader->ID, "_texture_normal"), 1);
-        glBindTexture(GL_TEXTURE_2D, material.normal_map->id);
+        glBindTexture(GL_TEXTURE_2D, material.normal_map->get_id());
         shader->setBool("use_normal_map", true);
     }
 
     if (material.diffuse_map != nullptr) {
         glActiveTexture(GL_TEXTURE0 + 1);
         glUniform1i(glGetUniformLocation(shader->ID, "_texture_diffuse"), 1);
-        glBindTexture(GL_TEXTURE_2D, material.diffuse_map->id);
+        glBindTexture(GL_TEXTURE_2D, material.diffuse_map->get_id());
         shader->setBool("use_diffuse_map", true);
     }
 
     if (material.emissive_map != nullptr) {
         glActiveTexture(GL_TEXTURE0 + 2);
         glUniform1i(glGetUniformLocation(shader->ID, "_texture_emissive"), 1);
-        glBindTexture(GL_TEXTURE_2D, material.emissive_map->id);
+        glBindTexture(GL_TEXTURE_2D, material.emissive_map->get_id());
         shader->setBool("use_emissive_map", true);
     }
 
     if (material.metallic_map != nullptr) {
         glActiveTexture(GL_TEXTURE0 + 3);
         glUniform1i(glGetUniformLocation(shader->ID, "_texture_metallic"), 1);
-        glBindTexture(GL_TEXTURE_2D, material.metallic_map->id);
+        glBindTexture(GL_TEXTURE_2D, material.metallic_map->get_id());
         shader->setBool("use_metallic_map", true);
     }
 
     if (material.roughness_map != nullptr) {
         glActiveTexture(GL_TEXTURE0 + 4);
         glUniform1i(glGetUniformLocation(shader->ID, "_texture_roughness"), 1);
-        glBindTexture(GL_TEXTURE_2D, material.roughness_map->id);
+        glBindTexture(GL_TEXTURE_2D, material.roughness_map->get_id());
         shader->setBool("use_roughness_map", true);
     }
 

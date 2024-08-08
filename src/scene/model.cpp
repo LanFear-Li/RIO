@@ -1,16 +1,18 @@
 #include "model.hpp"
 
+#include "scene/texture.hpp"
+
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <stb_image.h>
 
-Model::Model(string const &path, bool gamma) : gammaCorrection(gamma)
+Model::Model(std::string const &path, bool gamma) : gammaCorrection(gamma)
 {
     loadModel(path);
 }
 
-void Model::loadModel(string const &path)
+void Model::loadModel(std::string const &path)
 {
     // read file via ASSIMP
     Assimp::Importer importer;
@@ -28,50 +30,12 @@ void Model::loadModel(string const &path)
     // process ASSIMP's root node recursively
     processNode(scene->mRootNode, scene);
 
-    // process each material located at the current node
+    // Process each material located at the current node.
+    stbi_set_flip_vertically_on_load(true);
     for (unsigned int i = 0; i < scene->mNumMaterials; i++) {
         aiMaterial *material = scene->mMaterials[i];
         materials.push_back(processMaterial(material, scene));
     }
-}
-
-// utility function for loading a 2D texture from file
-// ---------------------------------------------------
-unsigned int Model::load_texture(const char* path)
-{
-    unsigned int textureID;
-    glGenTextures(1, &textureID);
-
-    int width, height, nrComponents;
-    unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
-    if (data)
-    {
-        GLenum format;
-        if (nrComponents == 1)
-            format = GL_RED;
-        else if (nrComponents == 3)
-            format = GL_RGB;
-        else if (nrComponents == 4)
-            format = GL_RGBA;
-
-        glBindTexture(GL_TEXTURE_2D, textureID);
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT); // for this tutorial: use GL_CLAMP_TO_EDGE to prevent semi-transparent borders. Due to interpolation it takes texels from next repeat
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        stbi_image_free(data);
-    }
-    else
-    {
-        std::cout << "Texture failed to load at path: " << path << std::endl;
-        stbi_image_free(data);
-    }
-
-    return textureID;
 }
 
 // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
@@ -194,78 +158,20 @@ Material Model::processMaterial(aiMaterial *material, const aiScene *scene)
     return result;
 }
 
-std::unique_ptr<Texture> Model::genMaterialTexture(aiMaterial *mat, aiTextureType type, string typeName)
+std::unique_ptr<Texture> Model::genMaterialTexture(aiMaterial *mat, aiTextureType type, std::string typeName)
 {
-    Texture texture;
     aiString str;
-
     if (AI_SUCCESS == mat->GetTexture(type, 0, &str)) {
-        Texture texture;
-        texture.id = TextureFromFile(str.C_Str(), this->directory);
-        texture.type = typeName;
-        texture.path = str.C_Str();
+        std::string filename = std::string(str.C_Str());
+        filename = directory + '/' + filename;
 
-        return std::make_unique<Texture>(texture);
+        int width, height, nrComponents;
+        unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
+        auto texture = std::make_unique<Texture>(true, width, height, nrComponents, data);
+        stbi_image_free(data);
+
+        return texture;
     }
 
     return nullptr;
-}
-
-glm::vec3 Model::genMaterialColor(aiMaterial *mat, aiTextureType type, string typeName)
-{
-    C_STRUCT aiColor4D temp_color;
-    if(AI_SUCCESS == aiGetMaterialColor(mat, AI_MATKEY_COLOR_DIFFUSE, &temp_color)) {
-        return glm::vec3{temp_color.r, temp_color.g, temp_color.b};
-    }
-
-    return {};
-}
-
-float Model::genMaterialFloat(aiMaterial *mat, aiTextureType type, string typeName)
-{
-    C_STRUCT ai_real temp_float;
-    if(AI_SUCCESS == aiGetMaterialFloat(mat, AI_MATKEY_METALLIC_FACTOR, &temp_float)) {
-        return temp_float;
-    }
-
-    return 0.0f;
-}
-
-unsigned int TextureFromFile(const char *path, const string &directory, bool gamma)
-{
-    string filename = string(path);
-    filename = directory + '/' + filename;
-
-    unsigned int textureID;
-    glGenTextures(1, &textureID);
-
-    int width, height, nrComponents;
-    unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
-    if (data)
-    {
-        GLenum format;
-        if (nrComponents == 1)
-            format = GL_RED;
-        else if (nrComponents == 3)
-            format = GL_RGB;
-        else if (nrComponents == 4)
-            format = GL_RGBA;
-
-        glBindTexture(GL_TEXTURE_2D, textureID);
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        stbi_image_free(data);
-    } else
-    {
-        std::cout << "Texture failed to load at path: " << path << std::endl;
-        stbi_image_free(data);
-    }
-
-    return textureID;
 }

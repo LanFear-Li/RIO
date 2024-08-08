@@ -48,9 +48,9 @@ struct Material
     // Ke: emissive.
     glm::vec3 emissive{};
     // Pr: roughness.
-    float roughness;
+    float roughness{};
     // Pm: metallic.
-    float metallic;
+    float metallic{};
     // Ps: sheen.
     // Pc: clearcoat thickness.
     // Pcr: clearcoat roughness.
