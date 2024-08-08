@@ -6,7 +6,7 @@ in vec2 TexCoords;
 in vec3 FragPos;
 in vec3 Normal;
 
-uniform sampler2D texture_diffuse1;
+uniform sampler2D _texture_diffuse;
 
 uniform vec3 viewPos;
 
@@ -73,7 +73,7 @@ vec3 blinn_phong(vec3 objectColor, vec3 lightColor, vec3 lightPos)
 
 void main()
 {
-    vec3 objectColor = texture(texture_diffuse1, TexCoords).xyz;
+    vec3 objectColor = texture(_texture_diffuse, TexCoords).xyz;
 
     vec3 result = vec3(0.0);
     for (int i = 0; i < point_light_num; i++) {

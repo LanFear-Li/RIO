@@ -30,32 +30,22 @@ struct Vertex
     float m_Weights[MAX_BONE_INFLUENCE];
 };
 
-struct Texture
-{
-    unsigned int id;
-    string type;
-    string path;
-};
-
 class Mesh
 {
 public:
-    // mesh Data
+    Mesh(vector<Vertex> vertices, vector<unsigned int> indices, unsigned int index);
+
+    // Mesh data storage.
     vector<Vertex> vertices;
     vector<unsigned int> indices;
-    vector<Texture> textures;
+    unsigned int materialIndex;
     unsigned int VAO{};
 
-    // constructor
-    Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures);
-
-    // render the mesh
-    void Draw(Shader &shader);
-
 private:
-    // render data
-    unsigned int VBO{}, EBO{};
-
     // initializes all the buffer objects/arrays
     void setupMesh();
+
+    // Render data storage.
+    unsigned int VBO{};
+    unsigned int EBO{};
 };

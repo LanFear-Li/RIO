@@ -17,6 +17,7 @@ Renderer::Renderer(std::string scene_name)
     pass = std::make_unique<Pass>("shader");
 
     load_model_to_scene(*scene, FileSystem::getPath("runtime/assets/models/nanosuit/nanosuit.obj"));
+    // load_model_to_scene(*scene, FileSystem::getPath("runtime/assets/models/backpack/backpack.obj"));
 }
 
 void Renderer::run()
