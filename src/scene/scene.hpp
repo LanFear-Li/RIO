@@ -13,6 +13,7 @@ struct Scene
 public:
     Scene() = delete;
     Scene(std::string scene_name);
+    void load_model_to_scene(std::string scene_name);
 
     void update();
     void render(Pass &render_pass);

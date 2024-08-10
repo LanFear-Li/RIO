@@ -47,6 +47,27 @@ Scene::Scene(std::string scene_name)
     }
 }
 
+void Scene::load_model_to_scene(std::string scene_name)
+{
+    std::string file_path = FileSystem::getPath("runtime/assets/scenes/" + scene_name + ".json");
+    auto scene_json = nlohmann::json::parse(std::ifstream(file_path), nullptr, false);
+    if (scene_json.is_discarded()) {
+        std::cout << "Initialize scene failed, check your scene config please." << std::endl;
+        assert(0);
+    }
+
+    // Load Model from scene.
+    auto model_json = scene_json["models"];
+    for (auto& [name, config] : model_json.items()) {
+        std::string model_name = config["name"].get<std::string>();
+        std::string model_path = "runtime/assets/models/" + model_name + "/" + model_name + ".obj";
+        model_path = FileSystem::getPath(model_path);
+
+        auto model = std::make_unique<Model>(model_path);
+        model_list.push_back(std::move(model));
+    }
+}
+
 void Scene::render(Pass &render_pass)
 {
     for (auto &model : model_list) {
