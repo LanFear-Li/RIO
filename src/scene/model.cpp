@@ -120,7 +120,12 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
     return Mesh(vertices, indices, index);
 }
 
-glm::vec3 get_float_from_color(const C_STRUCT aiColor4D &c)
+float get_float_from_color(const C_STRUCT aiColor4D &c)
+{
+    return (c.r, c.g, c.b) / 3.0f;
+}
+
+glm::vec3 get_vec3_from_color(const C_STRUCT aiColor4D &c)
 {
     return glm::vec3{c.r, c.g, c.b};
 }
@@ -133,12 +138,39 @@ Material Model::processMaterial(aiMaterial *material, const aiScene *scene)
 
     C_STRUCT aiColor4D temp_color;
     C_STRUCT ai_real temp_float;
+
+    // Common property defined in MTL file.
+    if(AI_SUCCESS == aiGetMaterialColor(material, AI_MATKEY_COLOR_AMBIENT, &temp_color)) {
+        result.ambient = get_vec3_from_color(temp_color);
+    }
+
     if(AI_SUCCESS == aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, &temp_color)) {
-        result.diffuse = get_float_from_color(temp_color);
+        result.diffuse = get_vec3_from_color(temp_color);
+    }
+
+    if(AI_SUCCESS == aiGetMaterialColor(material, AI_MATKEY_COLOR_SPECULAR, &temp_color)) {
+        result.specular = get_vec3_from_color(temp_color);
     }
 
     if(AI_SUCCESS == aiGetMaterialColor(material, AI_MATKEY_COLOR_EMISSIVE, &temp_color)) {
-        result.emissive = get_float_from_color(temp_color);
+        result.emissive = get_vec3_from_color(temp_color);
+    }
+
+    if(AI_SUCCESS == aiGetMaterialColor(material, AI_MATKEY_COLOR_TRANSPARENT, &temp_color)) {
+        result.transparency = get_vec3_from_color(temp_color);
+    }
+
+    if(AI_SUCCESS == aiGetMaterialColor(material, AI_MATKEY_SHININESS, &temp_color)) {
+        result.shiniess = get_float_from_color(temp_color);
+    }
+
+    if(AI_SUCCESS == aiGetMaterialColor(material, AI_MATKEY_REFRACTI, &temp_color)) {
+        result.ior = get_float_from_color(temp_color);
+    }
+
+    // Additional property for pbr model.
+    if(AI_SUCCESS == aiGetMaterialColor(material, AI_MATKEY_COLOR_EMISSIVE, &temp_color)) {
+        result.emissive = get_vec3_from_color(temp_color);
     }
 
     if(AI_SUCCESS == aiGetMaterialFloat(material, AI_MATKEY_METALLIC_FACTOR, &temp_float)) {
@@ -150,9 +182,12 @@ Material Model::processMaterial(aiMaterial *material, const aiScene *scene)
     }
 
     result.diffuse_map = genMaterialTexture(material, aiTextureType_DIFFUSE, "texture_diffuse");
+    result.specular_map = genMaterialTexture(material, aiTextureType_SPECULAR, "texture_specular");
+
     result.emissive_map = genMaterialTexture(material, aiTextureType_EMISSIVE, "texture_emissive");
-    result.metallic_map = genMaterialTexture(material, aiTextureType_METALNESS, "texture_metallic");
     result.roughness_map = genMaterialTexture(material, aiTextureType_DIFFUSE_ROUGHNESS, "texture_roughness");
+    result.metallic_map = genMaterialTexture(material, aiTextureType_METALNESS, "texture_metallic");
+
     result.normal_map = genMaterialTexture(material, aiTextureType_HEIGHT, "texture_normal");
 
     return result;

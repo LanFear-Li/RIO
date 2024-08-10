@@ -1,4 +1,5 @@
 #include "model/blinn-phong.glsl"
+#include "model/brdf.glsl"
 
 out vec4 fragColor;
 
@@ -15,7 +16,11 @@ void main()
 
     vec3 result = vec3(0.0);
     // result = evaluate_phong(worldPos, eyePos, material);
-    result = evaluate_blinn_phong(worldPos, eyePos, material);
+    // result = evaluate_blinn_phong(worldPos, eyePos, material);
+    result = evaluate_brdf(worldPos, eyePos, material);
+
+    // Gamma correction.s
+    result = pow(result, vec3(1.0 / 2.2));
 
     fragColor = vec4(result, 1.0);
 }

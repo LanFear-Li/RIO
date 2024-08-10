@@ -17,24 +17,25 @@ struct Material
     // --------------------------------------
 
     // Ka: ambient reflectivity.
-    glm::vec3 ambient{};
+    glm::vec3 ambient{0.0f};
     // Kd: diffuse reflectivity.
-    glm::vec3 diffuse{};
+    glm::vec3 diffuse{1.0f};
     // Ks: specular reflectivity.
-    glm::vec3 specular{};
+    glm::vec3 specular{0.0f};
     // Tr: transparency.
     // Some implementations use 'd' as 'dissolve' and Tr = 1 - d.
     // Tf: transmission filter color (additionally with Tr).
-    glm::vec3 transparency{};
+    glm::vec3 transparency{0.0f};
     // Ns: shiniess or specular highlights.
-    float shiniess{};
+    float shiniess{0.0f};
     // Ni: index of refraction.
-    float ior{};
+    float ior{0.0f};
 
     // map_Ka: ambient texture map.
     // map_Kd: diffuse texture map.
-    // map_Ks: specular texture map.
     std::unique_ptr<Texture> diffuse_map{};
+    // map_Ks: specular texture map.
+    std::unique_ptr<Texture> specular_map{};
 
     // map_D/map_Tr: alpha texture map.
     // map_Bump: bump texture map.
@@ -46,23 +47,23 @@ struct Material
     // --------------------------------------
 
     // Ke: emissive.
-    glm::vec3 emissive{};
+    glm::vec3 emissive{0.0f};
     // Pr: roughness.
-    float roughness{};
+    float roughness{1.0f};
     // Pm: metallic.
-    float metallic{};
+    float metallic{0.0f};
     // Ps: sheen.
     // Pc: clearcoat thickness.
     // Pcr: clearcoat roughness.
     // Aniso: anisotropy.
     // Anisor: anisotropy rotation.
 
+    // map_Ke: emissive map.
+    std::unique_ptr<Texture> emissive_map{};
     // map_Pr: roughness map.
     std::unique_ptr<Texture> roughness_map{};
     // map_Pm: metallic map.
     std::unique_ptr<Texture> metallic_map{};
-    // map_Ke: emissive map.
-    std::unique_ptr<Texture> emissive_map{};
     // map_Ps: sheen map.
 
     // Norm: normal map.
