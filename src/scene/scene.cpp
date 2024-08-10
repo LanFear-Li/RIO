@@ -58,7 +58,8 @@ void Scene::render(Pass &render_pass)
             shader->setMat4("model", mat_model);
             shader->setMat4("view", camera->GetViewMatrix());
             shader->setMat4("projection", camera->GetProjectionMatrix());
-            shader->setVec3("viewPos", camera->Position);
+
+            shader->setVec3("eyePos", camera->Position);
 
             int point_light_num = point_light_list.size();
             for (int i = 0; i < point_light_num; i++) {

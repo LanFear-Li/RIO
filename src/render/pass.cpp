@@ -22,9 +22,13 @@ void Pass::active()
 
 void Pass::render(Mesh &mesh, Material &material)
 {
+    shader->setVec3("_mat_ambient", material.ambient);
     shader->setVec3("_mat_diffuse", material.diffuse);
     shader->setVec3("_mat_specular", material.specular);
     shader->setVec3("_mat_transparency", material.transparency);
+    shader->setFloat("_mat_shiness", material.shiniess);
+    shader->setFloat("_mat_ior", material.ior);
+
     shader->setVec3("_mat_emissive", material.emissive);
     shader->setFloat("_mat_roughness", material.roughness);
     shader->setFloat("_mat_metallic", material.metallic);
