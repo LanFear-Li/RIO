@@ -31,7 +31,7 @@ glm::mat4 Camera::GetViewMatrix() const
 
 glm::mat4 Camera::GetProjectionMatrix() const
 {
-    return glm::perspective(glm::radians(Zoom), (float)cameraWidth / (float)cameraHeight, 0.1f, 100.0f);
+    return glm::perspective(glm::radians(Zoom), (float)cameraWidth / (float)cameraHeight, z_near, z_far);
 }
 
 void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
@@ -65,13 +65,13 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
 
 void Camera::IncreaseSpeed(float deltaSpeed)
 {
-    MovementSpeed += deltaSpeed;
+    MovementSpeed *= 1.1f;
 }
 
 void Camera::DecreaseSpeed(float deltaSpeed)
 {
-    if (MovementSpeed > deltaSpeed + 1.0f) {
-        MovementSpeed -= deltaSpeed;
+    if (MovementSpeed > deltaSpeed * 1.1f) {
+        MovementSpeed /= 1.1f;
     } else {
         std::cout << "Camera speed reached minimum limit." << std::endl;
     }

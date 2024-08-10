@@ -28,6 +28,11 @@ Scene::Scene(std::string scene_name)
         camera->cameraHeight = camera_json["resolution"][1].get<uint32_t>();
     }
 
+    if (camera_json.contains("draw-distance")) {
+        camera->z_near = camera_json["draw-distance"][0].get<float>();
+        camera->z_far = camera_json["draw-distance"][1].get<float>();
+    }
+
     // Load light from scene.
     auto light_json = scene_json["lights"];
     for (auto& [name, config] : light_json.items()) {

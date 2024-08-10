@@ -44,6 +44,9 @@ public:
     float MouseSensitivity;
     float Zoom;
 
+    float z_near = 0.1f;
+    float z_far = 1000.0f;
+
     uint32_t cameraWidth = 1000;
     uint32_t cameraHeight = 800;
 
