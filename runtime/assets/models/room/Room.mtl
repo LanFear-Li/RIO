@@ -1,0 +1,67 @@
+# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
+# File Created: 07.02.2015 04:04:29
+
+newmtl Object001_mtl
+	Ns 10.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 1.0000 1.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.0000 0.0000 0.0000
+	map_Ka Object001_2015-02-07_03-31-02_complete.rpf_converted.jpg
+	map_Kd Object001_2015-02-07_03-31-02_complete.rpf_converted.jpg
+
+newmtl Object002_mtl
+	Ns 10.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 1.0000 1.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.0000 0.0000 0.0000
+	map_Ka Object002_2015-02-07_02-35-14_complete.rpf_converted.jpg
+	map_Kd Object002_2015-02-07_02-35-14_complete.rpf_converted.jpg
+
+newmtl Object003_mtl
+	Ns 10.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 1.0000 1.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.0000 0.0000 0.0000
+	map_Ka Object003_2015-02-07_02-57-24_complete.rpf_converted.jpg
+	map_Kd Object003_2015-02-07_02-57-24_complete.rpf_converted.jpg
+
+newmtl Object004_mtl
+	Ns 10.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 1.0000 1.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.0000 0.0000 0.0000
+	map_Ka Object004_2015-02-07_03-04-34_complete.rpf_converted.jpg
+	map_Kd Object004_2015-02-07_03-04-34_complete.rpf_converted.jpg
+
+newmtl Object005_mtl
+	Ns 10.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 1.0000 1.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.0000 0.0000 0.0000
+	map_Ka Object005_2015-02-07_03-22-05_complete.rpf_converted.jpg
+	map_Kd Object005_2015-02-07_03-22-05_complete.rpf_converted.jpg
