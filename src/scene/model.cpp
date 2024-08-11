@@ -5,6 +5,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
 Model::Model(std::string const &path, bool gamma) : gammaCorrection(gamma)
@@ -31,7 +32,7 @@ void Model::loadModel(std::string const &path)
     processNode(scene->mRootNode, scene);
 
     // Process each material located at the current node.
-    stbi_set_flip_vertically_on_load(true);
+    // Assimp will stbi_set_flip_vertically_on_load(true) for you.
     for (unsigned int i = 0; i < scene->mNumMaterials; i++) {
         aiMaterial *material = scene->mMaterials[i];
         materials.push_back(processMaterial(material, scene));

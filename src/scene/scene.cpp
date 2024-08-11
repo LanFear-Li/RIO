@@ -78,10 +78,8 @@ void Scene::render(Pass &render_pass)
             auto &material = model->materials[mesh.materialIndex];
             auto &shader = render_pass.shader;
 
-            glm::mat4 mat_model = glm::mat4(1.0f);
-            mat_model = glm::translate(mat_model, glm::vec3(0.0f, 0.0f, 0.0f));
-            mat_model = glm::scale(mat_model, glm::vec3(1.0f, 1.0f, 1.0f));
-            shader->setMat4("model", mat_model);
+            glm::mat4 model_matrix = glm::identity<glm::mat4x4>();
+            shader->setMat4("model", model_matrix);
             shader->setMat4("view", camera->GetViewMatrix());
             shader->setMat4("projection", camera->GetProjectionMatrix());
 

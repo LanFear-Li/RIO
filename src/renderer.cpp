@@ -1,7 +1,5 @@
 #include "renderer.hpp"
 
-#include "io/loader.hpp"
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 

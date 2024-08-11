@@ -47,6 +47,7 @@ uniform vec3        _mat_emissive;
 uniform float       _mat_roughness;
 uniform float       _mat_metallic;
 
+uniform bool        use_ambient_map;
 uniform bool        use_diffuse_map;
 uniform bool        use_specular_map;
 uniform bool        use_emissive_map;
@@ -61,6 +62,7 @@ uniform int         point_light_num;
 // ---------------------
 // Sampler Definition.
 // ---------------------
+uniform sampler2D   _texture_ambient;
 uniform sampler2D   _texture_diffuse;
 uniform sampler2D   _texture_specular;
 uniform sampler2D   _texture_emissive;

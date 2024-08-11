@@ -19,7 +19,7 @@ void main()
     // result = evaluate_blinn_phong(worldPos, eyePos, material);
     result = evaluate_brdf(worldPos, eyePos, material);
 
-    // Gamma correction.s
+    // Gamma correction.
     result = pow(result, vec3(1.0 / 2.2));
 
     fragColor = vec4(result, 1.0);

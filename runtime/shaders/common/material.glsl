@@ -33,6 +33,10 @@ void collect_material(vec2 texCoord, out Material material)
     material.roughness      = _mat_roughness;
     material.metallic       = _mat_metallic;
 
+    if (use_ambient_map == true) {
+        material.ambient = texture(_texture_ambient, texCoord).xyz;
+    }
+
     if (use_diffuse_map == true) {
         material.diffuse = texture(_texture_diffuse, texCoord).xyz;
     }

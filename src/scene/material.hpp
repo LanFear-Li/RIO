@@ -32,6 +32,7 @@ struct Material
     float ior{0.0f};
 
     // map_Ka: ambient texture map.
+    std::unique_ptr<Texture> ambient_map{};
     // map_Kd: diffuse texture map.
     std::unique_ptr<Texture> diffuse_map{};
     // map_Ks: specular texture map.
