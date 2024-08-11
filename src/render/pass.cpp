@@ -4,8 +4,8 @@
 
 Pass::Pass(std::string shader_name)
 {
-    std::string vert_path = "runtime/shaders/" + shader_name + ".vert";
-    std::string frag_path = "runtime/shaders/" + shader_name + ".frag";
+    std::string vert_path = "runtime/shaders/pass/" + shader_name + ".vert";
+    std::string frag_path = "runtime/shaders/pass/" + shader_name + ".frag";
     shader = std::make_unique<Shader>(FileSystem::getPath(vert_path).c_str(), FileSystem::getPath(frag_path).c_str());
 }
 

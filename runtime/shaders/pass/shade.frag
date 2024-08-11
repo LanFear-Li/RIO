@@ -1,5 +1,5 @@
-#include "model/blinn-phong.glsl"
-#include "model/brdf.glsl"
+#include "../model/blinn-phong.glsl"
+#include "../model/brdf.glsl"
 
 out vec4 fragColor;
 

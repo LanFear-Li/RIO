@@ -12,7 +12,7 @@ Renderer::Renderer(std::string scene_name)
     auto &camera = scene->camera;
     window = std::make_unique<Window>(camera->cameraWidth, camera->cameraHeight, "RIO: Render In OpenGL");
 
-    pass = std::make_unique<Pass>("shader");
+    pass_shade = std::make_unique<Pass>("shade");
 
     scene->load_model_to_scene(scene_name);
 }
@@ -57,7 +57,7 @@ void Renderer::run()
     window->mainLoop([&]() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        scene->render(*pass);
+        scene->render(*pass_shade);
 
         process_key(window->deltaTime);
     });
