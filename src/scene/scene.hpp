@@ -19,6 +19,7 @@ public:
     void render(Pass &render_pass);
 
     std::unique_ptr<Camera> camera;
-    std::vector<std::unique_ptr<Model>> model_list;
     std::vector<std::unique_ptr<PointLight>> point_light_list;
+    std::vector<std::unique_ptr<Model>> model_list;
+    std::unique_ptr<Model> model_ibl;
 };

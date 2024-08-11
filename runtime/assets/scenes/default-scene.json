@@ -20,7 +20,10 @@
     },
     "models": {
         "model-1": {
-            "name": "room"
+            "name": "backpack"
         }
+    },
+    "skybox": {
+        "name": "default"
     }
 }

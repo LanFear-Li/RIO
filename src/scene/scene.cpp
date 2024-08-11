@@ -66,38 +66,78 @@ void Scene::load_model_to_scene(std::string scene_name)
         auto model = std::make_unique<Model>(model_path);
         model_list.push_back(std::move(model));
     }
+
+    // Load IBL from scene.
+    if (scene_json.contains("skybox")) {
+        auto ibl_json = scene_json["skybox"];
+        std::string ibl_name = ibl_json["name"].get<std::string>();
+        std::string ibl_path = "runtime/assets/textures/" + ibl_name + "/";
+
+        std::vector<std::string> faces {
+            FileSystem::getPath(ibl_path + "right.jpg"),
+            FileSystem::getPath(ibl_path + "left.jpg"),
+            FileSystem::getPath(ibl_path + "top.jpg"),
+            FileSystem::getPath(ibl_path + "bottom.jpg"),
+            FileSystem::getPath(ibl_path + "front.jpg"),
+            FileSystem::getPath(ibl_path + "back.jpg")
+        };
+
+        model_ibl = Model::constructIBL(faces);
+    }
 }
 
 void Scene::render(Pass &render_pass)
 {
-    for (auto &model : model_list) {
-        for (auto &mesh : model->meshes) {
-            render_pass.prepare();
-            render_pass.active();
+    auto pass_name = render_pass.name;
 
-            auto &material = model->materials[mesh.materialIndex];
-            auto &shader = render_pass.shader;
+    if (pass_name == "shade") {
+        for (auto &model : model_list) {
+            for (auto &mesh : model->meshes) {
+                render_pass.prepare();
+                render_pass.active();
 
-            glm::mat4 model_matrix = glm::identity<glm::mat4x4>();
-            shader->setMat4("model", model_matrix);
-            shader->setMat4("view", camera->GetViewMatrix());
-            shader->setMat4("projection", camera->GetProjectionMatrix());
+                auto &material = model->materials[mesh->materialIndex];
+                auto &shader = render_pass.shader;
 
-            shader->setVec3("eyePos", camera->Position);
+                glm::mat4 model_matrix = glm::identity<glm::mat4x4>();
+                shader->setMat4("model", model_matrix);
+                shader->setMat4("view", camera->GetViewMatrix());
+                shader->setMat4("projection", camera->GetProjectionMatrix());
 
-            int point_light_num = point_light_list.size();
-            for (int i = 0; i < point_light_num; i++) {
-                auto &light = point_light_list[i];
-                std::string light_idx = "point_light[" + std::to_string(i) + "].";
+                shader->setVec3("eyePos", camera->Position);
 
-                shader->setVec3(light_idx + "position", light->position);
-                shader->setVec3(light_idx + "color", light->color);
-                shader->setFloat(light_idx + "radius", light->radius);
-                shader->setFloat(light_idx + "intensity", light->intensity);
+                int point_light_num = point_light_list.size();
+                for (int i = 0; i < point_light_num; i++) {
+                    auto &light = point_light_list[i];
+                    std::string light_idx = "point_light[" + std::to_string(i) + "].";
+
+                    shader->setVec3(light_idx + "position", light->position);
+                    shader->setVec3(light_idx + "color", light->color);
+                    shader->setFloat(light_idx + "radius", light->radius);
+                    shader->setFloat(light_idx + "intensity", light->intensity);
+                }
+                shader->setInt("point_light_num", point_light_num);
+
+                render_pass.render(*mesh, *material);
             }
-            shader->setInt("point_light_num", point_light_num);
-
-            render_pass.render(mesh, material);
         }
+    }
+
+    if (pass_name == "ibl") {
+        render_pass.prepare();
+        render_pass.active();
+
+        auto &material = model_ibl->materials[0];
+        auto &mesh = model_ibl->meshes[0];
+        auto &shader = render_pass.shader;
+
+        glm::mat4 model_matrix = glm::identity<glm::mat4x4>();
+        shader->setMat4("model", model_matrix);
+        shader->setMat4("view", camera->GetViewMatrix());
+        shader->setMat4("projection", camera->GetProjectionMatrix());
+
+        shader->setVec3("eyePos", camera->Position);
+
+        render_pass.render(*mesh, *material);
     }
 }

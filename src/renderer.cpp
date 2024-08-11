@@ -12,7 +12,10 @@ Renderer::Renderer(std::string scene_name)
     auto &camera = scene->camera;
     window = std::make_unique<Window>(camera->cameraWidth, camera->cameraHeight, "RIO: Render In OpenGL");
 
+    // Initialize all render pass.
     pass_shade = std::make_unique<Pass>("shade");
+    pass_ibl = std::make_unique<Pass>("ibl");
+    pass_ibl->depth_func = Depth_Func::less_equal;
 
     scene->load_model_to_scene(scene_name);
 }
@@ -58,6 +61,7 @@ void Renderer::run()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         scene->render(*pass_shade);
+        scene->render(*pass_ibl);
 
         process_key(window->deltaTime);
     });

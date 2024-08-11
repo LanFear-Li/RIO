@@ -69,3 +69,6 @@ uniform sampler2D   _texture_emissive;
 uniform sampler2D   _texture_metallic;
 uniform sampler2D   _texture_roughness;
 uniform sampler2D   _texture_normal;
+
+// Texture for IBL.
+uniform sampler2D   _texture_ibl;

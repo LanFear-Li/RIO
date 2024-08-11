@@ -2,9 +2,20 @@
 
 #include "render/shader-prep.hpp"
 
+bool check_file_existence(const char *vertexPath) {
+    std::ifstream file(vertexPath);
+    return file.good();
+}
+
 Shader::Shader(const char *vertexPath, const char *fragmentPath, const char *geometryPath)
 {
-    // 1. retrieve the vertex/fragment source code from filePath
+    // Check shader file existence.
+    if (!check_file_existence(vertexPath) || !check_file_existence(fragmentPath)) {
+        std::cerr << "Shader file not exist at: " << vertexPath << std::endl;
+        return;
+    }
+
+    // Retrieve the vertex/fragment source code from filePath.
     std::string vertexCode;
     std::string fragmentCode;
     std::string geometryCode;
@@ -12,7 +23,7 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath, const char *geo
     vertexCode = glsl_version + shader_pre_compile(std::string_view{vertexPath});
     fragmentCode = glsl_version + shader_pre_compile(std::string_view{fragmentPath});
 
-    // if geometry shader path is present, also load a geometry shader
+    // If geometry shader path is present, also load a geometry shader.
     if (geometryPath != nullptr) {
         geometryCode = glsl_version + shader_pre_compile(std::string_view{geometryPath});
     }

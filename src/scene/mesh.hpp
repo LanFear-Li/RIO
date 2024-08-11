@@ -31,7 +31,10 @@ struct Vertex
 class Mesh
 {
 public:
+    Mesh() = default;
     Mesh(vector<Vertex> vertices, vector<unsigned int> indices, unsigned int index);
+
+    void setupIBLMesh();
 
     // Mesh data storage.
     vector<Vertex> vertices;

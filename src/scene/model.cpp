@@ -39,6 +39,22 @@ void Model::loadModel(std::string const &path)
     }
 }
 
+std::unique_ptr<Model> Model::constructIBL(std::vector<std::string> ibl_path)
+{
+    auto model = std::make_unique<Model>();
+
+    auto material = std::make_unique<Material>();
+    material->ibl_map = load_cube_map(ibl_path, 3);
+
+    auto mesh = std::make_unique<Mesh>();
+    mesh->setupIBLMesh();
+
+    model->materials.push_back(std::move(material));
+    model->meshes.push_back(std::move(mesh));
+
+    return model;
+}
+
 // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
 void Model::processNode(aiNode *node, const aiScene *scene)
 {
@@ -56,7 +72,7 @@ void Model::processNode(aiNode *node, const aiScene *scene)
     }
 }
 
-Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
+std::unique_ptr<Mesh> Model::processMesh(aiMesh *mesh, const aiScene *scene)
 {
     // data to fill
     vector<Vertex> vertices;
@@ -118,7 +134,7 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
     auto index = mesh->mMaterialIndex;
 
     // return a mesh object created from the extracted mesh data
-    return Mesh(vertices, indices, index);
+    return std::make_unique<Mesh>(vertices, indices, index);
 }
 
 float get_float_from_color(const C_STRUCT aiColor4D &c)
@@ -131,65 +147,65 @@ glm::vec3 get_vec3_from_color(const C_STRUCT aiColor4D &c)
     return glm::vec3{c.r, c.g, c.b};
 }
 
-Material Model::processMaterial(aiMaterial *material, const aiScene *scene)
+std::unique_ptr<Material> Model::processMaterial(aiMaterial *material, const aiScene *scene)
 {
-    Material result;
+    auto result = std::make_unique<Material>();
 
-    result.mat_name = material->GetName().C_Str();
+    result->mat_name = material->GetName().C_Str();
 
     C_STRUCT aiColor4D temp_color;
     C_STRUCT ai_real temp_float;
 
     // Common property defined in MTL file.
     if(AI_SUCCESS == aiGetMaterialColor(material, AI_MATKEY_COLOR_AMBIENT, &temp_color)) {
-        result.ambient = get_vec3_from_color(temp_color);
+        result->ambient = get_vec3_from_color(temp_color);
     }
 
     if(AI_SUCCESS == aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, &temp_color)) {
-        result.diffuse = get_vec3_from_color(temp_color);
+        result->diffuse = get_vec3_from_color(temp_color);
     }
 
     if(AI_SUCCESS == aiGetMaterialColor(material, AI_MATKEY_COLOR_SPECULAR, &temp_color)) {
-        result.specular = get_vec3_from_color(temp_color);
+        result->specular = get_vec3_from_color(temp_color);
     }
 
     if(AI_SUCCESS == aiGetMaterialColor(material, AI_MATKEY_COLOR_EMISSIVE, &temp_color)) {
-        result.emissive = get_vec3_from_color(temp_color);
+        result->emissive = get_vec3_from_color(temp_color);
     }
 
     if(AI_SUCCESS == aiGetMaterialColor(material, AI_MATKEY_COLOR_TRANSPARENT, &temp_color)) {
-        result.transparency = get_vec3_from_color(temp_color);
+        result->transparency = get_vec3_from_color(temp_color);
     }
 
     if(AI_SUCCESS == aiGetMaterialColor(material, AI_MATKEY_SHININESS, &temp_color)) {
-        result.shiniess = get_float_from_color(temp_color);
+        result->shiniess = get_float_from_color(temp_color);
     }
 
     if(AI_SUCCESS == aiGetMaterialColor(material, AI_MATKEY_REFRACTI, &temp_color)) {
-        result.ior = get_float_from_color(temp_color);
+        result->ior = get_float_from_color(temp_color);
     }
 
     // Additional property for pbr model.
     if(AI_SUCCESS == aiGetMaterialColor(material, AI_MATKEY_COLOR_EMISSIVE, &temp_color)) {
-        result.emissive = get_vec3_from_color(temp_color);
+        result->emissive = get_vec3_from_color(temp_color);
     }
 
     if(AI_SUCCESS == aiGetMaterialFloat(material, AI_MATKEY_METALLIC_FACTOR, &temp_float)) {
-        result.metallic = temp_float;
+        result->metallic = temp_float;
     }
 
     if(AI_SUCCESS == aiGetMaterialFloat(material, AI_MATKEY_ROUGHNESS_FACTOR, &temp_float)) {
-        result.roughness = temp_float;
+        result->roughness = temp_float;
     }
 
-    result.diffuse_map = genMaterialTexture(material, aiTextureType_DIFFUSE, "texture_diffuse");
-    result.specular_map = genMaterialTexture(material, aiTextureType_SPECULAR, "texture_specular");
+    result->diffuse_map = genMaterialTexture(material, aiTextureType_DIFFUSE, "texture_diffuse");
+    result->specular_map = genMaterialTexture(material, aiTextureType_SPECULAR, "texture_specular");
 
-    result.emissive_map = genMaterialTexture(material, aiTextureType_EMISSIVE, "texture_emissive");
-    result.roughness_map = genMaterialTexture(material, aiTextureType_DIFFUSE_ROUGHNESS, "texture_roughness");
-    result.metallic_map = genMaterialTexture(material, aiTextureType_METALNESS, "texture_metallic");
+    result->emissive_map = genMaterialTexture(material, aiTextureType_EMISSIVE, "texture_emissive");
+    result->roughness_map = genMaterialTexture(material, aiTextureType_DIFFUSE_ROUGHNESS, "texture_roughness");
+    result->metallic_map = genMaterialTexture(material, aiTextureType_METALNESS, "texture_metallic");
 
-    result.normal_map = genMaterialTexture(material, aiTextureType_HEIGHT, "texture_normal");
+    result->normal_map = genMaterialTexture(material, aiTextureType_HEIGHT, "texture_normal");
 
     return result;
 }
@@ -203,7 +219,7 @@ std::unique_ptr<Texture> Model::genMaterialTexture(aiMaterial *mat, aiTextureTyp
 
         int width, height, nrComponents;
         unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
-        auto texture = std::make_unique<Texture>(true, width, height, nrComponents, data);
+        auto texture = load_texture_2d(width, height, nrComponents, data);
         stbi_image_free(data);
 
         return texture;

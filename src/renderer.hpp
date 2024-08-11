@@ -18,4 +18,5 @@ private:
     std::unique_ptr<Scene> scene;
 
     std::unique_ptr<Pass> pass_shade;
+    std::unique_ptr<Pass> pass_ibl;
 };

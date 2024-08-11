@@ -9,6 +9,7 @@
 
 struct Material
 {
+public:
     std::string mat_name{};
 
     // --------------------------------------
@@ -69,4 +70,5 @@ struct Material
 
     // Norm: normal map.
     std::unique_ptr<Texture> normal_map{};
+    std::unique_ptr<Texture> ibl_map{};
 };
