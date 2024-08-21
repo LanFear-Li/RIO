@@ -29,5 +29,5 @@ public:
     // Specially for skybox.
     std::unique_ptr<Model> model_ibl;
 
-    std::unique_ptr<Panel_Config> scene_config;
+    std::shared_ptr<Panel_Config> scene_config;
 };

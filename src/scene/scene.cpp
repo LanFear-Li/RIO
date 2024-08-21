@@ -37,18 +37,8 @@ Scene::Scene(std::string scene_name)
         camera->z_far = camera_json["draw-distance"][1].get<float>();
     }
 
-    // Load light from scene.
-    auto light_json = scene_json["lights"];
-    for (auto& [name, config] : light_json.items()) {
-        auto light = std::make_unique<PointLight>();
-
-        light->position = json_to_vec3(config["position"]);
-        light->color = json_to_vec3(config["color"]);
-        light->radius = config["radius"].get<float>();
-        light->intensity = config["intensity"].get<float>();
-
-        point_light_list.push_back(std::move(light));
-    }
+    // Init scene config.
+    scene_config = std::make_shared<Panel_Config>();
 }
 
 void Scene::prepare_scene(std::string scene_name)
@@ -59,6 +49,10 @@ void Scene::prepare_scene(std::string scene_name)
         std::cout << "Initialize scene failed, check your scene config please." << std::endl;
         assert(0);
     }
+
+    auto json_to_vec3 = [](nlohmann::json & json) -> glm::vec3 {
+        return glm::vec3(json[0].get<float>(), json[1].get<float>(), json[2].get<float>());
+    };
 
     // Load Model from scene.
     auto model_json = scene_json["models"];
@@ -71,6 +65,20 @@ void Scene::prepare_scene(std::string scene_name)
         model->model_name = model_name;
 
         model_list.push_back(std::move(model));
+    }
+
+    // Load light from scene.
+    auto light_json = scene_json["lights"];
+    for (auto& [name, config] : light_json.items()) {
+        auto light = std::make_unique<PointLight>();
+
+        light->light_name = name;
+        light->position = json_to_vec3(config["position"]);
+        light->color = json_to_vec3(config["color"]);
+        light->radius = config["radius"].get<float>();
+        light->intensity = config["intensity"].get<float>();
+
+        point_light_list.push_back(std::move(light));
     }
 
     // Load candidate model from assets/models.
@@ -103,7 +111,6 @@ void Scene::prepare_scene(std::string scene_name)
     }
 
     // Load config from scene.
-    scene_config = std::make_unique<Panel_Config>();
     scene_config->model_name = model_list.front()->model_name;
 }
 
@@ -157,7 +164,7 @@ void Scene::render(Pass &render_pass)
         }
     }
 
-    if (pass_name == "ibl") {
+    if (pass_name == "ibl" && scene_config->show_skybox) {
         render_pass.prepare();
         render_pass.active();
 

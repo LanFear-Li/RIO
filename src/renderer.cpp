@@ -19,7 +19,6 @@ Renderer::Renderer(std::string scene_name)
     pass_ibl->depth_func = Depth_Func::less_equal;
 
     scene->prepare_scene(scene_name);
-    panel->init_config(*(scene->scene_config));
 }
 
 void Renderer::run()

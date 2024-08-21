@@ -2,8 +2,11 @@
 
 #include "glm/glm.hpp"
 
+#include <string>
+
 struct PointLight
 {
+    std::string light_name{};
     glm::vec3 position{};
     glm::vec3 color{1.0f};
 

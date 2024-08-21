@@ -17,10 +17,7 @@ Panel::Panel(void *window, std::shared_ptr<Scene> scene) {
     ImGui_ImplOpenGL3_Init("#version 330");
 
     this->scene = scene;
-}
-
-void Panel::init_config(Panel_Config &config) {
-    panel_config = config;
+    this->panel_config = scene->scene_config;
 }
 
 void Panel::render() {
@@ -31,20 +28,47 @@ void Panel::render() {
     // Settings begin.
     ImGui::Begin("Settings");
 
-    // Model Loading.
-    ImGui::Text("Model Loading");
-    auto &model_list = scene->candidate_model_list;
+    // Render option.
+    if (ImGui::CollapsingHeader("Render Option", ImGuiTreeNodeFlags_DefaultOpen)) {
+        // Skybox & IBL.
+        ImGui::Checkbox("Show Skybox", &panel_config->show_skybox);
+        ImGui::SameLine();
 
-    int index = 0;
-    for (; index < model_list.size(); index++) {
-        if (panel_config.model_name == model_list[index]) {
-            break;
+        if (!panel_config->show_skybox) {
+            panel_config->enable_ibl = false;
         }
+        ImGui::Checkbox("Enable IBL", &panel_config->enable_ibl);
     }
 
-    if (ImGui::Combo("##Model Loading", &index, model_list.data(), (int) model_list.size())) {
-        panel_config.model_name = model_list[index];
-        scene->update_model(model_list[index]);
+    // Scene option.
+    if (ImGui::CollapsingHeader("Scene Option", ImGuiTreeNodeFlags_DefaultOpen)) {
+        // Model.
+        auto &model_list = scene->candidate_model_list;
+
+        int index = 0;
+        for (; index < model_list.size(); index++) {
+            if (panel_config->model_name == model_list[index]) {
+                break;
+            }
+        }
+
+        if (ImGui::Combo("Model", &index, model_list.data(), (int) model_list.size())) {
+            panel_config->model_name = model_list[index];
+            scene->update_model(model_list[index]);
+        }
+
+        // Point Light.
+        for (auto& light : scene->point_light_list) {
+            ImGui::Separator();
+
+            ImGui::PushID(light->light_name.c_str());
+            ImGui::Text(light->light_name.c_str());
+            ImGui::DragFloat3("Position", (float *) &light->position, 0.1f, -10.0f, 10.f);
+            ImGui::ColorEdit3("Color", (float *) &light->color);
+            ImGui::DragFloat("Radius", &light->radius, 0.1f, 0.0f, 10.0f);
+            ImGui::DragFloat("Intensity", &light->intensity, 0.1f, 0.0f, 10.0f);
+            ImGui::PopID();
+        }
     }
 
     // Settings end.
