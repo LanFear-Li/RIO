@@ -24,6 +24,8 @@ public:
     std::string directory;
     bool gammaCorrection;
 
+    std::string model_name;
+
     // constructor, expects a filepath to a 3D model.
     Model() = default;
     Model(std::string const &path, bool gamma = false);

@@ -2,6 +2,7 @@
 
 #include "io/window.hpp"
 #include "scene/scene.hpp"
+#include "scene/panel.hpp"
 #include "render/pass.hpp"
 
 #include <memory>
@@ -15,7 +16,8 @@ public:
 
 private:
     std::unique_ptr<Window> window;
-    std::unique_ptr<Scene> scene;
+    std::shared_ptr<Scene> scene;
+    std::unique_ptr<Panel> panel;
 
     std::unique_ptr<Pass> pass_shade;
     std::unique_ptr<Pass> pass_ibl;

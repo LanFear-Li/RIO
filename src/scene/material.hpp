@@ -25,8 +25,8 @@ public:
     glm::vec3 specular{0.0f};
     // Tr: transparency.
     // Some implementations use 'd' as 'dissolve' and Tr = 1 - d.
-    // Tf: transmission filter color (additionally with Tr).
     glm::vec3 transparency{0.0f};
+    // Tf: transmission filter color (additionally with Tr).
     // Ns: shiniess or specular highlights.
     float shiniess{0.0f};
     // Ni: index of refraction.

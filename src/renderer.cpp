@@ -7,17 +7,19 @@
 
 Renderer::Renderer(std::string scene_name)
 {
-    scene = std::make_unique<Scene>(scene_name);
+    scene = std::make_shared<Scene>(scene_name);
 
     auto &camera = scene->camera;
     window = std::make_unique<Window>(camera->cameraWidth, camera->cameraHeight, "RIO: Render In OpenGL");
+    panel = std::make_unique<Panel>(window->glWindow, scene);
 
     // Initialize all render pass.
     pass_shade = std::make_unique<Pass>("shade");
     pass_ibl = std::make_unique<Pass>("ibl");
     pass_ibl->depth_func = Depth_Func::less_equal;
 
-    scene->load_model_to_scene(scene_name);
+    scene->prepare_scene(scene_name);
+    panel->init_config(*(scene->scene_config));
 }
 
 void Renderer::run()
@@ -62,6 +64,8 @@ void Renderer::run()
 
         scene->render(*pass_shade);
         scene->render(*pass_ibl);
+
+        panel->render();
 
         process_key(window->deltaTime);
     });

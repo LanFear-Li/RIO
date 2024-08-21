@@ -4,6 +4,10 @@
 
 #include <nlohmann/json.hpp>
 
+#include <filesystem>
+
+namespace fs = std::filesystem;
+
 Scene::Scene(std::string scene_name)
 {
     std::string file_path = FileSystem::getPath("runtime/assets/scenes/" + scene_name + ".json");
@@ -47,7 +51,7 @@ Scene::Scene(std::string scene_name)
     }
 }
 
-void Scene::load_model_to_scene(std::string scene_name)
+void Scene::prepare_scene(std::string scene_name)
 {
     std::string file_path = FileSystem::getPath("runtime/assets/scenes/" + scene_name + ".json");
     auto scene_json = nlohmann::json::parse(std::ifstream(file_path), nullptr, false);
@@ -64,7 +68,20 @@ void Scene::load_model_to_scene(std::string scene_name)
         model_path = FileSystem::getPath(model_path);
 
         auto model = std::make_unique<Model>(model_path);
+        model->model_name = model_name;
+
         model_list.push_back(std::move(model));
+    }
+
+    // Load candidate model from assets/models.
+    std::string candidate_model_path = FileSystem::getPath("runtime/assets/models/");
+    for (const auto& entry : fs::directory_iterator(candidate_model_path)) {
+        if (fs::is_directory(entry.path())) {
+            std::string dirName = entry.path().filename().string();
+            char* dirNameCStr = new char[dirName.length() + 1];
+            std::strcpy(dirNameCStr, dirName.c_str());
+            candidate_model_list.push_back(dirNameCStr);
+        }
     }
 
     // Load IBL from scene.
@@ -84,6 +101,23 @@ void Scene::load_model_to_scene(std::string scene_name)
 
         model_ibl = Model::constructIBL(faces);
     }
+
+    // Load config from scene.
+    scene_config = std::make_unique<Panel_Config>();
+    scene_config->model_name = model_list.front()->model_name;
+}
+
+void Scene::update_model(std::string model_name)
+{
+    model_list.clear();
+
+    std::string model_path = "runtime/assets/models/" + model_name + "/" + model_name + ".obj";
+    model_path = FileSystem::getPath(model_path);
+
+    auto model = std::make_unique<Model>(model_path);
+    model->model_name = model_name;
+
+    model_list.push_back(std::move(model));
 }
 
 void Scene::render(Pass &render_pass)
