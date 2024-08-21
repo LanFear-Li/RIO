@@ -74,7 +74,8 @@ vec3 evaluate_brdf(vec3 world_pos, vec3 eye_pos, Material material)
         vec3 light_color = point_light[i].color * (point_light[i].intensity / 4.0 * PI);
 
         float light_dis = distance(light_pos, world_pos);
-        light_color = light_color / dot(light_dis, light_dis);
+        float attenuation = 1.0 / (1.0 + 0.09 * light_dis + 0.032 * light_dis * light_dis);
+        light_color = light_color * attenuation;
 
         vec3 light_dir = normalize(light_pos - world_pos);
         vec3 view_dir = normalize(eyePos - world_pos);
