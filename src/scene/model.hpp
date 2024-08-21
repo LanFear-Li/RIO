@@ -31,6 +31,7 @@ public:
     Model(std::string const &path, bool gamma = false);
 
     static std::unique_ptr<Model> constructIBL(std::vector<std::string> ibl_path);
+    static std::unique_ptr<Model> constructCube();
 
 private:
     // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.

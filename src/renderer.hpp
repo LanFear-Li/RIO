@@ -21,4 +21,5 @@ private:
 
     std::unique_ptr<Pass> pass_shade;
     std::unique_ptr<Pass> pass_ibl;
+    std::unique_ptr<Pass> pass_light;
 };

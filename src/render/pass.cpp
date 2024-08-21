@@ -114,7 +114,7 @@ void Pass::render(Mesh &mesh, Material &material)
 
     // Draw mesh via VAO.
     glBindVertexArray(mesh.VAO);
-    if (name == "ibl") {
+    if (name == "ibl" || name == "light") {
         glDrawArrays(GL_TRIANGLES, 0, 36);
     } else {
         glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(mesh.indices.size()), GL_UNSIGNED_INT, 0);

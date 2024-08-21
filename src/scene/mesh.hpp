@@ -34,7 +34,7 @@ public:
     Mesh() = default;
     Mesh(vector<Vertex> vertices, vector<unsigned int> indices, unsigned int index);
 
-    void setupIBLMesh();
+    void setupCubeMesh();
 
     // Mesh data storage.
     vector<Vertex> vertices;

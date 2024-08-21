@@ -38,6 +38,13 @@ void Panel::render() {
             panel_config->enable_ibl = false;
         }
         ImGui::Checkbox("Enable IBL", &panel_config->enable_ibl);
+
+        // Render light.
+        ImGui::Checkbox("Render Light", &panel_config->render_light);
+        ImGui::SameLine();
+
+        // TODO: Render shadow.
+        ImGui::Checkbox("Render Shadow", &panel_config->render_shadow);
     }
 
     // Scene option.

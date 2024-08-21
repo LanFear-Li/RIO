@@ -110,6 +110,8 @@ void Scene::prepare_scene(std::string scene_name)
         model_ibl = Model::constructIBL(faces);
     }
 
+    model_light = Model::constructCube();
+
     // Load config from scene.
     scene_config->model_name = model_list.front()->model_name;
 }
@@ -180,5 +182,32 @@ void Scene::render(Pass &render_pass)
         shader->setVec3("eyePos", camera->Position);
 
         render_pass.render(*mesh, *material);
+    }
+
+    if (pass_name == "light" && scene_config->render_light) {
+        for (auto& light : point_light_list) {
+            auto position = light->position;
+            auto color = light->color;
+            auto radius = light->radius;
+
+            render_pass.prepare();
+            render_pass.active();
+
+            auto &material = model_light->materials[0];
+            auto &mesh = model_light->meshes[0];
+            auto &shader = render_pass.shader;
+
+            glm::mat4 model_matrix = glm::identity<glm::mat4x4>();
+            model_matrix = glm::translate(model_matrix, position);
+            model_matrix = glm::scale(model_matrix, glm::vec3(radius * 0.5f));
+
+            shader->setMat4("model", model_matrix);
+            shader->setMat4("view", camera->GetViewMatrix());
+            shader->setMat4("projection", camera->GetProjectionMatrix());
+
+            shader->setVec3("lightColor", color);
+
+            render_pass.render(*mesh, *material);
+        }
     }
 }

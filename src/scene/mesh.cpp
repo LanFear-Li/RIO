@@ -55,7 +55,7 @@ void Mesh::setupMesh()
     glBindVertexArray(0);
 }
 
-void Mesh::setupIBLMesh()
+void Mesh::setupCubeMesh()
 {
     float ibl_vertices[] = {
         // positions

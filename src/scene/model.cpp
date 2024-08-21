@@ -47,7 +47,21 @@ std::unique_ptr<Model> Model::constructIBL(std::vector<std::string> ibl_path)
     material->ibl_map = load_cube_map(ibl_path, 3);
 
     auto mesh = std::make_unique<Mesh>();
-    mesh->setupIBLMesh();
+    mesh->setupCubeMesh();
+
+    model->materials.push_back(std::move(material));
+    model->meshes.push_back(std::move(mesh));
+
+    return model;
+}
+
+std::unique_ptr<Model> Model::constructCube()
+{
+    auto model = std::make_unique<Model>();
+
+    auto material = std::make_unique<Material>();
+    auto mesh = std::make_unique<Mesh>();
+    mesh->setupCubeMesh();
 
     model->materials.push_back(std::move(material));
     model->meshes.push_back(std::move(mesh));

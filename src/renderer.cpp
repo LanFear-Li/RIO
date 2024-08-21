@@ -15,9 +15,14 @@ Renderer::Renderer(std::string scene_name)
 
     // Initialize all render pass.
     pass_shade = std::make_unique<Pass>("shade");
+
     pass_ibl = std::make_unique<Pass>("ibl");
     pass_ibl->depth_func = Depth_Func::less_equal;
 
+    pass_light = std::make_unique<Pass>("light");
+    pass_light->depth_func = Depth_Func::less_equal;
+
+    // Load model, light, etc.
     scene->prepare_scene(scene_name);
 }
 
@@ -63,6 +68,7 @@ void Renderer::run()
 
         scene->render(*pass_shade);
         scene->render(*pass_ibl);
+        scene->render(*pass_light);
 
         panel->render();
 
