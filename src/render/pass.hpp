@@ -19,6 +19,7 @@ public:
 
     void prepare();
     void active();
+    void reset();
     void render(Mesh &mesh, Material &material);
 
     std::unique_ptr<Shader> shader;

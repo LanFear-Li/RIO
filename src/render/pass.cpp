@@ -2,6 +2,8 @@
 
 #include "io/filesystem.hpp"
 
+#include <iostream>
+
 Pass::Pass(std::string pass_name)
 {
     std::string vert_path = "runtime/shaders/pass/" + pass_name + ".vert";
@@ -33,6 +35,18 @@ void Pass::active()
     shader->use();
 }
 
+void Pass::reset()
+{
+    shader->setBool("use_normal_map", false);
+    shader->setBool("use_ambient_map", false);
+    shader->setBool("use_diffuse_map", false);
+    shader->setBool("use_specular_map", false);
+    shader->setBool("use_emissive_map", false);
+    shader->setBool("use_metallic_map", false);
+    shader->setBool("use_roughness_map", false);
+    shader->setBool("use_ibl_map", false);
+}
+
 void Pass::render(Mesh &mesh, Material &material)
 {
     shader->setVec3("_mat_ambient", material.ambient);
@@ -45,6 +59,8 @@ void Pass::render(Mesh &mesh, Material &material)
     shader->setVec3("_mat_emissive", material.emissive);
     shader->setFloat("_mat_roughness", material.roughness);
     shader->setFloat("_mat_metallic", material.metallic);
+
+    reset();
 
     unsigned int texture_idx = 0;
     if (material.normal_map != nullptr) {
