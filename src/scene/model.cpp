@@ -219,7 +219,7 @@ std::unique_ptr<Material> Model::processMaterial(aiMaterial *material, const aiS
     result->roughness_map = genMaterialTexture(material, aiTextureType_DIFFUSE_ROUGHNESS, "texture_roughness");
     result->metallic_map = genMaterialTexture(material, aiTextureType_METALNESS, "texture_metallic");
 
-    result->normal_map = genMaterialTexture(material, aiTextureType_HEIGHT, "texture_normal");
+    result->normal_map = genMaterialTexture(material, aiTextureType_NORMALS, "texture_normal");
 
     return result;
 }

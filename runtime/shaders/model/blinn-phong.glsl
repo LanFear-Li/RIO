@@ -9,20 +9,20 @@ vec3 phong(vec3 light_dir, vec3 view_dir, Material material)
     vec3 object_color = material.diffuse;
 
     // Ambient contribution.
-    vec3 ambient = vec3(0.1, 0.1, 0.1);
+    vec3 ambient = vec3(0.1, 0.1, 0.1) * object_color;
 
     // Diffuse contribution.
     vec3 norm = normalize(material.normal);
     float diff = max(dot(norm, light_dir), 0.0);
-    vec3 diffuse = diff * vec3(1.0);
+    vec3 diffuse = diff * object_color;
 
     // Specular contribution.
-    float specular_strength = 0.5;
+    float specular_exponent = 128.0;
     vec3 reflect_dir = reflect(-light_dir, norm);
-    float spec = pow(max(dot(view_dir, reflect_dir), 0.0), 32);
-    vec3 specular = specular_strength * spec * vec3(1.0);
+    float spec = pow(max(dot(view_dir, reflect_dir), 0.0), specular_exponent);
+    vec3 specular = spec * vec3(1.0);
 
-    vec3 result = (ambient + diffuse + specular) * object_color;
+    vec3 result = ambient + diffuse + specular;
 
     return result;
 }
@@ -32,20 +32,20 @@ vec3 blinn_phong(vec3 light_dir, vec3 view_dir, Material material)
     vec3 object_color = material.diffuse;
 
     // Ambient contribution.
-    vec3 ambient = vec3(0.1, 0.1, 0.1);
+    vec3 ambient = vec3(0.1, 0.1, 0.1) * object_color;
 
     // Diffuse contribution.
     vec3 norm = normalize(material.normal);
     float diff = max(dot(norm, light_dir), 0.0);
-    vec3 diffuse = diff * vec3(1.0);
+    vec3 diffuse = diff * object_color;
 
     // Specular contribution.
-    float specular_strength = 0.5;
+    float specular_exponent = 128.0;
     vec3 half_vec = normalize(light_dir + view_dir);
-    float spec = pow(max(dot(norm, half_vec), 0.0), 32);
-    vec3 specular = specular_strength * spec * vec3(1.0);
+    float spec = pow(max(dot(norm, half_vec), 0.0), specular_exponent);
+    vec3 specular = spec * vec3(1.0);
 
-    vec3 result = (ambient + diffuse + specular) * object_color;
+    vec3 result = ambient + diffuse + specular;
 
     return result;
 }
@@ -56,6 +56,10 @@ vec3 evaluate_phong(vec3 world_pos, vec3 eye_pos, Material material)
     for (int i = 0; i < point_light_num; i++) {
         vec3 light_pos = point_light[i].position;
         vec3 light_color = point_light[i].color * (point_light[i].intensity / 4.0 * PI);
+
+        float light_dis = distance(light_pos, world_pos);
+        float attenuation = 1.0 / (1.0 + 0.09 * light_dis + 0.032 * light_dis * light_dis);
+        light_color = light_color * attenuation;
 
         vec3 light_dir = normalize(light_pos - world_pos);
         vec3 view_dir = normalize(eyePos - world_pos);

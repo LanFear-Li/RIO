@@ -33,6 +33,14 @@ struct Material
 };
 
 // ---------------------
+// Shading Model.
+// ---------------------
+
+#define PHONG       0
+#define BLINN_PHONG 1
+#define BRDF        2
+
+// ---------------------
 // Uniform Definition.
 // ---------------------
 uniform vec3        eyePos;
@@ -58,6 +66,8 @@ uniform bool        use_normal_map;
 const int           MAX_LIGHT_NUM = 16;
 uniform Point_Light point_light[MAX_LIGHT_NUM];
 uniform int         point_light_num;
+
+uniform int         shading_model;
 
 // ---------------------
 // Sampler Definition.

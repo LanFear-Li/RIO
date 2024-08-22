@@ -12,12 +12,18 @@ void main()
     Material material = init_material();
     collect_material(texCoord, material);
 
-    material.normal = normal;
+    if (use_normal_map == false) {
+        material.normal = normal;
+    }
 
     vec3 result = vec3(0.0);
-    // result = evaluate_phong(worldPos, eyePos, material);
-    // result = evaluate_blinn_phong(worldPos, eyePos, material);
-    result = evaluate_brdf(worldPos, eyePos, material);
+    if (shading_model == PHONG) {
+        result = evaluate_phong(worldPos, eyePos, material);
+    } else if (shading_model == BLINN_PHONG) {
+        result = evaluate_blinn_phong(worldPos, eyePos, material);
+    } else if (shading_model == BRDF) {
+        result = evaluate_brdf(worldPos, eyePos, material);
+    }
 
     // Gamma correction.
     result = pow(result, vec3(1.0 / 2.2));

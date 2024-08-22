@@ -149,6 +149,8 @@ void Scene::render(Pass &render_pass)
 
                 shader->setVec3("eyePos", camera->Position);
 
+                shader->setInt("shading_model", scene_config->shading_mode);
+
                 int point_light_num = point_light_list.size();
                 for (int i = 0; i < point_light_num; i++) {
                     auto &light = point_light_list[i];
@@ -178,8 +180,6 @@ void Scene::render(Pass &render_pass)
         shader->setMat4("model", model_matrix);
         shader->setMat4("view", camera->GetViewMatrix());
         shader->setMat4("projection", camera->GetProjectionMatrix());
-
-        shader->setVec3("eyePos", camera->Position);
 
         render_pass.render(*mesh, *material);
     }

@@ -13,6 +13,7 @@ Panel::Panel(void *window, std::shared_ptr<Scene> scene) {
     ImGuiIO &io = ImGui::GetIO();
 
     ImGui::StyleColorsClassic();
+
     ImGui_ImplGlfw_InitForOpenGL((GLFWwindow *) window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
 
@@ -27,6 +28,8 @@ void Panel::render() {
 
     // Settings begin.
     ImGui::Begin("Settings");
+
+    ImGui::SetWindowFontScale(1.2);
 
     // Render option.
     if (ImGui::CollapsingHeader("Render Option", ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -45,6 +48,13 @@ void Panel::render() {
 
         // TODO: Render shadow.
         ImGui::Checkbox("Render Shadow", &panel_config->render_shadow);
+
+        // Render shading model.
+        auto &shading_list = ShadingModelNames;
+        int index = panel_config->shading_mode;
+        if (ImGui::Combo("Shading Model", &index, shading_list.data(), (int) shading_list.size())) {
+            panel_config->shading_mode = static_cast<Shading_Model>(index);
+        }
     }
 
     // Scene option.
