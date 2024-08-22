@@ -58,8 +58,7 @@ void Scene::prepare_scene(std::string scene_name)
     auto model_json = scene_json["models"];
     for (auto& [name, config] : model_json.items()) {
         std::string model_name = config["name"].get<std::string>();
-        std::string model_path = "runtime/assets/models/" + model_name + "/" + model_name + ".obj";
-        model_path = FileSystem::getPath(model_path);
+        std::string model_path = get_model_path(model_name);
 
         auto model = std::make_unique<Model>(model_path);
         model->model_name = model_name;
@@ -116,13 +115,30 @@ void Scene::prepare_scene(std::string scene_name)
     scene_config->model_name = model_list.front()->model_name;
 }
 
+std::string Scene::get_model_path(std::string model_name)
+{
+    std::string model_path = "runtime/assets/models/" + model_name + "/" + model_name;
+    model_path = FileSystem::getPath(model_path);
+
+    std::string model_exts[] = {".obj", ".gltf", ".fbx", ".dae"};
+    for (const auto& ext : model_exts) {
+        std::string path = model_path + ext;
+
+        if (std::filesystem::exists(path)) {
+            return path;
+        }
+    }
+
+    std::cout << "Initialize model failed, make sure your model exists." << std::endl;
+    assert(0);
+    return {};
+}
+
 void Scene::update_model(std::string model_name)
 {
     model_list.clear();
 
-    std::string model_path = "runtime/assets/models/" + model_name + "/" + model_name + ".obj";
-    model_path = FileSystem::getPath(model_path);
-
+    std::string model_path = get_model_path(model_name);
     auto model = std::make_unique<Model>(model_path);
     model->model_name = model_name;
 

@@ -15,6 +15,8 @@ public:
     Scene() = delete;
     Scene(std::string scene_name);
     void prepare_scene(std::string scene_name);
+
+    std::string get_model_path(std::string model_name);
     void update_model(std::string model_name);
 
     void update();
