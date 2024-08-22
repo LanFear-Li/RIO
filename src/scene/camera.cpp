@@ -120,3 +120,10 @@ void Camera::updateCameraVectors()
                                         WorldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
     Up = glm::normalize(glm::cross(Right, Front));
 }
+
+void Camera::ResetCamera()
+{
+    Position = glm::vec3{0.0, 0.0, 5.0};
+    Yaw = -90.0f;
+    Pitch = 0.0f;
+}

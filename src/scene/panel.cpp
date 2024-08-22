@@ -74,6 +74,33 @@ void Panel::render() {
             scene->update_model(model_list[index]);
         }
 
+        // Camera
+        auto &camera = scene->camera;
+        float windowWidth = ImGui::GetWindowWidth();
+
+        ImGui::Separator();
+        ImGui::PushID("Camera");
+        ImGui::Text("Camera");
+        ImGui::SameLine();
+        if (ImGui::Button("Reset Camera")) {
+            camera->ResetCamera();
+        }
+
+        ImGui::DragFloat("Speed", &camera->MovementSpeed, 0.1f, 0.0f, 1000.0f);
+        ImGui::DragFloat3("Position", (float *) &camera->Position, 0.1f, -10.0f, 10.f);
+
+        ImGui::PushItemWidth(windowWidth * 0.3f);
+        if (ImGui::DragFloat("Yaw", &camera->Yaw, 0.1f, -180.0f, 0.0f)) {
+            camera->updateCameraVectors();
+        }
+        ImGui::SameLine();
+        if (ImGui::DragFloat("Pitch", &camera->Pitch, 0.1f, -90.0f, 90.0f)) {
+            camera->updateCameraVectors();
+        }
+        ImGui::PopItemWidth();
+
+        ImGui::PopID();
+
         // Point Light.
         for (auto& light : scene->point_light_list) {
             ImGui::Separator();

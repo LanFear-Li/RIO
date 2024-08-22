@@ -62,6 +62,8 @@ public:
 
     glm::mat4 GetProjectionMatrix() const;
 
+    void ResetCamera();
+
     // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
     void ProcessKeyboard(Camera_Movement direction, float deltaTime);
 
@@ -75,7 +77,6 @@ public:
     // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
     void ProcessMouseScroll(float y_offset);
 
-private:
     // calculates the front vector from the Camera's (updated) Euler Angles
     void updateCameraVectors();
 };
