@@ -36,7 +36,7 @@ void collect_material(vec2 texCoord, out Material material)
     material.metallic       = _mat_metallic;
 
     if (use_normal_map == true) {
-        material.normal = texture(_texture_normal, texCoord).xyz;
+        material.normal = texture(_texture_normal, texCoord).xyz * 2.0 - 1.0;
     }
 
     if (use_ambient_map == true) {

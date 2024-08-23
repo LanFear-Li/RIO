@@ -30,45 +30,48 @@ float visibility_Smith_GGX(float roughness, float cos_N_V, float cos_N_L)
 // Fresnel term with Schlick.
 vec3 Fresnel_Schlick(vec3 F0, float cos_V_H)
 {
-    float term = pow(1.0 - cos_V_H, 5.0);
+    float term = pow(clamp(1.0 - cos_V_H, 0.0, 1.0), 5.0);
     return F0 + (1.0 - F0) * term;
 }
 
 vec3 brdf(vec3 light_dir, vec3 view_dir, Material material)
 {
-    float cos_N_L = dot(material.normal, light_dir);
-
-    if (cos_N_L <= 0.0) {
-        return vec3(0.0);
-    }
+    vec3 normal = normalize(material.normal);
+    float cos_N_L = dot(normal, light_dir);
+    vec3 albedo = material.diffuse;
 
     vec3 half_vec = normalize(light_dir + view_dir);
-    float cos_N_V = saturate(dot(material.normal, view_dir));
-    float cos_N_H = saturate(dot(material.normal, half_vec));
-    float cos_V_H = saturate(dot(view_dir, half_vec));
-    float cos_L_H = saturate(dot(light_dir, half_vec));
+    float cos_N_V = max(dot(normal, view_dir), 0.0);
+    float cos_N_H = max(dot(normal, half_vec), 0.0);
+    float cos_V_H = max(dot(view_dir, half_vec), 0.0);
+    float cos_L_H = max(dot(light_dir, half_vec), 0.0);
 
     float distribution = distribution_GGX(material.roughness, cos_N_H);
     float visibility = visibility_Smith_GGX(material.roughness, cos_N_V, cos_N_L);
 
-    vec3 diffuse_color = mix(material.diffuse, vec3(0.0), material.metallic);
-    vec3 specular_color = mix(vec3(0.08 * material.specular), material.diffuse, material.metallic);
-    vec3 fresnel = Fresnel_Schlick(specular_color, cos_V_H);
+    vec3 F0 = mix(vec3(0.04), albedo, material.metallic);
+    vec3 fresnel = Fresnel_Schlick(F0, cos_V_H);
 
-    // vec3 numerator    = distribution * visibility * fresnel;
-    // float denominator = max((4.0 * cos_N_L * cos_N_V), 0.001);
-    // vec3 BRDF = numerator / denominator;
-    // return BRDF * cos_N_L;
+    vec3 numerator    = distribution * visibility * fresnel;
+    float denominator = (4.0 * cos_N_L * cos_N_V) + 0.001;
+    vec3 specular = numerator / denominator;
 
-    vec3 diffuse = diffuse_Lambert(diffuse_color) * cos_N_L;
-    vec3 specular = distribution * visibility * fresnel * cos_N_L;
+    vec3 kD = vec3(1.0) - fresnel;
+    kD *= 1.0 - material.metallic;
 
-    return diffuse + specular;
+    return (kD * diffuse_Lambert(albedo) + specular) * cos_N_L;
 }
 
 vec3 evaluate_brdf(vec3 world_pos, vec3 eye_pos, Material material)
 {
     vec3 result = vec3(0.0);
+
+    // Evaluate ambient.
+    vec3 albedo = material.diffuse;
+    vec3 ambient = vec3(0.03) * albedo * material.ao;
+
+    // Evaluate reflectance equation.
+    vec3 Lo = vec3(0.0);
     for (int i = 0; i < point_light_num; i++) {
         vec3 light_pos = point_light[i].position;
         vec3 light_color = point_light[i].color * (point_light[i].intensity / 4.0 * PI);
@@ -80,10 +83,10 @@ vec3 evaluate_brdf(vec3 world_pos, vec3 eye_pos, Material material)
         vec3 light_dir = normalize(light_pos - world_pos);
         vec3 view_dir = normalize(eyePos - world_pos);
 
-        result += brdf(light_dir, view_dir, material) * light_color;
+        Lo += brdf(light_dir, view_dir, material) * light_color;
     }
 
-    result += material.emissive;
+    result = ambient + Lo + material.emissive;
 
     return result;
 }
