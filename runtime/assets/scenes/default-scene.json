@@ -1,32 +1,23 @@
 {
     "camera": {
-        "position": [0, 0, 2],
+        "position": [0, 0, 3],
         "resolution": [1280, 720],
         "draw-distance": [0.1, 5000.0]
     },
     "lights": {
-        "point-light-1": {
-            "position": [1, 10, 20],
-            "color": [1, 1, 1],
-            "radius": 1,
-            "intensity": 10
-        },
-        "point-light-2": {
-            "position": [1, 100, -5],
-            "color": [1, 1, 1],
-            "radius": 1,
-            "intensity": 10
-        },
         "point-light-3": {
-            "position": [0, 1, 0],
+            "position": [0, 4, 0],
             "color": [1, 1, 1],
-            "radius": 1,
-            "intensity": 10
+            "radius": 0.1,
+            "intensity": 5
         }
     },
     "models": {
         "model-1": {
-            "name": "brickwall"
+            "name": "DamagedHelmet",
+            "position": [0.0, 0.0, 0.0],
+            "rotation": [90.0, 0.0, 0.0],
+            "scaling": 1.0
         }
     },
     "skybox": {
