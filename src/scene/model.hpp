@@ -24,7 +24,10 @@ public:
     std::string directory;
     bool gammaCorrection;
 
-    std::string model_name;
+    std::string model_name{};
+    glm::vec3 position{0.0, 0.0, 0.0};
+    glm::vec3 rotation{0.0, 0.0, 0.0};
+    float scaling{1.0};
 
     // constructor, expects a filepath to a 3D model.
     Model() = default;

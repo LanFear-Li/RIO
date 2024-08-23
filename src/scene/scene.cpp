@@ -3,6 +3,7 @@
 #include "io/filesystem.hpp"
 
 #include <nlohmann/json.hpp>
+#include <glm/gtx/euler_angles.hpp>
 
 #include <filesystem>
 
@@ -62,6 +63,9 @@ void Scene::prepare_scene(std::string scene_name)
 
         auto model = std::make_unique<Model>(model_path);
         model->model_name = model_name;
+        model->position = json_to_vec3(config["position"]);
+        model->rotation = json_to_vec3(config["rotation"]);
+        model->scaling = config["scaling"].get<float>();
 
         model_list.push_back(std::move(model));
     }
@@ -158,7 +162,11 @@ void Scene::render(Pass &render_pass)
                 auto &material = model->materials[mesh->materialIndex];
                 auto &shader = render_pass.shader;
 
-                glm::mat4 model_matrix = glm::identity<glm::mat4x4>();
+                auto rotation_radian = glm::radians(model->rotation);
+                auto model_matrix = glm::eulerAngleXYZ(rotation_radian.x, rotation_radian.y, rotation_radian.z);
+                model_matrix = glm::translate(model_matrix, model->position);
+                model_matrix = glm::scale(model_matrix, glm::vec3(model->scaling));
+
                 shader->setMat4("model", model_matrix);
                 shader->setMat4("view", camera->GetViewMatrix());
                 shader->setMat4("projection", camera->GetProjectionMatrix());

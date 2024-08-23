@@ -60,6 +60,7 @@ void Panel::render() {
     // Scene option.
     if (ImGui::CollapsingHeader("Scene Option", ImGuiTreeNodeFlags_DefaultOpen)) {
         // Model.
+        ImGui::Text("Model");
         auto &model_list = scene->candidate_model_list;
 
         int index = 0;
@@ -69,10 +70,15 @@ void Panel::render() {
             }
         }
 
-        if (ImGui::Combo("Model", &index, model_list.data(), (int) model_list.size())) {
+        if (ImGui::Combo("Type", &index, model_list.data(), (int) model_list.size())) {
             panel_config->model_name = model_list[index];
             scene->update_model(model_list[index]);
         }
+
+        auto &model = scene->model_list[0];
+        ImGui::DragFloat3("Position", (float *) &model->position, 0.1f, -1000.0f, 1000.f);
+        ImGui::DragFloat3("Rosition", (float *) &model->rotation, 0.1f, -180.0f, 180.f);
+        ImGui::DragFloat("Scaling", &model->scaling, 0.1f, 0.0f, 100.0f);
 
         // Camera
         auto &camera = scene->camera;
@@ -87,7 +93,7 @@ void Panel::render() {
         }
 
         ImGui::DragFloat("Speed", &camera->MovementSpeed, 0.1f, 0.0f, 1000.0f);
-        ImGui::DragFloat3("Position", (float *) &camera->Position, 0.1f, -10.0f, 10.f);
+        ImGui::DragFloat3("Position", (float *) &camera->Position, 0.1f, -1000.0f, 1000.f);
 
         ImGui::PushItemWidth(windowWidth * 0.3f);
         if (ImGui::DragFloat("Yaw", &camera->Yaw, 0.1f, -180.0f, 0.0f)) {
@@ -107,10 +113,10 @@ void Panel::render() {
 
             ImGui::PushID(light->light_name.c_str());
             ImGui::Text(light->light_name.c_str());
-            ImGui::DragFloat3("Position", (float *) &light->position, 0.1f, -10.0f, 10.f);
+            ImGui::DragFloat3("Position", (float *) &light->position, 0.1f, -1000.0f, -1000.f);
             ImGui::ColorEdit3("Color", (float *) &light->color);
             ImGui::DragFloat("Radius", &light->radius, 0.1f, 0.0f, 10.0f);
-            ImGui::DragFloat("Intensity", &light->intensity, 0.1f, 0.0f, 10.0f);
+            ImGui::DragFloat("Intensity", &light->intensity, 0.1f, 0.0f, 1000.0f);
             ImGui::PopID();
         }
     }
