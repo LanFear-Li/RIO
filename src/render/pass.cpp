@@ -119,6 +119,22 @@ void Pass::render(Mesh &mesh, Material &material)
         texture_idx++;
     }
 
+    if (material.ao_map != nullptr) {
+        glActiveTexture(GL_TEXTURE0 + texture_idx);
+        glUniform1i(glGetUniformLocation(shader->ID, "_texture_ao"), texture_idx);
+        glBindTexture(GL_TEXTURE_2D, material.ao_map->get_id());
+        shader->setBool("use_ao_map", true);
+        texture_idx++;
+    }
+
+    if (material.metal_roughness_map != nullptr) {
+        glActiveTexture(GL_TEXTURE0 + texture_idx);
+        glUniform1i(glGetUniformLocation(shader->ID, "_texture_metal_roughness"), texture_idx);
+        glBindTexture(GL_TEXTURE_2D, material.metal_roughness_map->get_id());
+        shader->setBool("use_metal_roughness_map", true);
+        texture_idx++;
+    }
+
     // Specially for pass_ibl.
     if (material.ibl_map != nullptr) {
         glActiveTexture(GL_TEXTURE0 + texture_idx);

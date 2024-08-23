@@ -35,6 +35,7 @@ public:
     // map_Ka: ambient texture map.
     std::unique_ptr<Texture> ambient_map{};
     // map_Kd: diffuse texture map.
+    // Used as albedo map in gltf model.
     std::unique_ptr<Texture> diffuse_map{};
     // map_Ks: specular texture map.
     std::unique_ptr<Texture> specular_map{};
@@ -66,7 +67,12 @@ public:
     std::unique_ptr<Texture> roughness_map{};
     // map_Pm: metallic map.
     std::unique_ptr<Texture> metallic_map{};
+    // Combine roughness(G) and metallic(B) in gltf model.
+    std::unique_ptr<Texture> metal_roughness_map{};
     // map_Ps: sheen map.
+
+    // Ambient occlusion.
+    std::unique_ptr<Texture> ao_map{};
 
     // Norm: normal map.
     std::unique_ptr<Texture> normal_map{};

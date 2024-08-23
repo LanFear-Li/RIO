@@ -212,14 +212,17 @@ std::unique_ptr<Material> Model::processMaterial(aiMaterial *material, const aiS
         result->roughness = temp_float;
     }
 
+    result->normal_map = genMaterialTexture(material, aiTextureType_NORMALS, "texture_normal");
+
     result->diffuse_map = genMaterialTexture(material, aiTextureType_DIFFUSE, "texture_diffuse");
     result->specular_map = genMaterialTexture(material, aiTextureType_SPECULAR, "texture_specular");
 
     result->emissive_map = genMaterialTexture(material, aiTextureType_EMISSIVE, "texture_emissive");
     result->roughness_map = genMaterialTexture(material, aiTextureType_DIFFUSE_ROUGHNESS, "texture_roughness");
     result->metallic_map = genMaterialTexture(material, aiTextureType_METALNESS, "texture_metallic");
-
-    result->normal_map = genMaterialTexture(material, aiTextureType_NORMALS, "texture_normal");
+    // There's no metal roughness texture type in assimp, using aiTextureType_UNKNOWN instead.
+    result->metal_roughness_map = genMaterialTexture(material, aiTextureType_UNKNOWN, "texture_metal_roughness");
+    result->ao_map = genMaterialTexture(material, aiTextureType_LIGHTMAP, "texture_ao");
 
     return result;
 }

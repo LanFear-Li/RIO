@@ -17,6 +17,8 @@ Material init_material()
     material.roughness      = 1.0;
     material.metallic       = 0.0;
 
+    material.ao             = 1.0;
+
     material.normal         = vec3(0.0, 1.0, 0.0);
 
     return material;
@@ -32,6 +34,10 @@ void collect_material(vec2 texCoord, out Material material)
     material.emissive       = _mat_emissive;
     material.roughness      = _mat_roughness;
     material.metallic       = _mat_metallic;
+
+    if (use_normal_map == true) {
+        material.normal = texture(_texture_normal, texCoord).xyz;
+    }
 
     if (use_ambient_map == true) {
         material.ambient = texture(_texture_ambient, texCoord).xyz;
@@ -53,7 +59,12 @@ void collect_material(vec2 texCoord, out Material material)
         material.roughness = texture(_texture_roughness, texCoord).x;
     }
 
-    if (use_normal_map == true) {
-        material.normal = texture(_texture_normal, texCoord).xyz;
+    if (use_metal_roughness_map == true) {
+        material.roughness = texture(_texture_metal_roughness, texCoord).y;
+        material.metallic = texture(_texture_metal_roughness, texCoord).z;
+    }
+
+    if (use_ao_map == true) {
+        material.ao = texture(_texture_ao, texCoord).x;
     }
 }
