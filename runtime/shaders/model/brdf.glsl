@@ -18,13 +18,23 @@ float distribution_GGX(float roughness, float cos_N_H)
     return numerator / denominator;
 }
 
-// Visibility/Geometry term with GGX.
-float visibility_Smith_GGX(float roughness, float cos_N_V, float cos_N_L)
+float visibility_Schlick_GGX(float roughness, float cos_N_V)
 {
-    float alpha = pow2(roughness);
-    float lambda_GGXV = cos_N_L * (cos_N_V * (1.0 - alpha) + alpha);
-    float lambda_GGXL = cos_N_V * (cos_N_L * (1.0 - alpha) + alpha);
-    return 0.5 / (lambda_GGXV + lambda_GGXL);
+    float r = (roughness + 1.0);
+    float k = (r * r) / 8.0;
+
+    float numerator   = cos_N_V;
+    float denominator = cos_N_V * (1.0 - k) + k;
+
+    return numerator / denominator;
+}
+
+// Visibility/Geometry term with Smith GGX.
+float visibility_Smith(float roughness, float cos_N_V, float cos_N_L)
+{
+    float ggx1 = visibility_Schlick_GGX(roughness, cos_N_V);
+    float ggx2 = visibility_Schlick_GGX(roughness, cos_N_L);
+    return ggx1 * ggx2;
 }
 
 // Fresnel term with Schlick.
@@ -37,23 +47,23 @@ vec3 Fresnel_Schlick(vec3 F0, float cos_V_H)
 vec3 brdf(vec3 light_dir, vec3 view_dir, Material material)
 {
     vec3 normal = normalize(material.normal);
-    float cos_N_L = dot(normal, light_dir);
-    vec3 albedo = material.diffuse;
+    vec3 albedo = pow(material.diffuse, vec3(2.2f));
 
     vec3 half_vec = normalize(light_dir + view_dir);
+    float cos_N_L = max(dot(normal, light_dir), 0.0);
     float cos_N_V = max(dot(normal, view_dir), 0.0);
     float cos_N_H = max(dot(normal, half_vec), 0.0);
     float cos_V_H = max(dot(view_dir, half_vec), 0.0);
     float cos_L_H = max(dot(light_dir, half_vec), 0.0);
 
     float distribution = distribution_GGX(material.roughness, cos_N_H);
-    float visibility = visibility_Smith_GGX(material.roughness, cos_N_V, cos_N_L);
+    float visibility = visibility_Smith(material.roughness, cos_N_V, cos_N_L);
 
     vec3 F0 = mix(vec3(0.04), albedo, material.metallic);
     vec3 fresnel = Fresnel_Schlick(F0, cos_V_H);
 
     vec3 numerator    = distribution * visibility * fresnel;
-    float denominator = (4.0 * cos_N_L * cos_N_V) + 0.001;
+    float denominator = (4.0 * cos_N_L * cos_N_V) + 0.0001;
     vec3 specular = numerator / denominator;
 
     vec3 kD = vec3(1.0) - fresnel;
@@ -67,8 +77,9 @@ vec3 evaluate_brdf(vec3 world_pos, vec3 eye_pos, Material material)
     vec3 result = vec3(0.0);
 
     // Evaluate ambient.
-    vec3 albedo = material.diffuse;
-    vec3 ambient = vec3(0.03) * albedo * material.ao;
+    // sRGB -> Linear Space.
+    vec3 albedo = pow(material.diffuse, vec3(2.2f));
+    vec3 ambient = ambient_color * albedo * material.ao;
 
     // Evaluate reflectance equation.
     vec3 Lo = vec3(0.0);

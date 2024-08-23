@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -29,4 +31,6 @@ struct Panel_Config {
 
     // Scene config.
     std::string model_name;
+
+    glm::vec3 ambient_color{0.5f, 0.5f, 0.5f};
 };

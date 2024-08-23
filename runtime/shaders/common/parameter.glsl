@@ -71,6 +71,7 @@ uniform Point_Light point_light[MAX_LIGHT_NUM];
 uniform int         point_light_num;
 
 uniform int         shading_model;
+uniform vec3        ambient_color;
 
 // ---------------------
 // Sampler Definition.

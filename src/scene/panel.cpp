@@ -80,6 +80,9 @@ void Panel::render() {
         ImGui::DragFloat3("Rosition", (float *) &model->rotation, 0.1f, -180.0f, 180.f);
         ImGui::DragFloat("Scaling", &model->scaling, 0.1f, 0.0f, 100.0f);
 
+        // Scene ambient color.
+        ImGui::ColorEdit3("Ambient", (float *) &panel_config->ambient_color);
+
         // Camera
         auto &camera = scene->camera;
         float windowWidth = ImGui::GetWindowWidth();

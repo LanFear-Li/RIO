@@ -36,6 +36,7 @@ void main()
     }
 
     // Gamma correction.
+    // sRGB <- Linear Space.
     result = pow(result, vec3(1.0 / 2.2));
 
     fragColor = vec4(result, 1.0);
