@@ -44,6 +44,8 @@ void Pass::reset()
     shader->setBool("use_emissive_map", false);
     shader->setBool("use_metallic_map", false);
     shader->setBool("use_roughness_map", false);
+    shader->setBool("use_metal_roughness_map", false);
+    shader->setBool("use_ao_map", false);
     shader->setBool("use_ibl_map", false);
 }
 
