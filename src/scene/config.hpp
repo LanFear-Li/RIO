@@ -22,7 +22,6 @@ struct Panel_Config {
     // Render config.
     bool show_skybox = true;
     bool enable_ibl = false;
-    std::string skybox_name;
 
     bool render_light = true;
     bool render_shadow = false;
@@ -31,6 +30,7 @@ struct Panel_Config {
 
     // Scene config.
     std::string model_name;
+    std::string skybox_name;
 
     glm::vec3 ambient_color{0.5f, 0.5f, 0.5f};
 };

@@ -84,6 +84,8 @@ std::unique_ptr<Texture> load_cube_map(std::vector<std::string> faces, uint32_t 
         format = GL_RGBA;
     }
 
+    stbi_set_flip_vertically_on_load(false);
+
     int width, height, nrChannels;
     for (unsigned int i = 0; i < faces.size(); i++) {
         unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);

@@ -18,6 +18,7 @@ public:
 
     std::string get_model_path(std::string model_name);
     void update_model(std::string model_name);
+    void update_skybox(std::string skybox_name);
 
     void update();
     void render(Pass &render_pass);
@@ -33,6 +34,7 @@ public:
 
     // Specially for skybox.
     std::unique_ptr<Model> model_skybox;
+    std::vector<const char *> candidate_skybox_list;
 
     // Specially for light.
     std::unique_ptr<Model> model_light;

@@ -51,34 +51,54 @@ void Panel::render() {
 
         // Render shading model.
         auto &shading_list = ShadingModelNames;
-        int index = panel_config->shading_mode;
-        if (ImGui::Combo("Shading Model", &index, shading_list.data(), (int) shading_list.size())) {
-            panel_config->shading_mode = static_cast<Shading_Model>(index);
+        int shading_idx = panel_config->shading_mode;
+        if (ImGui::Combo("Shading Model", &shading_idx, shading_list.data(), (int) shading_list.size())) {
+            panel_config->shading_mode = static_cast<Shading_Model>(shading_idx);
         }
+
+        // Skybox.
+        ImGui::Text("Skybox");
+        ImGui::PushID("Skybox");
+        auto &skybox_list = scene->candidate_skybox_list;
+
+        int skybox_idx = 0;
+        for (; skybox_idx < skybox_list.size(); skybox_idx++) {
+            if (panel_config->skybox_name == skybox_list[skybox_idx]) {
+                break;
+            }
+        }
+
+        if (ImGui::Combo("Type", &skybox_idx, skybox_list.data(), (int) skybox_list.size())) {
+            panel_config->skybox_name = skybox_list[skybox_idx];
+            scene->update_skybox(skybox_list[skybox_idx]);
+        }
+        ImGui::PushID("Skybox");
     }
 
     // Scene option.
     if (ImGui::CollapsingHeader("Scene Option", ImGuiTreeNodeFlags_DefaultOpen)) {
         // Model.
         ImGui::Text("Model");
+        ImGui::PushID("Model");
         auto &model_list = scene->candidate_model_list;
 
-        int index = 0;
-        for (; index < model_list.size(); index++) {
-            if (panel_config->model_name == model_list[index]) {
+        int model_idx = 0;
+        for (; model_idx < model_list.size(); model_idx++) {
+            if (panel_config->model_name == model_list[model_idx]) {
                 break;
             }
         }
 
-        if (ImGui::Combo("Type", &index, model_list.data(), (int) model_list.size())) {
-            panel_config->model_name = model_list[index];
-            scene->update_model(model_list[index]);
+        if (ImGui::Combo("Type", &model_idx, model_list.data(), (int) model_list.size())) {
+            panel_config->model_name = model_list[model_idx];
+            scene->update_model(model_list[model_idx]);
         }
 
         auto &model = scene->model_list[0];
         ImGui::DragFloat3("Position", (float *) &model->position, 0.1f, -1000.0f, 1000.f);
         ImGui::DragFloat3("Rosition", (float *) &model->rotation, 0.1f, -180.0f, 180.f);
         ImGui::DragFloat("Scaling", &model->scaling, 0.1f, 0.0f, 100.0f);
+        ImGui::PushID("Model");
 
         // Scene ambient color.
         ImGui::ColorEdit3("Ambient", (float *) &panel_config->ambient_color);

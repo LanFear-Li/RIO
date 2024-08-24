@@ -70,20 +70,6 @@ void Scene::prepare_scene(std::string scene_name)
         model_list.push_back(std::move(model));
     }
 
-    // Load light from scene.
-    auto light_json = scene_json["lights"];
-    for (auto& [name, config] : light_json.items()) {
-        auto light = std::make_unique<PointLight>();
-
-        light->light_name = name;
-        light->position = json_to_vec3(config["position"]);
-        light->color = json_to_vec3(config["color"]);
-        light->radius = config["radius"].get<float>();
-        light->intensity = config["intensity"].get<float>();
-
-        point_light_list.push_back(std::move(light));
-    }
-
     // Load candidate model from assets/models.
     std::string candidate_model_path = FileSystem::getPath("runtime/assets/models/");
     for (const auto& entry : fs::directory_iterator(candidate_model_path)) {
@@ -103,16 +89,43 @@ void Scene::prepare_scene(std::string scene_name)
         skybox_path = FileSystem::getPath(skybox_path);
 
         model_skybox = Model::constructSkybox(skybox_path, skybox_name);
+        model_skybox->model_name = skybox_name;
 
         if (model_skybox->materials[0]->ibl_map->get_type() == Texture_Type::TEXTURE_CUBE_MAP) {
             cubemap_converted = true;
         }
     }
 
+    // Load candidate skybox from assets/skybox.
+    std::string candidate_skybox_path = FileSystem::getPath("runtime/assets/skybox/");
+    for (const auto& entry : fs::directory_iterator(candidate_skybox_path)) {
+        if (fs::is_directory(entry.path())) {
+            std::string dirName = entry.path().filename().string();
+            char* dirNameCStr = new char[dirName.length() + 1];
+            std::strcpy(dirNameCStr, dirName.c_str());
+            candidate_skybox_list.push_back(dirNameCStr);
+        }
+    }
+
+    // Load light from scene.
+    auto light_json = scene_json["lights"];
+    for (auto& [name, config] : light_json.items()) {
+        auto light = std::make_unique<PointLight>();
+
+        light->light_name = name;
+        light->position = json_to_vec3(config["position"]);
+        light->color = json_to_vec3(config["color"]);
+        light->radius = config["radius"].get<float>();
+        light->intensity = config["intensity"].get<float>();
+
+        point_light_list.push_back(std::move(light));
+    }
+
     model_light = Model::constructCube();
 
     // Load config from scene.
     scene_config->model_name = model_list.front()->model_name;
+    scene_config->skybox_name = model_skybox->model_name;
 }
 
 std::string Scene::get_model_path(std::string model_name)
@@ -143,6 +156,23 @@ void Scene::update_model(std::string model_name)
     model->model_name = model_name;
 
     model_list.push_back(std::move(model));
+}
+
+void Scene::update_skybox(std::string skybox_name)
+{
+    std::string skybox_path = "runtime/assets/skybox/" + skybox_name + "/";
+    skybox_path = FileSystem::getPath(skybox_path);
+
+    model_skybox = Model::constructSkybox(skybox_path, skybox_name);
+    model_skybox->model_name = skybox_name;
+
+    if (model_skybox->materials[0]->ibl_map->get_type() == Texture_Type::TEXTURE_CUBE_MAP) {
+        cubemap_converted = true;
+    } else {
+        cubemap_converted = false;
+    }
+
+    from_equirectangular = false;
 }
 
 void Scene::render(Pass &render_pass)
