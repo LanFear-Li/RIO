@@ -122,3 +122,22 @@ void Window::setResizeCallback(const resizeCallback &callback)
 {
     resize_callback_ = callback;
 }
+
+void Window::switchFullScreen()
+{
+    isFullScreen = !isFullScreen;
+
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+    if (isFullScreen) {
+        glfwMaximizeWindow(glWindow);
+    } else {
+        glfwRestoreWindow(glWindow);
+    }
+}
+
+void Window::exit()
+{
+    glfwSetWindowShouldClose(glWindow, GLFW_TRUE);
+}

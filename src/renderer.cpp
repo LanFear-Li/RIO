@@ -32,8 +32,19 @@ void Renderer::run()
     std::vector<bool> key_state = std::vector<bool>(1025, false);
     window->setKeyCallback([&](GLFWwindow* glfw_window, int key, int action) mutable {
         if (key >= 0 && key <= 1024) {
-            if (action == GLFW_PRESS) key_state[key] = true;
-            else if (action == GLFW_RELEASE) key_state[key] = false;
+            if (action == GLFW_PRESS) {
+                key_state[key] = true;
+            } else if (action == GLFW_RELEASE) {
+                key_state[key] = false;
+            }
+        }
+
+        if (key == GLFW_KEY_F && action == GLFW_PRESS) {
+            window->switchFullScreen();
+        }
+
+        if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+            window->exit();
         }
     });
 
@@ -50,7 +61,7 @@ void Renderer::run()
         cam->cameraHeight = height;
     });
 
-    auto process_key = [&key_state, &cam = scene->camera] (float dt) {
+    auto process_key = [&key_state, &cam = scene->camera, &window = window] (float dt) {
         if (key_state[GLFW_KEY_W]) cam->ProcessKeyboard(Camera_Movement::FORWARD, dt);
         if (key_state[GLFW_KEY_S]) cam->ProcessKeyboard(Camera_Movement::BACKWARD, dt);
         if (key_state[GLFW_KEY_A]) cam->ProcessKeyboard(Camera_Movement::LEFT, dt);

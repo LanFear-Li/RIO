@@ -47,4 +47,9 @@ public:
     mouseCallback mouse_callback_ = [](GLFWwindow*, uint32_t, float, float, float, float) {};
     keyCallback key_callback_ = [](GLFWwindow*, int, int) {};
     resizeCallback resize_callback_ = [](GLFWwindow*, uint32_t, uint32_t) {};
+
+    void switchFullScreen();
+    void exit();
+
+    bool isFullScreen = false;
 };
