@@ -20,10 +20,18 @@ public:
     void prepare();
     void active();
     void reset();
-    void render(Mesh &mesh, Material &material);
 
-    std::unique_ptr<Shader> shader;
+    void setup_framebuffer();
+
+    void render(Mesh &mesh, Material &material);
+    void render_cubemap(Mesh &mesh, Material &material);
+
     std::string name;
+    std::unique_ptr<Shader> shader;
+
+    unsigned int fbo;
+    unsigned int rbo;
+    std::unique_ptr<Texture> output;
 
     bool state_depth_test{true};
     Depth_Func depth_func{Depth_Func::less};

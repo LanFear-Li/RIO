@@ -8,6 +8,10 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#include <filesystem>
+
+namespace fs = std::filesystem;
+
 Model::Model(std::string const &path, bool gamma) : gammaCorrection(gamma)
 {
     loadModel(path);
@@ -39,12 +43,64 @@ void Model::loadModel(std::string const &path)
     }
 }
 
-std::unique_ptr<Model> Model::constructIBL(std::vector<std::string> ibl_path)
+std::unique_ptr<Model> Model::constructSkybox(std::string skybox_path, std::string skybox_name)
+{
+    fs::path directoryPath(skybox_path);
+
+    int file_count = 0;
+    fs::path file_path;
+    for (const auto& entry : fs::directory_iterator(directoryPath)) {
+        if (fs::is_regular_file(entry.status())) {
+            ++file_count;
+            file_path = entry;
+        }
+    }
+
+    if (file_count == 6) {
+        // Format cubemap.
+        std::vector<std::string> faces {
+        skybox_path + "right.jpg",
+        skybox_path + "left.jpg",
+        skybox_path + "top.jpg",
+        skybox_path + "bottom.jpg",
+        skybox_path + "front.jpg",
+        skybox_path + "back.jpg"
+        };
+
+        return Model::constructCubemap(faces);
+    } else if (file_count == 1) {
+        // Format equirectangular map.
+        std::string hdr_path = skybox_path + skybox_name + file_path.extension().string();
+        return Model::constructEquirectangular(hdr_path);
+    }
+
+    std::cout << "Initialize skybox failed, check your file format please." << std::endl;
+    assert(0);
+    return nullptr;
+}
+
+std::unique_ptr<Model> Model::constructEquirectangular(std::string rect_path)
 {
     auto model = std::make_unique<Model>();
 
     auto material = std::make_unique<Material>();
-    material->ibl_map = load_cube_map(ibl_path, 3);
+    material->ibl_map = load_rect_map(rect_path, 3);
+
+    auto mesh = std::make_unique<Mesh>();
+    mesh->setupCubeMesh();
+
+    model->materials.push_back(std::move(material));
+    model->meshes.push_back(std::move(mesh));
+
+    return model;
+}
+
+std::unique_ptr<Model> Model::constructCubemap(std::vector<std::string> cubemap_path)
+{
+    auto model = std::make_unique<Model>();
+
+    auto material = std::make_unique<Material>();
+    material->ibl_map = load_cube_map(cubemap_path, 3);
 
     auto mesh = std::make_unique<Mesh>();
     mesh->setupCubeMesh();

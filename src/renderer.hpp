@@ -20,6 +20,16 @@ private:
     std::unique_ptr<Panel> panel;
 
     std::unique_ptr<Pass> pass_shade;
-    std::unique_ptr<Pass> pass_ibl;
     std::unique_ptr<Pass> pass_light;
+
+    // Convert Equirectangular Map to CubeMap.
+    std::unique_ptr<Pass> pass_rect_to_cube;
+    std::unique_ptr<Pass> pass_skybox;
+
+    // Irradiance Map for diffuse IBL.
+    std::unique_ptr<Pass> pass_ibl_irradiance;
+    // Pre-Filtered Environment Map for specular IBL.
+    std::unique_ptr<Pass> pass_ibl_prefiltered_map;
+    // Precomputed Environment BRDF for specular IBL.
+    std::unique_ptr<Pass> pass_ibl_precomputed_brdf;
 };

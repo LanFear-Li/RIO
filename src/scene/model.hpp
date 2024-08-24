@@ -33,7 +33,10 @@ public:
     Model() = default;
     Model(std::string const &path, bool gamma = false);
 
-    static std::unique_ptr<Model> constructIBL(std::vector<std::string> ibl_path);
+    static std::unique_ptr<Model> constructSkybox(std::string skybox_path, std::string skybox_name);
+    static std::unique_ptr<Model> constructEquirectangular(std::string rect_path);
+    static std::unique_ptr<Model> constructCubemap(std::vector<std::string> cubemap_path);
+
     static std::unique_ptr<Model> constructCube();
 
 private:

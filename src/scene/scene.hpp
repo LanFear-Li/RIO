@@ -22,6 +22,9 @@ public:
     void update();
     void render(Pass &render_pass);
 
+    bool cubemap_converted = false;
+    bool from_equirectangular = false;
+
     std::unique_ptr<Camera> camera;
     std::vector<std::unique_ptr<PointLight>> point_light_list;
 
@@ -29,7 +32,7 @@ public:
     std::vector<const char *> candidate_model_list;
 
     // Specially for skybox.
-    std::unique_ptr<Model> model_ibl;
+    std::unique_ptr<Model> model_skybox;
 
     // Specially for light.
     std::unique_ptr<Model> model_light;

@@ -16,8 +16,13 @@ Renderer::Renderer(std::string scene_name)
     // Initialize all render pass.
     pass_shade = std::make_unique<Pass>("shade");
 
-    pass_ibl = std::make_unique<Pass>("ibl");
-    pass_ibl->depth_func = Depth_Func::less_equal;
+    pass_rect_to_cube = std::make_unique<Pass>("rect_to_cube");
+    pass_skybox = std::make_unique<Pass>("skybox");
+    pass_skybox->depth_func = Depth_Func::less_equal;
+
+    // pass_ibl_irradiance = std::make_unique<Pass>("ibl_irradiance");
+    // pass_ibl_prefiltered_map = std::make_unique<Pass>("ibl_prefiltered_map");
+    // pass_ibl_precomputed_brdf = std::make_unique<Pass>("ibl_precomputed_brdf");
 
     pass_light = std::make_unique<Pass>("light");
     pass_light->depth_func = Depth_Func::less_equal;
@@ -78,7 +83,8 @@ void Renderer::run()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         scene->render(*pass_shade);
-        scene->render(*pass_ibl);
+        scene->render(*pass_rect_to_cube);
+        scene->render(*pass_skybox);
         scene->render(*pass_light);
 
         panel->render();

@@ -30,6 +30,19 @@ void Pass::prepare()
     }
 }
 
+void Pass::setup_framebuffer()
+{
+    glGenFramebuffers(1, &fbo);
+    glGenRenderbuffers(1, &rbo);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 1024, 1024);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+    output = setup_cube_map();
+}
+
 void Pass::active()
 {
     shader->use();
@@ -46,7 +59,6 @@ void Pass::reset()
     shader->setBool("use_roughness_map", false);
     shader->setBool("use_metal_roughness_map", false);
     shader->setBool("use_ao_map", false);
-    shader->setBool("use_ibl_map", false);
 }
 
 void Pass::render(Mesh &mesh, Material &material)
@@ -61,8 +73,6 @@ void Pass::render(Mesh &mesh, Material &material)
     shader->setVec3("_mat_emissive", material.emissive);
     shader->setFloat("_mat_roughness", material.roughness);
     shader->setFloat("_mat_metallic", material.metallic);
-
-    reset();
 
     unsigned int texture_idx = 0;
     if (material.normal_map != nullptr) {
@@ -137,18 +147,17 @@ void Pass::render(Mesh &mesh, Material &material)
         texture_idx++;
     }
 
-    // Specially for pass_ibl.
+    // Specially for pass_skybox.
     if (material.ibl_map != nullptr) {
         glActiveTexture(GL_TEXTURE0 + texture_idx);
         glUniform1i(glGetUniformLocation(shader->ID, "_texture_ibl"), texture_idx);
-        glBindTexture(GL_TEXTURE_2D, material.ibl_map->get_id());
-        shader->setBool("use_ibl_map", true);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, material.ibl_map->get_id());
         texture_idx++;
     }
 
     // Draw mesh via VAO.
     glBindVertexArray(mesh.VAO);
-    if (name == "ibl" || name == "light") {
+    if (name == "skybox" || name == "light") {
         glDrawArrays(GL_TRIANGLES, 0, 36);
     } else {
         glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(mesh.indices.size()), GL_UNSIGNED_INT, 0);
@@ -157,4 +166,48 @@ void Pass::render(Mesh &mesh, Material &material)
 
     // always good practice to set everything back to defaults once configured.
     glActiveTexture(GL_TEXTURE0);
+}
+
+void Pass::render_cubemap(Mesh &mesh, Material &material)
+{
+    unsigned int texture_idx = 0;
+    if (material.ibl_map != nullptr) {
+        glActiveTexture(GL_TEXTURE0 + texture_idx);
+        glUniform1i(glGetUniformLocation(shader->ID, "equirectangular_map"), texture_idx);
+        glBindTexture(GL_TEXTURE_2D, material.ibl_map->get_id());
+        texture_idx++;
+    }
+
+    glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
+    glm::mat4 captureViews[] = {
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
+    };
+
+    shader->setMat4("projection", captureProjection);
+
+    // Record current viewport for restore.
+    GLint viewport[4];
+    glGetIntegerv(GL_VIEWPORT, viewport);
+
+    glViewport(0, 0, 1024, 1024);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    for (unsigned int i = 0; i < 6; ++i) {
+        shader->setMat4("view", captureViews[i]);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, output->get_id(), 0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // Draw mesh via VAO.
+        glBindVertexArray(mesh.VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glActiveTexture(GL_TEXTURE0);
+
+    glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 }

@@ -30,7 +30,42 @@ std::unique_ptr<Texture> load_texture_2d(uint32_t width, uint32_t height, uint32
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    return std::make_unique<Texture>(texture_id);
+    return std::make_unique<Texture>(texture_id, Texture_Type::TEXTURE_2D);
+}
+
+std::unique_ptr<Texture> load_rect_map(std::string file_path, uint32_t nrComponents)
+{
+    unsigned int texture_id;
+
+    glGenTextures(1, &texture_id);
+    glBindTexture(GL_TEXTURE_2D, texture_id);
+
+    GLenum format = GL_RGB;
+    if (nrComponents == 1) {
+        format = GL_RED;
+    } else if (nrComponents == 3) {
+        format = GL_RGB;
+    } else if (nrComponents == 4) {
+        format = GL_RGBA;
+    }
+
+    stbi_set_flip_vertically_on_load(true);
+
+    int width, height, nrChannels;
+    float *data = stbi_loadf(file_path.c_str(), &width, &height, &nrChannels, 0);
+    if (data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, format, GL_FLOAT, data);
+        stbi_image_free(data);
+    } else {
+        std::cout << "Rectmap texture failed to load at path: " << file_path << std::endl;
+    }
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    return std::make_unique<Texture>(texture_id, Texture_Type::TEXTURE_EQUIRECTANGULAR);
 }
 
 std::unique_ptr<Texture> load_cube_map(std::vector<std::string> faces, uint32_t nrComponents)
@@ -57,7 +92,6 @@ std::unique_ptr<Texture> load_cube_map(std::vector<std::string> faces, uint32_t 
             stbi_image_free(data);
         } else {
             std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
-            stbi_image_free(data);
         }
     }
 
@@ -67,7 +101,26 @@ std::unique_ptr<Texture> load_cube_map(std::vector<std::string> faces, uint32_t 
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-    return std::make_unique<Texture>(texture_id);
+    return std::make_unique<Texture>(texture_id, Texture_Type::TEXTURE_CUBE_MAP);
+}
+
+std::unique_ptr<Texture> setup_cube_map()
+{
+    unsigned int texture_id;
+    glGenTextures(1, &texture_id);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, texture_id);
+
+    for (unsigned int i = 0; i < 6; ++i) {
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 1024, 1024, 0, GL_RGB, GL_FLOAT, nullptr);
+    }
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    return std::make_unique<Texture>(texture_id, Texture_Type::TEXTURE_CUBE_MAP);
 }
 
 
