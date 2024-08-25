@@ -33,7 +33,7 @@ std::unique_ptr<Texture> load_texture_2d(uint32_t width, uint32_t height, uint32
     return std::make_unique<Texture>(texture_id, Texture_Type::TEXTURE_2D);
 }
 
-std::unique_ptr<Texture> load_rect_map(std::string file_path, uint32_t nrComponents)
+std::shared_ptr<Texture> load_rect_map(std::string file_path, uint32_t nrComponents)
 {
     unsigned int texture_id;
 
@@ -67,10 +67,10 @@ std::unique_ptr<Texture> load_rect_map(std::string file_path, uint32_t nrCompone
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    return std::make_unique<Texture>(texture_id, Texture_Type::TEXTURE_EQUIRECTANGULAR);
+    return std::make_shared<Texture>(texture_id, Texture_Type::TEXTURE_EQUIRECTANGULAR);
 }
 
-std::unique_ptr<Texture> load_cube_map(std::vector<std::string> faces, uint32_t nrComponents)
+std::shared_ptr<Texture> load_cube_map(std::vector<std::string> faces, uint32_t nrComponents)
 {
     unsigned int texture_id;
 
@@ -103,28 +103,39 @@ std::unique_ptr<Texture> load_cube_map(std::vector<std::string> faces, uint32_t 
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-    return std::make_unique<Texture>(texture_id, Texture_Type::TEXTURE_CUBE_MAP);
+    return std::make_shared<Texture>(texture_id, Texture_Type::TEXTURE_CUBE_MAP);
 }
 
-std::unique_ptr<Texture> setup_cube_map()
+std::unique_ptr<Texture> create_texture(Texture_Type texture_type, int width, int height)
 {
     unsigned int texture_id;
     glGenTextures(1, &texture_id);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, texture_id);
 
-    for (unsigned int i = 0; i < 6; ++i) {
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 1024, 1024, 0, GL_RGB, GL_FLOAT, nullptr);
+    if (texture_type == Texture_Type::TEXTURE_CUBE_MAP) {
+        glBindTexture(GL_TEXTURE_CUBE_MAP, texture_id);
+
+        for (unsigned int i = 0; i < 6; ++i) {
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, nullptr);
+        }
+
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    } else {
+        glBindTexture(GL_TEXTURE_2D, texture_id);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
 
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    return std::make_unique<Texture>(texture_id, Texture_Type::TEXTURE_CUBE_MAP);
+    return std::make_unique<Texture>(texture_id, texture_type);
 }
-
 
 Texture::~Texture()
 {

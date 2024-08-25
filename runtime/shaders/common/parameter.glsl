@@ -86,5 +86,9 @@ uniform sampler2D   _texture_roughness;
 uniform sampler2D   _texture_metal_roughness;
 uniform sampler2D   _texture_ao;
 
-// Texture for IBL.
+// ---------------------
+// Skybox & IBL.
+// ---------------------
 uniform sampler2D   _texture_ibl;
+uniform samplerCube irrandiance_map;
+uniform bool        use_ibl_data;

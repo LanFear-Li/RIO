@@ -26,17 +26,23 @@ public:
     bool cubemap_converted = false;
     bool from_equirectangular = false;
 
+    bool ibl_generated = false;
+
     std::unique_ptr<Camera> camera;
     std::vector<std::unique_ptr<PointLight>> point_light_list;
 
+    // Model.
     std::vector<std::unique_ptr<Model>> model_list;
     std::vector<const char *> candidate_model_list;
 
-    // Specially for skybox.
+    // Skybox.
     std::unique_ptr<Model> model_skybox;
     std::vector<const char *> candidate_skybox_list;
 
-    // Specially for light.
+    // IBL.
+    std::unique_ptr<IBL_Data> ibl_data;
+
+    // Light.
     std::unique_ptr<Model> model_light;
 
     std::shared_ptr<Panel_Config> scene_config;

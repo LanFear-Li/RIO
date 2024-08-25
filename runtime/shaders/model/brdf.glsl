@@ -44,6 +44,11 @@ vec3 Fresnel_Schlick(vec3 F0, float cos_V_H)
     return F0 + (1.0 - F0) * term;
 }
 
+vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
+{
+    return F0 + (max(vec3(1.0f - roughness), F0) - F0) * pow(clamp(1.0f - cosTheta, 0.0f, 1.0f), 5.0f);
+}
+
 vec3 brdf(vec3 light_dir, vec3 view_dir, Material material)
 {
     vec3 normal = normalize(material.normal);
@@ -72,14 +77,42 @@ vec3 brdf(vec3 light_dir, vec3 view_dir, Material material)
     return (kD * diffuse_Lambert(albedo) + specular) * cos_N_L;
 }
 
+vec3 evaluate_ibl(vec3 world_pos, vec3 eye_pos, Material material)
+{
+    vec3 albedo = pow(material.diffuse, vec3(2.2));
+    vec3 normal = normalize(material.normal);
+    vec3 view_dir = normalize(eyePos - world_pos);
+    float cos_N_V = max(dot(normal, view_dir), 0.0);
+
+    vec3 F0 = mix(vec3(0.04), albedo, material.metallic);
+    vec3 F = FresnelSchlickRoughness(cos_N_V, F0, material.roughness);
+
+    vec3 kS = F;
+    vec3 kD = 1.0 - kS;
+    kD *= (1.0 - material.metallic);
+
+    vec3 irradiance = texture(irrandiance_map, material.normal).rgb;
+    vec3 diffuse = irradiance * albedo;
+
+    // const float MAX_REFLECTION_LOD = 4.0f;
+    // vec3 prefilteredColor = textureLod(u_prefilterMap, R, roughness * MAX_REFLECTION_LOD).rgb;
+    // vec3 specular = prefilteredColor * EnvBRDFApprox(F, roughness, max(dot(N, V), 0.0f));
+    return (kD * diffuse) * material.ao;
+}
+
 vec3 evaluate_brdf(vec3 world_pos, vec3 eye_pos, Material material)
 {
     vec3 result = vec3(0.0);
 
     // Evaluate ambient.
     // sRGB -> Linear Space.
-    vec3 albedo = pow(material.diffuse, vec3(2.2f));
-    vec3 ambient = ambient_color * albedo * material.ao;
+    vec3 albedo = pow(material.diffuse, vec3(2.2));
+    vec3 ambient = vec3(0.0);
+    if (use_ibl_data) {
+        ambient = evaluate_ibl(world_pos, eye_pos, material);
+    } else {
+        ambient = ambient_color * albedo * material.ao;
+    }
 
     // Evaluate reflectance equation.
     vec3 Lo = vec3(0.0);

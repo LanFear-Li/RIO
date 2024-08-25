@@ -30,17 +30,19 @@ void Pass::prepare()
     }
 }
 
-void Pass::setup_framebuffer()
+void Pass::setup_framebuffer(int width, int height)
 {
     glGenFramebuffers(1, &fbo);
     glGenRenderbuffers(1, &rbo);
 
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 1024, 1024);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
 
-    output = setup_cube_map();
+    output = create_texture(Texture_Type::TEXTURE_CUBE_MAP, width, height);
+    buffer_width = width;
+    buffer_height = height;
 }
 
 void Pass::active()
@@ -59,9 +61,11 @@ void Pass::reset()
     shader->setBool("use_roughness_map", false);
     shader->setBool("use_metal_roughness_map", false);
     shader->setBool("use_ao_map", false);
+
+    shader->setBool("use_ibl_data", false);
 }
 
-void Pass::render(Mesh &mesh, Material &material)
+void Pass::render(Mesh &mesh, Material &material, IBL_Data &ibl_data)
 {
     shader->setVec3("_mat_ambient", material.ambient);
     shader->setVec3("_mat_diffuse", material.diffuse);
@@ -147,12 +151,22 @@ void Pass::render(Mesh &mesh, Material &material)
         texture_idx++;
     }
 
-    // Specially for pass_skybox.
-    if (material.ibl_map != nullptr) {
+    // Bind IBL data as texture.
+    if (ibl_data.irrandiance_map != nullptr) {
         glActiveTexture(GL_TEXTURE0 + texture_idx);
-        glUniform1i(glGetUniformLocation(shader->ID, "_texture_ibl"), texture_idx);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, material.ibl_map->get_id());
+        glUniform1i(glGetUniformLocation(shader->ID, "irrandiance_map"), texture_idx);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, ibl_data.irrandiance_map->get_id());
         texture_idx++;
+    }
+
+    // Specially for pass_skybox.
+    if (name == "skybox") {
+        if (material.ibl_map != nullptr) {
+            glActiveTexture(GL_TEXTURE0 + texture_idx);
+            glUniform1i(glGetUniformLocation(shader->ID, "_texture_ibl"), texture_idx);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, material.ibl_map->get_id());
+            texture_idx++;
+        }
     }
 
     // Draw mesh via VAO.
@@ -168,14 +182,18 @@ void Pass::render(Mesh &mesh, Material &material)
     glActiveTexture(GL_TEXTURE0);
 }
 
-void Pass::render_cubemap(Mesh &mesh, Material &material)
+void Pass::render_cubemap(Mesh &mesh, Texture &texture)
 {
     unsigned int texture_idx = 0;
-    if (material.ibl_map != nullptr) {
+
+    if (name == "rect_to_cube") {
         glActiveTexture(GL_TEXTURE0 + texture_idx);
         glUniform1i(glGetUniformLocation(shader->ID, "equirectangular_map"), texture_idx);
-        glBindTexture(GL_TEXTURE_2D, material.ibl_map->get_id());
-        texture_idx++;
+        glBindTexture(GL_TEXTURE_2D, texture.get_id());
+    } else if (name == "ibl_irradiance") {
+        glActiveTexture(GL_TEXTURE0 + texture_idx);
+        glUniform1i(glGetUniformLocation(shader->ID, "environment_map"), texture_idx);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, texture.get_id());
     }
 
     glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
@@ -194,7 +212,7 @@ void Pass::render_cubemap(Mesh &mesh, Material &material)
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
 
-    glViewport(0, 0, 1024, 1024);
+    glViewport(0, 0, buffer_width, buffer_height);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     for (unsigned int i = 0; i < 6; ++i) {
         shader->setMat4("view", captureViews[i]);

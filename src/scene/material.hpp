@@ -7,6 +7,14 @@
 #include <iostream>
 #include <memory>
 
+struct IBL_Data
+{
+    std::shared_ptr<Texture> environment_map;
+    std::unique_ptr<Texture> irrandiance_map;
+    std::unique_ptr<Texture> prefiltered_map;
+    std::unique_ptr<Texture> precomputed_brdf;
+};
+
 struct Material
 {
 public:
@@ -76,5 +84,5 @@ public:
 
     // Norm: normal map.
     std::unique_ptr<Texture> normal_map{};
-    std::unique_ptr<Texture> ibl_map{};
+    std::shared_ptr<Texture> ibl_map{};
 };
