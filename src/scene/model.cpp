@@ -47,6 +47,12 @@ std::unique_ptr<Model> Model::constructSkybox(std::string skybox_path, std::stri
 {
     fs::path directoryPath(skybox_path);
 
+    std::error_code ec;
+    if (!fs::exists(directoryPath, ec)) {
+        std::cerr << "Directory " << directoryPath << " does not exist." << std::endl;
+        assert(0);
+    }
+
     int file_count = 0;
     fs::path file_path;
     for (const auto& entry : fs::directory_iterator(directoryPath)) {

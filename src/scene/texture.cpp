@@ -60,6 +60,8 @@ std::unique_ptr<Texture> load_rect_map(std::string file_path, uint32_t nrCompone
         std::cout << "Rectmap texture failed to load at path: " << file_path << std::endl;
     }
 
+    stbi_set_flip_vertically_on_load(false);
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -83,8 +85,6 @@ std::unique_ptr<Texture> load_cube_map(std::vector<std::string> faces, uint32_t 
     } else if (nrComponents == 4) {
         format = GL_RGBA;
     }
-
-    stbi_set_flip_vertically_on_load(false);
 
     int width, height, nrChannels;
     for (unsigned int i = 0; i < faces.size(); i++) {

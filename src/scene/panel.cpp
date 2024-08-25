@@ -72,7 +72,7 @@ void Panel::render() {
             panel_config->skybox_name = skybox_list[skybox_idx];
             scene->update_skybox(skybox_list[skybox_idx]);
         }
-        ImGui::PushID("Skybox");
+        ImGui::PopID();
     }
 
     // Scene option.
@@ -98,7 +98,7 @@ void Panel::render() {
         ImGui::DragFloat3("Position", (float *) &model->position, 0.1f, -1000.0f, 1000.f);
         ImGui::DragFloat3("Rosition", (float *) &model->rotation, 0.1f, -180.0f, 180.f);
         ImGui::DragFloat("Scaling", &model->scaling, 0.1f, 0.0f, 100.0f);
-        ImGui::PushID("Model");
+        ImGui::PopID();
 
         // Scene ambient color.
         ImGui::ColorEdit3("Ambient", (float *) &panel_config->ambient_color);

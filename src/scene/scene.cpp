@@ -96,6 +96,10 @@ void Scene::prepare_scene(std::string scene_name)
         }
     }
 
+    if (scene_json.contains("show_skybox")) {
+        scene_config->show_skybox = scene_json["show_skybox"].get<bool>();
+    }
+
     // Load candidate skybox from assets/skybox.
     std::string candidate_skybox_path = FileSystem::getPath("runtime/assets/skybox/");
     for (const auto& entry : fs::directory_iterator(candidate_skybox_path)) {
@@ -125,7 +129,10 @@ void Scene::prepare_scene(std::string scene_name)
 
     // Load config from scene.
     scene_config->model_name = model_list.front()->model_name;
-    scene_config->skybox_name = model_skybox->model_name;
+
+    if (model_skybox) {
+        scene_config->skybox_name = model_skybox->model_name;
+    }
 }
 
 std::string Scene::get_model_path(std::string model_name)
