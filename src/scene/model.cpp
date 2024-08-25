@@ -90,7 +90,7 @@ std::unique_ptr<Model> Model::constructEquirectangular(std::string rect_path)
     auto model = std::make_unique<Model>();
 
     auto material = std::make_unique<Material>();
-    material->ibl_map = load_rect_map(rect_path, 3);
+    material->skybox_map = load_rect_map(rect_path, 3);
 
     auto mesh = std::make_unique<Mesh>();
     mesh->setupCubeMesh();
@@ -106,7 +106,7 @@ std::unique_ptr<Model> Model::constructCubemap(std::vector<std::string> cubemap_
     auto model = std::make_unique<Model>();
 
     auto material = std::make_unique<Material>();
-    material->ibl_map = load_cube_map(cubemap_path, 3);
+    material->skybox_map = load_cube_map(cubemap_path, 3);
 
     auto mesh = std::make_unique<Mesh>();
     mesh->setupCubeMesh();

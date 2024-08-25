@@ -84,5 +84,5 @@ public:
 
     // Norm: normal map.
     std::unique_ptr<Texture> normal_map{};
-    std::shared_ptr<Texture> ibl_map{};
+    std::shared_ptr<Texture> skybox_map{};
 };

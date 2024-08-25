@@ -2,13 +2,13 @@ out vec4 fragColor;
 
 in vec3 texCoord;
 
-uniform samplerCube _texture_ibl;
+uniform samplerCube environment_map;
 
 uniform bool from_equirectangular;
 
 void main()
 {
-    vec3 skyboxCcolor = texture(_texture_ibl, texCoord).rgb;
+    vec3 skyboxCcolor = texture(environment_map, texCoord).rgb;
 
     if (from_equirectangular == true) {
         // HDR Tonemap and gamma correct.

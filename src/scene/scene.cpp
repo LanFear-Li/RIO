@@ -85,8 +85,8 @@ void Scene::prepare_scene(std::string scene_name)
     ibl_data = std::make_unique<IBL_Data>();
     ibl_data->environment_map = std::move(create_texture(Texture_Type::TEXTURE_CUBE_MAP, 500, 500));
     ibl_data->irrandiance_map = create_texture(Texture_Type::TEXTURE_CUBE_MAP, 500, 500);
-    // ibl_data->prefiltered_map = create_texture(Texture_Type::TEXTURE_CUBE_MAP, 500, 500);
-    // ibl_data->precomputed_brdf = create_texture(Texture_Type::TEXTURE_2D, 500, 500);
+    ibl_data->prefiltered_map = create_texture(Texture_Type::TEXTURE_CUBE_MAP, 500, 500);
+    ibl_data->precomputed_brdf = create_texture(Texture_Type::TEXTURE_2D, 500, 500);
 
     // Load skybox from scene.
     if (scene_json.contains("skybox")) {
@@ -98,10 +98,10 @@ void Scene::prepare_scene(std::string scene_name)
         model_skybox = Model::constructSkybox(skybox_path, skybox_name);
         model_skybox->model_name = skybox_name;
 
-        auto &ibl_map = model_skybox->materials[0]->ibl_map;
-        if (ibl_map->get_type() == Texture_Type::TEXTURE_CUBE_MAP) {
+        auto &skybox_map = model_skybox->materials[0]->skybox_map;
+        if (skybox_map->get_type() == Texture_Type::TEXTURE_CUBE_MAP) {
             cubemap_converted = true;
-            ibl_data->environment_map = ibl_map;
+            ibl_data->environment_map = skybox_map;
         }
     }
 
@@ -182,7 +182,7 @@ void Scene::update_skybox(std::string skybox_name)
     model_skybox = Model::constructSkybox(skybox_path, skybox_name);
     model_skybox->model_name = skybox_name;
 
-    if (model_skybox->materials[0]->ibl_map->get_type() == Texture_Type::TEXTURE_CUBE_MAP) {
+    if (model_skybox->materials[0]->skybox_map->get_type() == Texture_Type::TEXTURE_CUBE_MAP) {
         cubemap_converted = true;
     } else {
         cubemap_converted = false;
@@ -206,10 +206,10 @@ void Scene::render(Pass &render_pass)
         auto &mesh = model_skybox->meshes[0];
         auto &shader = render_pass.shader;
 
-        render_pass.render_cubemap(*mesh, *material->ibl_map);
+        render_pass.render_cubemap(*mesh, *material->skybox_map);
 
-        material->ibl_map = std::move(render_pass.output);
-        ibl_data->environment_map = material->ibl_map;
+        material->skybox_map = std::move(render_pass.output);
+        ibl_data->environment_map = material->skybox_map;
 
         cubemap_converted = true;
         from_equirectangular = true;

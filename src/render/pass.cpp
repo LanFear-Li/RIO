@@ -161,10 +161,10 @@ void Pass::render(Mesh &mesh, Material &material, IBL_Data &ibl_data)
 
     // Specially for pass_skybox.
     if (name == "skybox") {
-        if (material.ibl_map != nullptr) {
+        if (material.skybox_map != nullptr) {
             glActiveTexture(GL_TEXTURE0 + texture_idx);
-            glUniform1i(glGetUniformLocation(shader->ID, "_texture_ibl"), texture_idx);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, material.ibl_map->get_id());
+            glUniform1i(glGetUniformLocation(shader->ID, "environment_map"), texture_idx);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, material.skybox_map->get_id());
             texture_idx++;
         }
     }

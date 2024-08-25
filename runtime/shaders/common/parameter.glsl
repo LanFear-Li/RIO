@@ -89,6 +89,6 @@ uniform sampler2D   _texture_ao;
 // ---------------------
 // Skybox & IBL.
 // ---------------------
-uniform sampler2D   _texture_ibl;
+uniform sampler2D   environment_map;
 uniform samplerCube irrandiance_map;
 uniform bool        use_ibl_data;
