@@ -21,12 +21,13 @@ public:
     void active();
     void reset();
 
-    void setup_framebuffer(int width, int height);
+    void setup_framebuffer(int width, int height, bool mipmap=false);
     int buffer_width;
     int buffer_height;
 
     void render(Mesh &mesh, Material &material, IBL_Data &ibl_data);
     void render_cubemap(Mesh &mesh, Texture &texture);
+    void render_cubemap_mipmap(Mesh &mesh, Texture &texture);
 
     std::string name;
     std::unique_ptr<Shader> shader;

@@ -106,7 +106,7 @@ std::shared_ptr<Texture> load_cube_map(std::vector<std::string> faces, uint32_t 
     return std::make_shared<Texture>(texture_id, Texture_Type::TEXTURE_CUBE_MAP);
 }
 
-std::unique_ptr<Texture> create_texture(Texture_Type texture_type, int width, int height)
+std::unique_ptr<Texture> create_texture(Texture_Type texture_type, int width, int height, bool mipmap)
 {
     unsigned int texture_id;
     glGenTextures(1, &texture_id);
@@ -121,8 +121,16 @@ std::unique_ptr<Texture> create_texture(Texture_Type texture_type, int width, in
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        if (mipmap) {
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+            glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+        } else {
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        }
     } else {
         glBindTexture(GL_TEXTURE_2D, texture_id);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);

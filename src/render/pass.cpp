@@ -30,7 +30,7 @@ void Pass::prepare()
     }
 }
 
-void Pass::setup_framebuffer(int width, int height)
+void Pass::setup_framebuffer(int width, int height, bool mipmap)
 {
     glGenFramebuffers(1, &fbo);
     glGenRenderbuffers(1, &rbo);
@@ -40,7 +40,7 @@ void Pass::setup_framebuffer(int width, int height)
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
 
-    output = create_texture(Texture_Type::TEXTURE_CUBE_MAP, width, height);
+    output = create_texture(Texture_Type::TEXTURE_CUBE_MAP, width, height, mipmap);
     buffer_width = width;
     buffer_height = height;
 }
@@ -213,6 +213,7 @@ void Pass::render_cubemap(Mesh &mesh, Texture &texture)
     glGetIntegerv(GL_VIEWPORT, viewport);
 
     glViewport(0, 0, buffer_width, buffer_height);
+
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     for (unsigned int i = 0; i < 6; ++i) {
         shader->setMat4("view", captureViews[i]);
@@ -225,7 +226,72 @@ void Pass::render_cubemap(Mesh &mesh, Texture &texture)
         glBindVertexArray(0);
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    if (name == "rect_to_cube") {
+        glBindTexture(GL_TEXTURE_CUBE_MAP, output->get_id());
+        glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+    }
+
     glActiveTexture(GL_TEXTURE0);
+
+    glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+}
+
+void Pass::render_cubemap_mipmap(Mesh &mesh, Texture &texture)
+{
+    unsigned int texture_idx = 0;
+
+    if (name == "ibl_prefiltered_map") {
+        glActiveTexture(GL_TEXTURE0 + texture_idx);
+        glUniform1i(glGetUniformLocation(shader->ID, "environment_map"), texture_idx);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, texture.get_id());
+    }
+
+    glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
+    glm::mat4 captureViews[] = {
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
+    };
+
+    shader->setMat4("projection", captureProjection);
+
+    // Record current viewport for restore.
+    GLint viewport[4];
+    glGetIntegerv(GL_VIEWPORT, viewport);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    unsigned int maxMipLevels = 5;
+    for (unsigned int mip = 0; mip < maxMipLevels; ++mip) {
+        // Reisze framebuffer according to mip-level size.
+        unsigned int mipWidth  = static_cast<unsigned int>(128 * std::pow(0.5, mip));
+        unsigned int mipHeight = static_cast<unsigned int>(128 * std::pow(0.5, mip));
+
+        glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+        // TODO: Bind RBO size here don't take effect?
+        // glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 128, 128);
+        glViewport(0, 0, mipWidth, mipHeight);
+
+        float roughness = (float) mip / (float) (maxMipLevels - 1);
+        shader->setFloat("_ibl_roughness", roughness);
+        shader->setFloat("_ibl_resolution", mipWidth);
+
+        for (unsigned int i = 0; i < 6; ++i) {
+            shader->setMat4("view", captureViews[i]);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, output->get_id(), mip);
+
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            // Draw mesh via VAO.
+            glBindVertexArray(mesh.VAO);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+            glBindVertexArray(0);
+        }
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 }

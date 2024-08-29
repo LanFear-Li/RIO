@@ -109,6 +109,10 @@ void Scene::prepare_scene(std::string scene_name)
         scene_config->show_skybox = scene_json["show_skybox"].get<bool>();
     }
 
+    if (scene_json.contains("enable_ibl")) {
+        scene_config->enable_ibl = scene_json["enable_ibl"].get<bool>();
+    }
+
     // Load candidate skybox from assets/skybox.
     std::string candidate_skybox_path = FileSystem::getPath("runtime/assets/skybox/");
     for (const auto& entry : fs::directory_iterator(candidate_skybox_path)) {
@@ -240,13 +244,22 @@ void Scene::render(Pass &render_pass)
         render_pass.reset();
         render_pass.setup_framebuffer(32, 32);
 
-        auto &material = model_skybox->materials[0];
         auto &mesh = model_skybox->meshes[0];
-        auto &shader = render_pass.shader;
-
         render_pass.render_cubemap(*mesh, *ibl_data->environment_map);
 
         ibl_data->irrandiance_map = std::move(render_pass.output);
+    }
+
+    if (pass_name == "ibl_prefiltered_map" && scene_config->enable_ibl && !ibl_generated) {
+        render_pass.prepare();
+        render_pass.active();
+        render_pass.reset();
+        render_pass.setup_framebuffer(128, 128, true);
+
+        auto &mesh = model_skybox->meshes[0];
+        render_pass.render_cubemap_mipmap(*mesh, *ibl_data->environment_map);
+
+        ibl_data->prefiltered_map = std::move(render_pass.output);
         ibl_generated = true;
     }
 

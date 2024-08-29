@@ -85,6 +85,7 @@ void Renderer::run()
         // Pass precompute.
         scene->render(*pass_rect_to_cube);
         scene->render(*pass_ibl_irradiance);
+        scene->render(*pass_ibl_prefiltered_map);
 
         // Pass runtime.
         scene->render(*pass_skybox);
