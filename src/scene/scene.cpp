@@ -39,6 +39,8 @@ Scene::Scene(std::string scene_name)
     }
 
     // Init scene config.
+    screen_width = camera->cameraWidth;
+    screen_height = camera->cameraHeight;
     scene_config = std::make_shared<Panel_Config>();
 }
 
@@ -223,6 +225,7 @@ void Scene::render(Pass &render_pass)
         render_pass.prepare();
         render_pass.active();
         render_pass.reset();
+        render_pass.setup_framebuffer_default(screen_width, screen_height);
 
         auto &material = model_skybox->materials[0];
         auto &mesh = model_skybox->meshes[0];
@@ -279,6 +282,7 @@ void Scene::render(Pass &render_pass)
                 render_pass.prepare();
                 render_pass.active();
                 render_pass.reset();
+                render_pass.setup_framebuffer_default(screen_width, screen_height);
 
                 auto &material = model->materials[mesh->materialIndex];
                 auto &shader = render_pass.shader;
@@ -323,6 +327,7 @@ void Scene::render(Pass &render_pass)
             render_pass.prepare();
             render_pass.active();
             render_pass.reset();
+            render_pass.setup_framebuffer_default(screen_width, screen_height);
 
             auto &material = model_cube->materials[0];
             auto &mesh = model_cube->meshes[0];

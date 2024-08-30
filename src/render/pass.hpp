@@ -22,6 +22,8 @@ public:
     void reset();
 
     void setup_framebuffer(int width, int height, Texture_Type type, bool mipmap=false);
+    void setup_framebuffer_default(int width, int height);
+
     int buffer_width;
     int buffer_height;
 

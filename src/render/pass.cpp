@@ -45,6 +45,17 @@ void Pass::setup_framebuffer(int width, int height, Texture_Type type, bool mipm
     buffer_height = height;
 }
 
+void Pass::setup_framebuffer_default(int width, int height)
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
+
+    buffer_width = width;
+    buffer_height = height;
+}
+
 void Pass::active()
 {
     shader->use();
@@ -78,110 +89,96 @@ void Pass::render(Mesh &mesh, Material &material, IBL_Data &ibl_data)
     shader->setFloat("_mat_roughness", material.roughness);
     shader->setFloat("_mat_metallic", material.metallic);
 
-    unsigned int texture_idx = 0;
     if (material.normal_map != nullptr) {
-        glActiveTexture(GL_TEXTURE0 + texture_idx);
-        glUniform1i(glGetUniformLocation(shader->ID, "_texture_normal"), texture_idx);
+        glActiveTexture(GL_TEXTURE0 + 0);
+        glUniform1i(glGetUniformLocation(shader->ID, "_texture_normal"), 0);
         glBindTexture(GL_TEXTURE_2D, material.normal_map->get_id());
         shader->setBool("use_normal_map", true);
-        texture_idx++;
     }
 
     if (material.ambient_map != nullptr) {
-        glActiveTexture(GL_TEXTURE0 + texture_idx);
-        glUniform1i(glGetUniformLocation(shader->ID, "_texture_ambient"), texture_idx);
+        glActiveTexture(GL_TEXTURE0 + 1);
+        glUniform1i(glGetUniformLocation(shader->ID, "_texture_ambient"), 1);
         glBindTexture(GL_TEXTURE_2D, material.ambient_map->get_id());
         shader->setBool("use_ambient_map", true);
-        texture_idx++;
     }
 
     if (material.diffuse_map != nullptr) {
-        glActiveTexture(GL_TEXTURE0 + texture_idx);
-        glUniform1i(glGetUniformLocation(shader->ID, "_texture_diffuse"), texture_idx);
+        glActiveTexture(GL_TEXTURE0 + 2);
+        glUniform1i(glGetUniformLocation(shader->ID, "_texture_diffuse"), 2);
         glBindTexture(GL_TEXTURE_2D, material.diffuse_map->get_id());
         shader->setBool("use_diffuse_map", true);
-        texture_idx++;
     }
 
     if (material.specular_map != nullptr) {
-        glActiveTexture(GL_TEXTURE0 + texture_idx);
-        glUniform1i(glGetUniformLocation(shader->ID, "_texture_specular"), texture_idx);
+        glActiveTexture(GL_TEXTURE0 + 3);
+        glUniform1i(glGetUniformLocation(shader->ID, "_texture_specular"), 3);
         glBindTexture(GL_TEXTURE_2D, material.specular_map->get_id());
         shader->setBool("use_specular_map", true);
-        texture_idx++;
     }
 
     if (material.emissive_map != nullptr) {
-        glActiveTexture(GL_TEXTURE0 + texture_idx);
-        glUniform1i(glGetUniformLocation(shader->ID, "_texture_emissive"), texture_idx);
+        glActiveTexture(GL_TEXTURE0 + 4);
+        glUniform1i(glGetUniformLocation(shader->ID, "_texture_emissive"), 4);
         glBindTexture(GL_TEXTURE_2D, material.emissive_map->get_id());
         shader->setBool("use_emissive_map", true);
-        texture_idx++;
     }
 
     if (material.metallic_map != nullptr) {
-        glActiveTexture(GL_TEXTURE0 + texture_idx);
-        glUniform1i(glGetUniformLocation(shader->ID, "_texture_metallic"), texture_idx);
+        glActiveTexture(GL_TEXTURE0 + 5);
+        glUniform1i(glGetUniformLocation(shader->ID, "_texture_metallic"), 5);
         glBindTexture(GL_TEXTURE_2D, material.metallic_map->get_id());
         shader->setBool("use_metallic_map", true);
-        texture_idx++;
     }
 
     if (material.roughness_map != nullptr) {
-        glActiveTexture(GL_TEXTURE0 + texture_idx);
-        glUniform1i(glGetUniformLocation(shader->ID, "_texture_roughness"), texture_idx);
+        glActiveTexture(GL_TEXTURE0 + 6);
+        glUniform1i(glGetUniformLocation(shader->ID, "_texture_roughness"), 6);
         glBindTexture(GL_TEXTURE_2D, material.roughness_map->get_id());
         shader->setBool("use_roughness_map", true);
-        texture_idx++;
     }
 
     if (material.ao_map != nullptr) {
-        glActiveTexture(GL_TEXTURE0 + texture_idx);
-        glUniform1i(glGetUniformLocation(shader->ID, "_texture_ao"), texture_idx);
+        glActiveTexture(GL_TEXTURE0 + 7);
+        glUniform1i(glGetUniformLocation(shader->ID, "_texture_ao"), 7);
         glBindTexture(GL_TEXTURE_2D, material.ao_map->get_id());
         shader->setBool("use_ao_map", true);
-        texture_idx++;
     }
 
     if (material.metal_roughness_map != nullptr) {
-        glActiveTexture(GL_TEXTURE0 + texture_idx);
-        glUniform1i(glGetUniformLocation(shader->ID, "_texture_metal_roughness"), texture_idx);
+        glActiveTexture(GL_TEXTURE0 + 8);
+        glUniform1i(glGetUniformLocation(shader->ID, "_texture_metal_roughness"), 8);
         glBindTexture(GL_TEXTURE_2D, material.metal_roughness_map->get_id());
         shader->setBool("use_metal_roughness_map", true);
-        texture_idx++;
     }
 
     // Bind IBL data as texture.
     if (ibl_data.irrandiance_map != nullptr) {
-        glActiveTexture(GL_TEXTURE0 + texture_idx);
-        glUniform1i(glGetUniformLocation(shader->ID, "irrandiance_map"), texture_idx);
+        glActiveTexture(GL_TEXTURE0 + 9);
+        glUniform1i(glGetUniformLocation(shader->ID, "irrandiance_map"), 9);
         glBindTexture(GL_TEXTURE_CUBE_MAP, ibl_data.irrandiance_map->get_id());
-        texture_idx++;
     }
 
     if (ibl_data.prefiltered_map != nullptr) {
-        glActiveTexture(GL_TEXTURE0 + texture_idx);
-        glUniform1i(glGetUniformLocation(shader->ID, "prefiltered_map"), texture_idx);
+        glActiveTexture(GL_TEXTURE0 + 10);
+        glUniform1i(glGetUniformLocation(shader->ID, "prefiltered_map"), 10);
         glBindTexture(GL_TEXTURE_CUBE_MAP, ibl_data.prefiltered_map->get_id());
-        texture_idx++;
     }
 
     if (ibl_data.precomputed_brdf != nullptr) {
-        glActiveTexture(GL_TEXTURE0 + texture_idx);
-        glUniform1i(glGetUniformLocation(shader->ID, "precomputed_brdf"), texture_idx);
+        glActiveTexture(GL_TEXTURE0 + 11);
+        glUniform1i(glGetUniformLocation(shader->ID, "precomputed_brdf"), 11);
         glBindTexture(GL_TEXTURE_2D, ibl_data.precomputed_brdf->get_id());
-        texture_idx++;
     }
 
     // Specially for pass_skybox.
-    if (name == "skybox") {
-        if (material.skybox_map != nullptr) {
-            glActiveTexture(GL_TEXTURE0 + texture_idx);
-            glUniform1i(glGetUniformLocation(shader->ID, "environment_map"), texture_idx);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, material.skybox_map->get_id());
-            texture_idx++;
-        }
+    if (name == "skybox" && material.skybox_map != nullptr) {
+        glActiveTexture(GL_TEXTURE0 + 12);
+        glUniform1i(glGetUniformLocation(shader->ID, "environment_map"), 12);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, material.skybox_map->get_id());
     }
+
+    glViewport(0, 0, buffer_width, buffer_height);
 
     // Draw mesh via VAO.
     glBindVertexArray(mesh.VAO);
@@ -222,10 +219,6 @@ void Pass::render_cubemap(Mesh &mesh, Texture &texture)
 
     shader->setMat4("projection", captureProjection);
 
-    // Record current viewport for restore.
-    GLint viewport[4];
-    glGetIntegerv(GL_VIEWPORT, viewport);
-
     glViewport(0, 0, buffer_width, buffer_height);
 
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -247,16 +240,10 @@ void Pass::render_cubemap(Mesh &mesh, Texture &texture)
     }
 
     glActiveTexture(GL_TEXTURE0);
-
-    glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 }
 
 void Pass::render_quad(Mesh &mesh)
 {
-    // Record current viewport for restore.
-    GLint viewport[4];
-    glGetIntegerv(GL_VIEWPORT, viewport);
-
     glViewport(0, 0, buffer_width, buffer_height);
 
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -271,8 +258,6 @@ void Pass::render_quad(Mesh &mesh)
     glBindVertexArray(0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 }
 
 void Pass::render_cubemap_mipmap(Mesh &mesh, Texture &texture)
@@ -296,10 +281,6 @@ void Pass::render_cubemap_mipmap(Mesh &mesh, Texture &texture)
     };
 
     shader->setMat4("projection", captureProjection);
-
-    // Record current viewport for restore.
-    GLint viewport[4];
-    glGetIntegerv(GL_VIEWPORT, viewport);
 
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     unsigned int maxMipLevels = 5;
@@ -330,6 +311,4 @@ void Pass::render_cubemap_mipmap(Mesh &mesh, Texture &texture)
         }
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 }

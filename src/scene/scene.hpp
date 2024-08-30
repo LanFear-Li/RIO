@@ -23,6 +23,9 @@ public:
     void update();
     void render(Pass &render_pass);
 
+    unsigned int screen_width{};
+    unsigned int screen_height{};
+
     bool cubemap_converted = false;
     bool ibl_generated = false;
 
