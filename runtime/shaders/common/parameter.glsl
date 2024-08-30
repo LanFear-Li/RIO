@@ -87,8 +87,10 @@ uniform sampler2D   _texture_metal_roughness;
 uniform sampler2D   _texture_ao;
 
 // ---------------------
-// Skybox & IBL.
+// IBL Data for PBR.
 // ---------------------
-// uniform sampler2D   environment_map;
+uniform samplerCube environment_map;
 uniform samplerCube irrandiance_map;
+uniform samplerCube prefiltered_map;
+uniform sampler2D   precomputed_brdf;
 uniform bool        use_ibl_data;

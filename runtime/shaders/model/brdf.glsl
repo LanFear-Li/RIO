@@ -1,53 +1,6 @@
 #pragma once
 
-vec3 diffuse_Lambert(vec3 diffuse_color)
-{
-    return diffuse_color * INV_PI;
-}
-
-// Normal distribution term with GGX.
-float distribution_GGX(float roughness, float cos_N_H)
-{
-    float aPow = pow4(roughness);
-    float NdotHPow = cos_N_H * cos_N_H;
-
-    float numerator = aPow;
-    float denominator = NdotHPow * (aPow - 1.0) + 1.0;
-    denominator = PI * denominator * denominator;
-
-    return numerator / denominator;
-}
-
-float visibility_Schlick_GGX(float roughness, float cos_N_V)
-{
-    float r = (roughness + 1.0);
-    float k = (r * r) / 8.0;
-
-    float numerator   = cos_N_V;
-    float denominator = cos_N_V * (1.0 - k) + k;
-
-    return numerator / denominator;
-}
-
-// Visibility/Geometry term with Smith GGX.
-float visibility_Smith(float roughness, float cos_N_V, float cos_N_L)
-{
-    float ggx1 = visibility_Schlick_GGX(roughness, cos_N_V);
-    float ggx2 = visibility_Schlick_GGX(roughness, cos_N_L);
-    return ggx1 * ggx2;
-}
-
-// Fresnel term with Schlick.
-vec3 Fresnel_Schlick(vec3 F0, float cos_V_H)
-{
-    float term = pow(clamp(1.0 - cos_V_H, 0.0, 1.0), 5.0);
-    return F0 + (1.0 - F0) * term;
-}
-
-vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
-{
-    return F0 + (max(vec3(1.0f - roughness), F0) - F0) * pow(clamp(1.0f - cosTheta, 0.0f, 1.0f), 5.0f);
-}
+#include "../util/evaluate.glsl"
 
 vec3 brdf(vec3 light_dir, vec3 view_dir, Material material)
 {
@@ -80,12 +33,15 @@ vec3 brdf(vec3 light_dir, vec3 view_dir, Material material)
 vec3 evaluate_ibl(vec3 world_pos, vec3 eye_pos, Material material)
 {
     vec3 albedo = pow(material.diffuse, vec3(2.2));
+    float roughness = material.roughness;
     vec3 normal = normalize(material.normal);
+
     vec3 view_dir = normalize(eyePos - world_pos);
     float cos_N_V = max(dot(normal, view_dir), 0.0);
+    vec3 reflect_dir = reflect(-view_dir, normal);
 
     vec3 F0 = mix(vec3(0.04), albedo, material.metallic);
-    vec3 F = FresnelSchlickRoughness(cos_N_V, F0, material.roughness);
+    vec3 F = FresnelSchlickRoughness(cos_N_V, F0, roughness);
 
     vec3 kS = F;
     vec3 kD = 1.0 - kS;
@@ -94,10 +50,11 @@ vec3 evaluate_ibl(vec3 world_pos, vec3 eye_pos, Material material)
     vec3 irradiance = texture(irrandiance_map, material.normal).rgb;
     vec3 diffuse = irradiance * albedo;
 
-    // const float MAX_REFLECTION_LOD = 4.0f;
-    // vec3 prefilteredColor = textureLod(u_prefilterMap, R, roughness * MAX_REFLECTION_LOD).rgb;
-    // vec3 specular = prefilteredColor * EnvBRDFApprox(F, roughness, max(dot(N, V), 0.0f));
-    return (kD * diffuse) * material.ao;
+    const float MAX_REFLECTION_LOD = 4.0f;
+    vec3 prefiltered_color = textureLod(prefiltered_map, reflect_dir, roughness * MAX_REFLECTION_LOD).rgb;
+    vec2 brdf = texture(precomputed_brdf, vec2(cos_N_V, roughness)).rg;
+    vec3 specular = prefiltered_color * (F * brdf.x + brdf.y);
+    return (kD * diffuse + specular) * material.ao;
 }
 
 vec3 evaluate_brdf(vec3 world_pos, vec3 eye_pos, Material material)

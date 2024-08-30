@@ -30,7 +30,7 @@ void Pass::prepare()
     }
 }
 
-void Pass::setup_framebuffer(int width, int height, bool mipmap)
+void Pass::setup_framebuffer(int width, int height, Texture_Type type, bool mipmap)
 {
     glGenFramebuffers(1, &fbo);
     glGenRenderbuffers(1, &rbo);
@@ -40,7 +40,7 @@ void Pass::setup_framebuffer(int width, int height, bool mipmap)
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
 
-    output = create_texture(Texture_Type::TEXTURE_CUBE_MAP, width, height, mipmap);
+    output = create_texture(type, width, height, mipmap);
     buffer_width = width;
     buffer_height = height;
 }
@@ -159,6 +159,20 @@ void Pass::render(Mesh &mesh, Material &material, IBL_Data &ibl_data)
         texture_idx++;
     }
 
+    if (ibl_data.prefiltered_map != nullptr) {
+        glActiveTexture(GL_TEXTURE0 + texture_idx);
+        glUniform1i(glGetUniformLocation(shader->ID, "prefiltered_map"), texture_idx);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, ibl_data.prefiltered_map->get_id());
+        texture_idx++;
+    }
+
+    if (ibl_data.precomputed_brdf != nullptr) {
+        glActiveTexture(GL_TEXTURE0 + texture_idx);
+        glUniform1i(glGetUniformLocation(shader->ID, "precomputed_brdf"), texture_idx);
+        glBindTexture(GL_TEXTURE_2D, ibl_data.precomputed_brdf->get_id());
+        texture_idx++;
+    }
+
     // Specially for pass_skybox.
     if (name == "skybox") {
         if (material.skybox_map != nullptr) {
@@ -237,6 +251,30 @@ void Pass::render_cubemap(Mesh &mesh, Texture &texture)
     glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 }
 
+void Pass::render_quad(Mesh &mesh)
+{
+    // Record current viewport for restore.
+    GLint viewport[4];
+    glGetIntegerv(GL_VIEWPORT, viewport);
+
+    glViewport(0, 0, buffer_width, buffer_height);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, buffer_width, buffer_height);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, output->get_id(), 0);
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // Draw mesh via VAO.
+    glBindVertexArray(mesh.VAO);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindVertexArray(0);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+}
+
 void Pass::render_cubemap_mipmap(Mesh &mesh, Texture &texture)
 {
     unsigned int texture_idx = 0;
@@ -272,7 +310,7 @@ void Pass::render_cubemap_mipmap(Mesh &mesh, Texture &texture)
 
         glBindRenderbuffer(GL_RENDERBUFFER, rbo);
         // TODO: Bind RBO size here don't take effect?
-        // glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 128, 128);
+        // glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipWidth, mipHeight);
         glViewport(0, 0, mipWidth, mipHeight);
 
         float roughness = (float) mip / (float) (maxMipLevels - 1);

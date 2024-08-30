@@ -138,7 +138,8 @@ void Scene::prepare_scene(std::string scene_name)
         point_light_list.push_back(std::move(light));
     }
 
-    model_light = Model::constructCube();
+    model_cube = Model::constructCube();
+    model_quad = Model::constructQuad();
 
     // Load config from scene.
     scene_config->model_name = model_list.front()->model_name;
@@ -192,7 +193,8 @@ void Scene::update_skybox(std::string skybox_name)
         cubemap_converted = false;
     }
 
-    from_equirectangular = false;
+    // Reset environment map from skybox map.
+    ibl_data->environment_map = model_skybox->materials[0]->skybox_map;
     ibl_generated = false;
 }
 
@@ -204,7 +206,7 @@ void Scene::render(Pass &render_pass)
         render_pass.prepare();
         render_pass.active();
         render_pass.reset();
-        render_pass.setup_framebuffer(1024, 1024);
+        render_pass.setup_framebuffer(1024, 1024, Texture_Type::TEXTURE_CUBE_MAP);
 
         auto &material = model_skybox->materials[0];
         auto &mesh = model_skybox->meshes[0];
@@ -214,9 +216,7 @@ void Scene::render(Pass &render_pass)
 
         material->skybox_map = std::move(render_pass.output);
         ibl_data->environment_map = material->skybox_map;
-
         cubemap_converted = true;
-        from_equirectangular = true;
     }
 
     if (pass_name == "skybox" && scene_config->show_skybox) {
@@ -233,8 +233,6 @@ void Scene::render(Pass &render_pass)
         shader->setMat4("view", camera->GetViewMatrix());
         shader->setMat4("projection", camera->GetProjectionMatrix());
 
-        shader->setBool("from_equirectangular", from_equirectangular);
-
         render_pass.render(*mesh, *material, *ibl_data);
     }
 
@@ -242,9 +240,9 @@ void Scene::render(Pass &render_pass)
         render_pass.prepare();
         render_pass.active();
         render_pass.reset();
-        render_pass.setup_framebuffer(32, 32);
+        render_pass.setup_framebuffer(32, 32, Texture_Type::TEXTURE_CUBE_MAP);
 
-        auto &mesh = model_skybox->meshes[0];
+        auto &mesh = model_cube->meshes[0];
         render_pass.render_cubemap(*mesh, *ibl_data->environment_map);
 
         ibl_data->irrandiance_map = std::move(render_pass.output);
@@ -254,12 +252,24 @@ void Scene::render(Pass &render_pass)
         render_pass.prepare();
         render_pass.active();
         render_pass.reset();
-        render_pass.setup_framebuffer(128, 128, true);
+        render_pass.setup_framebuffer(128, 128, Texture_Type::TEXTURE_CUBE_MAP ,true);
 
-        auto &mesh = model_skybox->meshes[0];
+        auto &mesh = model_cube->meshes[0];
         render_pass.render_cubemap_mipmap(*mesh, *ibl_data->environment_map);
 
         ibl_data->prefiltered_map = std::move(render_pass.output);
+    }
+
+    if (pass_name == "ibl_precomputed_brdf" && scene_config->enable_ibl && !ibl_generated) {
+        render_pass.prepare();
+        render_pass.active();
+        render_pass.reset();
+        render_pass.setup_framebuffer(512, 512, Texture_Type::TEXTURE_2D);
+
+        auto &mesh = model_quad->meshes[0];
+        render_pass.render_quad(*mesh);
+
+        ibl_data->precomputed_brdf = std::move(render_pass.output);
         ibl_generated = true;
     }
 
@@ -314,8 +324,8 @@ void Scene::render(Pass &render_pass)
             render_pass.active();
             render_pass.reset();
 
-            auto &material = model_light->materials[0];
-            auto &mesh = model_light->meshes[0];
+            auto &material = model_cube->materials[0];
+            auto &mesh = model_cube->meshes[0];
             auto &shader = render_pass.shader;
 
             glm::mat4 model_matrix = glm::identity<glm::mat4x4>();

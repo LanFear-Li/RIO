@@ -19,5 +19,9 @@ void main()
     vec2 uv = SampleSphericalMap(normalize(texCoord));
     vec3 color = texture(equirectangular_map, uv).rgb;
 
+    // HDR Tonemap and gamma correct.
+    color = color / (color + vec3(1.0));
+    color = pow(color, vec3(1.0 / 2.2));
+
     fragColor = vec4(color, 1.0);
 }

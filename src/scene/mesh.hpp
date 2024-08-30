@@ -35,6 +35,7 @@ public:
     Mesh(vector<Vertex> vertices, vector<unsigned int> indices, unsigned int index);
 
     void setupCubeMesh();
+    void setupQuadMesh();
 
     // Mesh data storage.
     vector<Vertex> vertices;

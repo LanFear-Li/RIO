@@ -131,6 +131,20 @@ std::unique_ptr<Model> Model::constructCube()
     return model;
 }
 
+std::unique_ptr<Model> Model::constructQuad()
+{
+    auto model = std::make_unique<Model>();
+
+    auto material = std::make_unique<Material>();
+    auto mesh = std::make_unique<Mesh>();
+    mesh->setupQuadMesh();
+
+    model->materials.push_back(std::move(material));
+    model->meshes.push_back(std::move(mesh));
+
+    return model;
+}
+
 // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
 void Model::processNode(aiNode *node, const aiScene *scene)
 {

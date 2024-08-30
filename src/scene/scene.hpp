@@ -24,9 +24,9 @@ public:
     void render(Pass &render_pass);
 
     bool cubemap_converted = false;
-    bool from_equirectangular = false;
-
     bool ibl_generated = false;
+
+    std::shared_ptr<Panel_Config> scene_config;
 
     std::unique_ptr<Camera> camera;
     std::vector<std::unique_ptr<PointLight>> point_light_list;
@@ -42,8 +42,7 @@ public:
     // IBL.
     std::unique_ptr<IBL_Data> ibl_data;
 
-    // Light.
-    std::unique_ptr<Model> model_light;
-
-    std::shared_ptr<Panel_Config> scene_config;
+    // Mesh model for pass.
+    std::unique_ptr<Model> model_cube;
+    std::unique_ptr<Model> model_quad;
 };

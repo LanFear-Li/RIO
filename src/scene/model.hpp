@@ -38,6 +38,7 @@ public:
     static std::unique_ptr<Model> constructCubemap(std::vector<std::string> cubemap_path);
 
     static std::unique_ptr<Model> constructCube();
+    static std::unique_ptr<Model> constructQuad();
 
 private:
     // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.

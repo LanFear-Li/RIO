@@ -86,13 +86,14 @@ void Renderer::run()
         scene->render(*pass_rect_to_cube);
         scene->render(*pass_ibl_irradiance);
         scene->render(*pass_ibl_prefiltered_map);
+        scene->render(*pass_ibl_precomputed_brdf);
 
         // Pass runtime.
         scene->render(*pass_skybox);
-
         scene->render(*pass_shade);
         scene->render(*pass_light);
 
+        // Pass ui.
         panel->render();
 
         process_key(window->deltaTime);
