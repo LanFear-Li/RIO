@@ -1,6 +1,9 @@
 # Render In OpenGL
 
-RIO is a shader-based rasterized renderer.
+[![CMake Windows](https://github.com/LanFear-Li/RIO/actions/workflows/cmake_windows.yml/badge.svg)](https://github.com/LanFear-Li/RIO/actions/workflows/cmake_windows.yml)
+[![CMake Linux](https://github.com/LanFear-Li/RIO/actions/workflows/cmake_linux.yml/badge.svg)](https://github.com/LanFear-Li/RIO/actions/workflows/cmake_linux.yml)
+
+RIO: Experimental Farm for Real-Time Rendering Algorithms.
 
 ## Features
 
