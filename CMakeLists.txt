@@ -41,12 +41,7 @@ file(GLOB_RECURSE SOURCES src/*.cpp src/*.c)
 add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 
-if (WIN32)
-    set(LIBS glfw glad assimp glm stb imgui json pep-cprep)
-elseif (UNIX)
-    message(FATAL_ERROR "RIO currently don't support unix-like system." )
-endif (WIN32)
-
+set(LIBS glfw glad assimp glm stb imgui json pep-cprep)
 target_link_libraries(${PROJECT_NAME} ${LIBS})
 
 # Load config for root directory.
