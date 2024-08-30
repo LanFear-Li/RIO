@@ -19,7 +19,7 @@ void main()
     vec3 prefiltered_color = vec3(0.0);
     for (uint i = 0u; i < SAMPLE_COUNT; ++i) {
         // Generates a sample vector that's biased towards the preferred alignment direction (importance sampling).
-        vec2 Xi = Hammersley(i, SAMPLE_COUNT);
+        vec2 Xi = hammersley(i, SAMPLE_COUNT);
         vec3 H = importance_sample_GGX(_ibl_roughness, Xi, N);
         vec3 L = normalize(2.0 * dot(V, H) * H - V);
 

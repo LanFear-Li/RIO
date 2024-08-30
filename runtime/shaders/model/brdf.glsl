@@ -18,7 +18,7 @@ vec3 brdf(vec3 light_dir, vec3 view_dir, Material material)
     float visibility = visibility_Smith(material.roughness, cos_N_V, cos_N_L);
 
     vec3 F0 = mix(vec3(0.04), albedo, material.metallic);
-    vec3 fresnel = Fresnel_Schlick(F0, cos_V_H);
+    vec3 fresnel = fresnel_Schlick(F0, cos_V_H);
 
     vec3 numerator    = distribution * visibility * fresnel;
     float denominator = (4.0 * cos_N_L * cos_N_V) + 0.0001;
@@ -41,7 +41,7 @@ vec3 evaluate_ibl(vec3 world_pos, vec3 eye_pos, Material material)
     vec3 reflect_dir = reflect(-view_dir, normal);
 
     vec3 F0 = mix(vec3(0.04), albedo, material.metallic);
-    vec3 F = FresnelSchlickRoughness(cos_N_V, F0, roughness);
+    vec3 F = fresnel_Schlick_roughness(cos_N_V, F0, roughness);
 
     vec3 kS = F;
     vec3 kD = 1.0 - kS;

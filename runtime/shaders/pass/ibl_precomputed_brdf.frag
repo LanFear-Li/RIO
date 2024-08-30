@@ -19,7 +19,7 @@ vec2 integrate_brdf(float cos_N_V, float roughness)
     for(uint i = 0u; i < SAMPLE_COUNT; ++i) {
         // generates a sample vector that's biased towards the
         // preferred alignment direction (importance sampling).
-        vec2 Xi = Hammersley(i, SAMPLE_COUNT);
+        vec2 Xi = hammersley(i, SAMPLE_COUNT);
         vec3 H = importance_sample_GGX(roughness, Xi, N);
         vec3 L = normalize(2.0 * dot(V, H) * H - V);
 

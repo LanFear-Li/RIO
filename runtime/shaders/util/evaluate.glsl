@@ -40,31 +40,32 @@ float visibility_Smith(float roughness, float cos_N_V, float cos_N_L)
 }
 
 // Fresnel term with Schlick.
-vec3 Fresnel_Schlick(vec3 F0, float cos_V_H)
+vec3 fresnel_Schlick(vec3 F0, float cos_V_H)
 {
     float term = pow(clamp(1.0 - cos_V_H, 0.0, 1.0), 5.0);
     return F0 + (1.0 - F0) * term;
 }
 
-vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
+vec3 fresnel_Schlick_roughness(float cosTheta, vec3 F0, float roughness)
 {
     return F0 + (max(vec3(1.0f - roughness), F0) - F0) * pow(clamp(1.0f - cosTheta, 0.0f, 1.0f), 5.0f);
 }
 
 // Efficient VanDerCorpus calculation.
-float RadicalInverse_VdC(uint bits)
+float radical_inverse_VDC(uint bits)
 {
     bits = (bits << 16u) | (bits >> 16u);
     bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u);
     bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xCCCCCCCCu) >> 2u);
     bits = ((bits & 0x0F0F0F0Fu) << 4u) | ((bits & 0xF0F0F0F0u) >> 4u);
     bits = ((bits & 0x00FF00FFu) << 8u) | ((bits & 0xFF00FF00u) >> 8u);
-    return float(bits) * 2.3283064365386963e-10;// / 0x100000000
+    // Equals to divide 0x100000000.
+    return float(bits) * 2.3283064365386963e-10;
 }
 
-vec2 Hammersley(uint i, uint N)
+vec2 hammersley(uint i, uint N)
 {
-    return vec2(float(i) / float(N), RadicalInverse_VdC(i));
+    return vec2(float(i) / float(N), radical_inverse_VDC(i));
 }
 
 vec3 importance_sample_GGX(float roughness, vec2 Xi, vec3 N)
