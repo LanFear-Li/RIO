@@ -53,7 +53,7 @@ void Renderer::run()
         }
     });
 
-    window->setMouseCallback([&, this](GLFWwindow* glfw_window, uint32_t state, float x, float y, float last_x, float last_y) {
+    window->setMouseCallback([&](GLFWwindow* glfw_window, uint32_t state, float x, float y, float last_x, float last_y) {
         if (state == Window::MOUSE_RIGHT) {
             float xoffset = x - last_x;
             float yoffset = last_y - y;
@@ -61,12 +61,16 @@ void Renderer::run()
         }
     });
 
-    window->setResizeCallback([&cam = scene->camera](GLFWwindow* glfw_window, uint32_t width, uint32_t height) {
+    window->setResizeCallback([&](GLFWwindow* glfw_window, uint32_t width, uint32_t height) {
+        auto& cam = scene->camera;
         cam->cameraWidth = width;
         cam->cameraHeight = height;
+        scene->screen_width = width;
+        scene->screen_height = height;
     });
 
-    auto process_key = [&key_state, &cam = scene->camera, &window = window] (float dt) {
+    auto process_key = [&] (float dt) {
+        auto& cam = scene->camera;
         if (key_state[GLFW_KEY_W]) cam->ProcessKeyboard(Camera_Movement::FORWARD, dt);
         if (key_state[GLFW_KEY_S]) cam->ProcessKeyboard(Camera_Movement::BACKWARD, dt);
         if (key_state[GLFW_KEY_A]) cam->ProcessKeyboard(Camera_Movement::LEFT, dt);
