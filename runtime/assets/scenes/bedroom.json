@@ -1,6 +1,6 @@
 {
     "camera": {
-        "position": [0, 0, 3],
+        "position": [-3, 17, 28],
         "resolution": [1280, 720],
         "draw-distance": [0.1, 5000.0]
     },
@@ -14,14 +14,13 @@
     },
     "models": {
         "model-1": {
-            "name": "DamagedHelmet",
+            "name": "bedroom",
             "position": [0.0, 0.0, 0.0],
-            "rotation": [90.0, 0.0, 0.0],
+            "rotation": [-90.0, 0.0, 0.0],
             "scaling": 1.0
         }
     },
     "skybox": {
         "name": "street"
-    },
-    "enable_ibl": true
+    }
 }
