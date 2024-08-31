@@ -3,7 +3,7 @@
 [![CMake Windows](https://github.com/LanFear-Li/RIO/actions/workflows/cmake_windows.yml/badge.svg)](https://github.com/LanFear-Li/RIO/actions/workflows/cmake_windows.yml)
 [![CMake Linux](https://github.com/LanFear-Li/RIO/actions/workflows/cmake_linux.yml/badge.svg)](https://github.com/LanFear-Li/RIO/actions/workflows/cmake_linux.yml)
 
-RIO is a real-time rasterization renderer with OpenGL backend. It aims to implement SOTA real-time rendering algorithms for personal education usage. More specifically, RIO will focus on Shading, Lighting & Shadowing, Anti-Aliasing techniques.
+RIO is a real-time rasterization renderer with OpenGL backend. It aims to implement SOTA real-time rendering algorithms for personal education usage. RIO will specifically focus on Shading, Lighting & Shadowing, and Anti-Aliasing techniques.
 
 ## Features
 
@@ -42,30 +42,32 @@ RIO is a real-time rasterization renderer with OpenGL backend. It aims to implem
 
 **Build**
 
-Since all dependencies are included with source code, you can build RIO from any IDE with cmake on windows. Other platforms are currently not supported.
+Since all dependencies are included with source code, you can build RIO from any IDE with CMake on Windows. Other platforms are currently not supported.
 
 **Control**
 
 <img src="screenshot\rio_interface.png" alt="rio_interface"  />
 
-Image above shows the Interface of RIO with ImGui. You can modify several **render option** like
+The image above shows the RIO interface with ImGui. You can modify several **render options** like
 
-* Show skybox / Enable IBL / Render Light Model, etc.
-* Switch shading method / Switch skybox.
+- Show skybox / Enable IBL / Render Light Model, etc.
+- Switch shading method / Switch skybox.
 
-You can modify **scene option** with camera, all lights and models with
+You can modify **scene options** with a camera, all lights, and models with
 
-* Switch models / Change model position, rotation, scaling, etc.
-* Set camera position, rotation, move speed, etc.
-* Set light position, color, intensity, etc.
+- Switch models / Change model position, rotation, scaling, etc.
+- Set camera position, rotation, move speed, etc.
+- Set light position, color, intensity, etc.
 
-Additionally, keyboard control for camera and events are supported
+Additionally, keyboard control for the camera and events is supported
 
-* WASD: Travel with **FPS** camera.
-* Up / Down: **Increase / Decrease** camera move speed.
-* F: Switch from **F**ull screen.
-* M: Open / Close GUI panel like **M**ap.
-* P: **P**rint current framebuffer and save to project directory.
+- WASD: Travel with **FPS** camera.
+- Hold Mouse Right: Rotate the camera.
+- E / Q: Camera up and down.
+- Up / Down: **Increase / Decrease** camera movement speed.
+- F: Switch from **F**ull screen.
+- M: Open / Close GUI panel like **M**ap.
+- P: **P**rint the current framebuffer and save it to the project directory.
 
 ## Dependencies
 
