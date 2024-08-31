@@ -1,12 +1,3 @@
-mtllib regr_3429812.mtl
-v 0.0498759 0.964456 0.0949991
-v 0.042335 0.96222 0.0980526
-v 0.0418548 0.961535 0.096869
-v 0.049267 0.963762 0.0939126
-usemtl Trim
-g rectangle
-f 4 3 2 1
-g triangle1
-f 4 3 2
-g triangle2
-f 4 2 1
+version https://git-lfs.github.com/spec/v1
+oid sha256:b7f72ab8efb4564db1bf36abd0448f9097620fab2aebcd00e3647ca8876e5ed6
+size 217
