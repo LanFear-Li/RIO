@@ -26,6 +26,8 @@ struct Panel_Config {
     bool render_light = true;
     bool render_shadow = false;
 
+    bool render_gui = true;
+
     Shading_Model shading_mode{Shading_Model::BRDF};
 
     // Scene config.

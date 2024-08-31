@@ -48,6 +48,10 @@ void Renderer::run()
             window->switchFullScreen();
         }
 
+        if (key == GLFW_KEY_M && action == GLFW_PRESS) {
+            scene->scene_config->render_gui = !scene->scene_config->render_gui;
+        }
+
         if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
             window->exit();
         }

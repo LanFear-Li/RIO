@@ -26,6 +26,10 @@ void Panel::render() {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
+    if (scene->scene_config->render_gui == false) {
+        return;
+    }
+
     // Settings begin.
     ImGui::Begin("Settings");
 
