@@ -1,0 +1,26 @@
+{
+    "camera": {
+        "position": [-1032.032, -682.132, 669.960],
+        "resolution": [1280, 720],
+        "draw-distance": [0.1, 5000.0]
+    },
+    "lights": {
+        "point-light-1": {
+            "position": [-958.700, -753.500, 0],
+            "color": [1, 1, 1],
+            "radius": 0.1,
+            "intensity": 5
+        }
+    },
+    "models": {
+        "model-1": {
+            "name": "lion",
+            "position": [0.0, 0.0, -2000.000],
+            "rotation": [-84.900, 0.0, -107.300],
+            "scaling": 1.0
+        }
+    },
+    "skybox": {
+        "name": "lake"
+    }
+}
