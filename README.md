@@ -42,7 +42,7 @@ RIO is a real-time rasterization renderer with OpenGL backend. It aims to implem
 
 **Build**
 
-Since all dependencies are included with source code, you can build RIO from any IDE with CMake on Windows. Other platforms are currently not supported.
+Since all dependencies are included with source code, you can build RIO from any IDE with CMake on Windows or Linux.
 
 **Control**
 
