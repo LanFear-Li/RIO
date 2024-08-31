@@ -52,6 +52,10 @@ void Renderer::run()
             scene->scene_config->render_gui = !scene->scene_config->render_gui;
         }
 
+        if (key == GLFW_KEY_P && action == GLFW_PRESS) {
+            scene->save_output();
+        }
+
         if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
             window->exit();
         }

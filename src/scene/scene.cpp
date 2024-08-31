@@ -4,6 +4,8 @@
 
 #include <nlohmann/json.hpp>
 #include <glm/gtx/euler_angles.hpp>
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image_write.h>
 
 #include <filesystem>
 
@@ -346,4 +348,29 @@ void Scene::render(Pass &render_pass)
             render_pass.render(*mesh, *material, *ibl_data);
         }
     }
+}
+
+void Scene::save_output() {
+    auto width = screen_width;
+    auto height = screen_height;
+
+    unsigned char* pixels = new unsigned char[width * height * 3];
+    glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+
+    // Flip image vertically while saving.
+    unsigned char* pixels_flipped = new unsigned char[width * height * 3];
+    for (int y = 0; y < height; ++y) {
+        memcpy(pixels_flipped + (height - 1 - y) * width * 3, pixels + y * width * 3, width * 3);
+    }
+
+    // Save as png file with stb_image_write.
+    auto file_name = FileSystem::getPath("output.png");
+    if (!stbi_write_png(file_name.c_str(), width, height, 3, pixels_flipped, width * 3)) {
+        std::cerr << "Failed to write framebuffer to file: " << file_name << std::endl;
+    } else {
+        std::cout << "Framebuffer saved successfully to " << file_name << std::endl;
+    }
+
+    delete[] pixels;
+    delete[] pixels_flipped;
 }

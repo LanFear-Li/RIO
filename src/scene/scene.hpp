@@ -22,6 +22,7 @@ public:
 
     void update();
     void render(Pass &render_pass);
+    void save_output();
 
     unsigned int screen_width{};
     unsigned int screen_height{};
