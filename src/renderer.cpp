@@ -1,8 +1,5 @@
 #include "renderer.hpp"
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
 #include <utility>
 
 Renderer::Renderer(std::string scene_name)
