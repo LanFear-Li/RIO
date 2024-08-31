@@ -44,11 +44,6 @@ void GlfwResizeCallback(GLFWwindow *glfw_window, int width, int height) {
     auto window = reinterpret_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
     glViewport(0, 0, width, height);
 
-    float width_scale, height_scale;
-    glfwGetWindowContentScale(glfw_window, &width_scale, &height_scale);
-
-    width /= width_scale;
-    height /= height_scale;
     if (window->screenWidth != width || window->screenHeight != height) {
         window->resize_callback_(glfw_window, width, height);
     }
