@@ -56,7 +56,7 @@ void Panel::render() {
         // Render shading model.
         auto &shading_list = ShadingModelNames;
         int shading_idx = panel_config->shading_mode;
-        if (ImGui::Combo("Shading Model", &shading_idx, shading_list.data(), (int) shading_list.size())) {
+        if (ImGui::Combo("Shading Method", &shading_idx, shading_list.data(), (int) shading_list.size())) {
             panel_config->shading_mode = static_cast<Shading_Model>(shading_idx);
         }
 
@@ -100,7 +100,7 @@ void Panel::render() {
 
         auto &model = scene->model_list[0];
         ImGui::DragFloat3("Position", (float *) &model->position, 0.1f, -1000.0f, 1000.f);
-        ImGui::DragFloat3("Rosition", (float *) &model->rotation, 0.1f, -180.0f, 180.f);
+        ImGui::DragFloat3("Rotation", (float *) &model->rotation, 0.1f, -180.0f, 180.f);
         ImGui::DragFloat("Scaling", &model->scaling, 0.1f, 0.0f, 100.0f);
         ImGui::PopID();
 
