@@ -146,6 +146,18 @@ void Panel::render() {
             ImGui::DragFloat("Intensity", &light->intensity, 0.1f, 0.0f, 1000.0f);
             ImGui::PopID();
         }
+
+        // Directional Light.
+        for (auto& light : scene->directional_light_list) {
+            ImGui::Separator();
+
+            ImGui::PushID(light->light_name.c_str());
+            ImGui::Text(light->light_name.c_str());
+            ImGui::DragFloat3("Direction", (float *) &light->direction, 0.1f, -180.0f, 180.f);
+            ImGui::ColorEdit3("Color", (float *) &light->color);
+            ImGui::DragFloat("Intensity", &light->intensity, 0.1f, 0.0f, 1000.0f);
+            ImGui::PopID();
+        }
     }
 
     // Settings end.

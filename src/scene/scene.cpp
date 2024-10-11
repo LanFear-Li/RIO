@@ -131,15 +131,28 @@ void Scene::prepare_scene(std::string scene_name)
     // Load light from scene.
     auto light_json = scene_json["lights"];
     for (auto& [name, config] : light_json.items()) {
-        auto light = std::make_unique<PointLight>();
+        auto type = config["type"].get<std::string>();
 
-        light->light_name = name;
-        light->position = json_to_vec3(config["position"]);
-        light->color = json_to_vec3(config["color"]);
-        light->radius = config["radius"].get<float>();
-        light->intensity = config["intensity"].get<float>();
+        if (type == "point") {
+            auto light = std::make_unique<PointLight>();
 
-        point_light_list.push_back(std::move(light));
+            light->light_name = name;
+            light->position = json_to_vec3(config["position"]);
+            light->color = json_to_vec3(config["color"]);
+            light->radius = config["radius"].get<float>();
+            light->intensity = config["intensity"].get<float>();
+
+            point_light_list.push_back(std::move(light));
+        } else if (type == "directional") {
+            auto light = std::make_unique<DirectionalLight>();
+
+            light->light_name = name;
+            light->direction = json_to_vec3(config["direction"]);
+            light->color = json_to_vec3(config["color"]);
+            light->intensity = config["intensity"].get<float>();
+
+            directional_light_list.push_back(std::move(light));
+        }
     }
 
     model_cube = Model::constructCube();
@@ -311,7 +324,31 @@ void Scene::render(Pass &render_pass)
                     shader->setFloat(light_idx + "radius", light->radius);
                     shader->setFloat(light_idx + "intensity", light->intensity);
                 }
+
+                int directional_light_num = directional_light_list.size();
+                for (int i = 0; i < directional_light_num; i++) {
+                    auto &light = directional_light_list[i];
+                    std::string light_idx = "directional_light[" + std::to_string(i) + "].";
+
+                    shader->setVec3(light_idx + "direction", light->direction);
+                    shader->setVec3(light_idx + "color", light->color);
+                    shader->setFloat(light_idx + "intensity", light->intensity);
+                }
+
+                int spot_light_num = spot_light_list.size();
+                for (int i = 0; i < spot_light_num; i++) {
+                    auto &light = spot_light_list[i];
+                    std::string light_idx = "spot_light[" + std::to_string(i) + "].";
+
+                    shader->setVec3(light_idx + "position", light->position);
+                    shader->setVec3(light_idx + "color", light->color);
+                    shader->setFloat(light_idx + "radius", light->radius);
+                    shader->setFloat(light_idx + "intensity", light->intensity);
+                }
+
                 shader->setInt("point_light_num", point_light_num);
+                shader->setInt("directional_light_num", directional_light_num);
+                shader->setInt("spot_light_num", spot_light_num);
 
                 shader->setBool("use_ibl_data", scene_config->enable_ibl && ibl_generated);
 

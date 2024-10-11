@@ -32,8 +32,11 @@ public:
 
     std::shared_ptr<Panel_Config> scene_config;
 
+    // Camera & Lights.
     std::unique_ptr<Camera> camera;
     std::vector<std::unique_ptr<PointLight>> point_light_list;
+    std::vector<std::unique_ptr<DirectionalLight>> directional_light_list;
+    std::vector<std::unique_ptr<SpotLight>> spot_light_list;
 
     // Model.
     std::vector<std::unique_ptr<Model>> model_list;

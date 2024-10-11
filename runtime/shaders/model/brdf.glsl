@@ -87,6 +87,15 @@ vec3 evaluate_brdf(vec3 world_pos, vec3 eye_pos, Material material)
         Lo += brdf(light_dir, view_dir, material) * light_color;
     }
 
+    for (int i = 0; i < directional_light_num; i++) {
+        vec3 light_dir = normalize(directional_light[i].direction);
+        vec3 light_color = directional_light[i].color * directional_light[i].intensity;
+
+        vec3 view_dir = normalize(eyePos - world_pos);
+
+        Lo += brdf(light_dir, view_dir, material) * light_color;
+    }
+
     result = ambient + Lo + material.emissive;
 
     return result;
