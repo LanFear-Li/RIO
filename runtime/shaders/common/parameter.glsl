@@ -5,17 +5,31 @@
 // ---------------------
 struct Point_Light
 {
-    vec3 position;
     vec3 color;
-    float radius;
     float intensity;
+
+    vec3 position;
+    float radius;
 };
 
 struct Directional_Light
 {
-    vec3 direction;
     vec3 color;
     float intensity;
+
+    vec3 direction;
+};
+
+struct Spot_Light
+{
+    vec3 color;
+    float intensity;
+
+    vec3 position;
+    vec3 direction;
+    float cutoff;
+    float outer_cutoff;
+    float radius;
 };
 
 // ---------------------
@@ -76,8 +90,10 @@ uniform bool                use_ao_map;
 const int                   MAX_LIGHT_NUM = 16;
 uniform Point_Light         point_light[MAX_LIGHT_NUM];
 uniform Directional_Light   directional_light[MAX_LIGHT_NUM];
+uniform Spot_Light          spot_light[MAX_LIGHT_NUM];
 uniform int                 point_light_num;
 uniform int                 directional_light_num;
+uniform int                 spot_light_num;
 
 uniform int                 shading_model;
 uniform vec3                ambient_color;

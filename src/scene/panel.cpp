@@ -123,11 +123,11 @@ void Panel::render() {
         ImGui::DragFloat3("Position", (float *) &camera->Position, 0.1f, -1000.0f, 1000.f);
 
         ImGui::PushItemWidth(windowWidth * 0.3f);
-        if (ImGui::DragFloat("Yaw", &camera->Yaw, 0.1f, -180.0f, 0.0f)) {
+        if (ImGui::DragFloat("Pitch", &camera->Pitch, 0.1f, -90.0f, 90.0f)) {
             camera->updateCameraVectors();
         }
         ImGui::SameLine();
-        if (ImGui::DragFloat("Pitch", &camera->Pitch, 0.1f, -90.0f, 90.0f)) {
+        if (ImGui::DragFloat("Yaw", &camera->Yaw, 0.1f, -180.0f, 0.0f)) {
             camera->updateCameraVectors();
         }
         ImGui::PopItemWidth();
@@ -153,8 +153,36 @@ void Panel::render() {
 
             ImGui::PushID(light->light_name.c_str());
             ImGui::Text(light->light_name.c_str());
-            ImGui::DragFloat3("Direction", (float *) &light->direction, 0.1f, -180.0f, 180.f);
+
+            ImGui::PushItemWidth(windowWidth * 0.3f);
+            ImGui::DragFloat("Pitch", &light->direction[0], 0.1f, -90.0f, 90.0f);
+            ImGui::SameLine();
+            ImGui::DragFloat("Yaw", &light->direction[1], 0.1f, -180.0f, 180.0f);
+            ImGui::PopItemWidth();
+
             ImGui::ColorEdit3("Color", (float *) &light->color);
+            ImGui::DragFloat("Intensity", &light->intensity, 0.1f, 0.0f, 1000.0f);
+            ImGui::PopID();
+        }
+
+        // Spot Light.
+        for (auto& light : scene->spot_light_list) {
+            ImGui::Separator();
+
+            ImGui::PushID(light->light_name.c_str());
+            ImGui::Text(light->light_name.c_str());
+            ImGui::DragFloat3("Position", (float *) &light->position, 0.1f, -1000.0f, -1000.f);
+
+            ImGui::PushItemWidth(windowWidth * 0.3f);
+            ImGui::DragFloat("Pitch", &light->direction[0], 0.1f, -180.0f, 180.0f);
+            ImGui::SameLine();
+            ImGui::DragFloat("Yaw", &light->direction[1], 0.1f, -180.0f, 180.0f);
+            ImGui::PopItemWidth();
+
+            ImGui::DragFloat("CutOff", &light->cutoff, 0.1f, 0.0f, light->outer_cutoff);
+            ImGui::DragFloat("OuterCutOff", &light->outer_cutoff, 0.1f, light->cutoff, 180.0f);
+            ImGui::ColorEdit3("Color", (float *) &light->color);
+            ImGui::DragFloat("Radius", &light->radius, 0.1f, 0.0f, 10.0f);
             ImGui::DragFloat("Intensity", &light->intensity, 0.1f, 0.0f, 1000.0f);
             ImGui::PopID();
         }

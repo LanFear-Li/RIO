@@ -152,6 +152,19 @@ void Scene::prepare_scene(std::string scene_name)
             light->intensity = config["intensity"].get<float>();
 
             directional_light_list.push_back(std::move(light));
+        } else if (type == "spot") {
+            auto light = std::make_unique<SpotLight>();
+
+            light->light_name = name;
+            light->position = json_to_vec3(config["position"]);
+            light->direction = json_to_vec3(config["direction"]);
+            light->cutoff = config["cutoff"].get<float>();
+            light->outer_cutoff = config["outer-cutoff"].get<float>();
+            light->color = json_to_vec3(config["color"]);
+            light->radius = config["radius"].get<float>();
+            light->intensity = config["intensity"].get<float>();
+
+            spot_light_list.push_back(std::move(light));
         }
     }
 
@@ -302,10 +315,13 @@ void Scene::render(Pass &render_pass)
                 auto &material = model->materials[mesh->materialIndex];
                 auto &shader = render_pass.shader;
 
+                glm::mat4 model_matrix = glm::identity<glm::mat4x4>();
                 auto rotation_radian = glm::radians(model->rotation);
-                auto model_matrix = glm::eulerAngleXYZ(rotation_radian.x, rotation_radian.y, rotation_radian.z);
                 model_matrix = glm::translate(model_matrix, model->position);
                 model_matrix = glm::scale(model_matrix, glm::vec3(model->scaling));
+                model_matrix = glm::rotate(model_matrix, rotation_radian.x, glm::vec3(1.0f, 0.0f, 0.0f));
+                model_matrix = glm::rotate(model_matrix, rotation_radian.y, glm::vec3(0.0f, 1.0f, 0.0f));
+                model_matrix = glm::rotate(model_matrix, rotation_radian.z, glm::vec3(0.0f, 0.0f, 1.0f));
 
                 shader->setMat4("model", model_matrix);
                 shader->setMat4("view", camera->GetViewMatrix());
@@ -330,7 +346,14 @@ void Scene::render(Pass &render_pass)
                     auto &light = directional_light_list[i];
                     std::string light_idx = "directional_light[" + std::to_string(i) + "].";
 
-                    shader->setVec3(light_idx + "direction", light->direction);
+                    glm::vec3 direction;
+                    float pitch = light->direction.x;
+                    float yaw = light->direction.y;
+                    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+                    direction.y = sin(glm::radians(pitch));
+                    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+
+                    shader->setVec3(light_idx + "direction", glm::normalize(direction));
                     shader->setVec3(light_idx + "color", light->color);
                     shader->setFloat(light_idx + "intensity", light->intensity);
                 }
@@ -341,6 +364,14 @@ void Scene::render(Pass &render_pass)
                     std::string light_idx = "spot_light[" + std::to_string(i) + "].";
 
                     shader->setVec3(light_idx + "position", light->position);
+
+                    glm::vec3 direction_ori = glm::vec3{0.0f, 0.0f, -1.0f};
+                    auto matrix = glm::eulerAngleXYZ(glm::radians(light->direction.x), glm::radians(light->direction.y), glm::radians(light->direction.z));
+                    glm::vec3 direction = glm::normalize(glm::vec3(matrix * glm::vec4(direction_ori, 0.0f)));
+
+                    shader->setVec3(light_idx + "direction", glm::normalize(direction));
+                    shader->setFloat(light_idx + "cutoff", glm::cos(glm::radians(light->cutoff)));
+                    shader->setFloat(light_idx + "outer_cutoff", glm::cos(glm::radians(light->outer_cutoff)));
                     shader->setVec3(light_idx + "color", light->color);
                     shader->setFloat(light_idx + "radius", light->radius);
                     shader->setFloat(light_idx + "intensity", light->intensity);
@@ -375,6 +406,36 @@ void Scene::render(Pass &render_pass)
             glm::mat4 model_matrix = glm::identity<glm::mat4x4>();
             model_matrix = glm::translate(model_matrix, position);
             model_matrix = glm::scale(model_matrix, glm::vec3(radius * 0.5f));
+
+            shader->setMat4("model", model_matrix);
+            shader->setMat4("view", camera->GetViewMatrix());
+            shader->setMat4("projection", camera->GetProjectionMatrix());
+
+            shader->setVec3("lightColor", color);
+
+            render_pass.render(*mesh, *material, *ibl_data);
+        }
+
+        for (auto& light : spot_light_list) {
+            auto position = light->position;
+            auto color = light->color;
+            auto radius = light->radius;
+
+            render_pass.prepare();
+            render_pass.active();
+            render_pass.reset();
+            render_pass.setup_framebuffer_default(screen_width, screen_height);
+
+            auto &material = model_cube->materials[0];
+            auto &mesh = model_cube->meshes[0];
+            auto &shader = render_pass.shader;
+
+            glm::mat4 model_matrix = glm::identity<glm::mat4x4>();
+            auto rotation_radian = glm::radians(light->direction);
+            model_matrix = glm::translate(model_matrix, position);
+            model_matrix = glm::scale(model_matrix, glm::vec3(radius * 0.5f));
+            model_matrix = glm::rotate(model_matrix, rotation_radian.x, glm::vec3(1.0f, 0.0f, 0.0f));
+            model_matrix = glm::rotate(model_matrix, rotation_radian.y, glm::vec3(0.0f, 1.0f, 0.0f));
 
             shader->setMat4("model", model_matrix);
             shader->setMat4("view", camera->GetViewMatrix());
