@@ -6,7 +6,24 @@
     },
     "lights": {
         "point-light-1": {
+            "type": "point",
             "position": [0, 4, 0],
+            "color": [1, 1, 1],
+            "radius": 0.1,
+            "intensity": 5
+        },
+        "directional-light-1": {
+            "type": "directional",
+            "direction": [90.0, 0.0, 0.0],
+            "color": [1, 1, 1],
+            "intensity": 5
+        },
+        "spot-light-1": {
+            "type": "spot",
+            "position": [0, 4, 0],
+            "direction": [90.0, 0.0, 0.0],
+            "cutoff": 12.5,
+            "outer-cutoff": 20.0,
             "color": [1, 1, 1],
             "radius": 0.1,
             "intensity": 5
