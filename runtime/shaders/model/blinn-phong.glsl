@@ -3,6 +3,7 @@
 #include "../common/parameter.glsl"
 #include "../common/material.glsl"
 #include "../util/math.glsl"
+#include "../util/light.glsl"
 
 vec3 phong(vec3 light_dir, vec3 view_dir, Material material)
 {
@@ -49,52 +50,27 @@ vec3 evaluate_phong(vec3 world_pos, vec3 eye_pos, Material material)
 
     vec3 result = vec3(0.0);
     for (int i = 0; i < point_light_num; i++) {
-        vec3 light_pos = point_light[i].position;
-        vec3 light_color = point_light[i].color * (point_light[i].intensity / 4.0 * PI);
-
-        float light_dis = distance(light_pos, world_pos);
-        float attenuation = 1.0 / (1.0 + 0.09 * light_dis + 0.032 * light_dis * light_dis);
-        light_color = light_color * attenuation;
-
-        vec3 light_dir = normalize(light_pos - world_pos);
+        vec3 light_dir;
         vec3 view_dir = normalize(eyePos - world_pos);
 
+        vec3 light_color = evaluate_point_light(point_light[i], world_pos, light_dir);
         result += phong(light_dir, view_dir, material) * light_color;
     }
 
     for (int i = 0; i < directional_light_num; i++) {
-        vec3 light_dir = normalize(directional_light[i].direction);
-        vec3 light_color = directional_light[i].color * directional_light[i].intensity;
-
+        vec3 light_dir;
         vec3 view_dir = normalize(eyePos - world_pos);
 
+        vec3 light_color = evaluate_directional_light(directional_light[i], world_pos, light_dir);
         result += phong(light_dir, view_dir, material) * light_color;
     }
 
     for (int i = 0; i < spot_light_num; i++) {
-        vec3 light_pos = spot_light[i].position;
-        vec3 light_dir = normalize(light_pos - world_pos);
-        vec3 light_dir_ori = normalize(-spot_light[i].direction);
-        float cos_theta = dot(light_dir, light_dir_ori);
+        vec3 light_dir;
+        vec3 view_dir = normalize(eyePos - world_pos);
 
-        // Check if the light is in the cone of the spot light.
-        if (cos_theta > spot_light[i].outer_cutoff) {
-            vec3 light_color = spot_light[i].color * (spot_light[i].intensity / 4.0 * PI);
-
-            // Light attenuation by distance.
-            float light_dis = distance(light_pos, world_pos);
-            float attenuation = 1.0 / (1.0 + 0.09 * light_dis + 0.032 * light_dis * light_dis);
-
-            // Light attenuation by angle.
-            float epsilon = spot_light[i].cutoff - spot_light[i].outer_cutoff;
-            float soft_ratio = clamp((cos_theta - spot_light[i].outer_cutoff) / epsilon, 0.0, 1.0);
-
-            light_color = light_color * attenuation * soft_ratio;
-
-            vec3 view_dir = normalize(eyePos - world_pos);
-
-            result += phong(light_dir, view_dir, material) * light_color;
-        }
+        vec3 light_color = evaluate_spot_light(spot_light[i], world_pos, light_dir);
+        result += phong(light_dir, view_dir, material) * light_color;
     }
 
     result += ambient + material.emissive;
@@ -111,53 +87,27 @@ vec3 evaluate_blinn_phong(vec3 world_pos, vec3 eye_pos, Material material)
 
     vec3 result = vec3(0.0);
     for (int i = 0; i < point_light_num; i++) {
-        vec3 light_pos = point_light[i].position;
-        vec3 light_color = point_light[i].color * (point_light[i].intensity / 4.0 * PI);
-
-        // Light attenuation by distance.
-        float light_dis = distance(light_pos, world_pos);
-        float attenuation = 1.0 / (1.0 + 0.09 * light_dis + 0.032 * light_dis * light_dis);
-        light_color = light_color * attenuation;
-
-        vec3 light_dir = normalize(light_pos - world_pos);
+        vec3 light_dir;
         vec3 view_dir = normalize(eyePos - world_pos);
 
+        vec3 light_color = evaluate_point_light(point_light[i], world_pos, light_dir);
         result += blinn_phong(light_dir, view_dir, material) * light_color;
     }
 
     for (int i = 0; i < directional_light_num; i++) {
-        vec3 light_dir = normalize(directional_light[i].direction);
-        vec3 light_color = directional_light[i].color * directional_light[i].intensity;
-
+        vec3 light_dir;
         vec3 view_dir = normalize(eyePos - world_pos);
 
+        vec3 light_color = evaluate_directional_light(directional_light[i], world_pos, light_dir);
         result += blinn_phong(light_dir, view_dir, material) * light_color;
     }
 
     for (int i = 0; i < spot_light_num; i++) {
-        vec3 light_pos = spot_light[i].position;
-        vec3 light_dir = normalize(light_pos - world_pos);
-        vec3 light_dir_ori = normalize(-spot_light[i].direction);
-        float cos_theta = dot(light_dir, light_dir_ori);
+        vec3 light_dir;
+        vec3 view_dir = normalize(eyePos - world_pos);
 
-        // Check if the light is in the cone of the spot light.
-        if (cos_theta > spot_light[i].outer_cutoff) {
-            vec3 light_color = spot_light[i].color * (spot_light[i].intensity / 4.0 * PI);
-
-            // Light attenuation by distance.
-            float light_dis = distance(light_pos, world_pos);
-            float attenuation = 1.0 / (1.0 + 0.09 * light_dis + 0.032 * light_dis * light_dis);
-
-            // Light attenuation by angle.
-            float epsilon = spot_light[i].cutoff - spot_light[i].outer_cutoff;
-            float soft_ratio = clamp((cos_theta - spot_light[i].outer_cutoff) / epsilon, 0.0, 1.0);
-
-            light_color = light_color * attenuation * soft_ratio;
-
-            vec3 view_dir = normalize(eyePos - world_pos);
-
-            result += blinn_phong(light_dir, view_dir, material) * light_color;
-        }
+        vec3 light_color = evaluate_spot_light(spot_light[i], world_pos, light_dir);
+        result += blinn_phong(light_dir, view_dir, material) * light_color;
     }
 
     result += ambient + material.emissive;
