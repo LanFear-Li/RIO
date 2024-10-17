@@ -61,7 +61,6 @@ void Panel::render() {
         }
 
         // Skybox.
-        ImGui::Text("Skybox");
         ImGui::PushID("Skybox");
         auto &skybox_list = scene->candidate_skybox_list;
 
@@ -72,7 +71,7 @@ void Panel::render() {
             }
         }
 
-        if (ImGui::Combo("Type", &skybox_idx, skybox_list.data(), (int) skybox_list.size())) {
+        if (ImGui::Combo("Skybox Type", &skybox_idx, skybox_list.data(), (int) skybox_list.size())) {
             panel_config->skybox_name = skybox_list[skybox_idx];
             scene->update_skybox(skybox_list[skybox_idx]);
         }
@@ -81,28 +80,29 @@ void Panel::render() {
 
     // Scene option.
     if (ImGui::CollapsingHeader("Scene Option", ImGuiTreeNodeFlags_DefaultOpen)) {
+        // auto &model_list = scene->candidate_model_list;
+        //
+        // int model_idx = 0;
+        // for (; model_idx < model_list.size(); model_idx++) {
+        //     if (panel_config->model_name == model_list[model_idx]) {
+        //         break;
+        //     }
+        // }
+        //
+        // if (ImGui::Combo("Type", &model_idx, model_list.data(), (int) model_list.size())) {
+        //     panel_config->model_name = model_list[model_idx];
+        //     scene->update_model(model_list[model_idx]);
+        // }
+
         // Model.
-        ImGui::Text("Model");
-        ImGui::PushID("Model");
-        auto &model_list = scene->candidate_model_list;
-
-        int model_idx = 0;
-        for (; model_idx < model_list.size(); model_idx++) {
-            if (panel_config->model_name == model_list[model_idx]) {
-                break;
-            }
+        for (auto& model : scene->model_list) {
+            ImGui::PushID(model->model_name.c_str());
+            ImGui::Text(model->model_name.c_str());
+            ImGui::DragFloat3("Position", (float *) &model->position, 0.1f, -1000.0f, 1000.f);
+            ImGui::DragFloat3("Rotation", (float *) &model->rotation, 0.1f, -180.0f, 180.f);
+            ImGui::DragFloat("Scaling", &model->scaling, 0.1f, 0.0f, 100.0f);
+            ImGui::PopID();
         }
-
-        if (ImGui::Combo("Type", &model_idx, model_list.data(), (int) model_list.size())) {
-            panel_config->model_name = model_list[model_idx];
-            scene->update_model(model_list[model_idx]);
-        }
-
-        auto &model = scene->model_list[0];
-        ImGui::DragFloat3("Position", (float *) &model->position, 0.1f, -1000.0f, 1000.f);
-        ImGui::DragFloat3("Rotation", (float *) &model->rotation, 0.1f, -180.0f, 180.f);
-        ImGui::DragFloat("Scaling", &model->scaling, 0.1f, 0.0f, 100.0f);
-        ImGui::PopID();
 
         // Scene ambient color.
         ImGui::ColorEdit3("Ambient", (float *) &panel_config->ambient_color);
