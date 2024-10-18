@@ -1,0 +1,11 @@
+Model Information:
+* title:	Folding Table
+* source:	https://sketchfab.com/3d-models/folding-table-dba1b4270fee431290c464742f5fd4f5
+* author:	AK STUDIO (https://sketchfab.com/inven2000)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Folding Table" (https://sketchfab.com/3d-models/folding-table-dba1b4270fee431290c464742f5fd4f5) by AK STUDIO (https://sketchfab.com/inven2000) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
