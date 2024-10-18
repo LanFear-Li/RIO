@@ -2,8 +2,8 @@
 
 #include "../common/parameter.glsl"
 #include "../common/material.glsl"
-#include "../util/math.glsl"
 #include "../util/light.glsl"
+#include "../util/shadow.glsl"
 
 vec3 phong(vec3 light_dir, vec3 view_dir, Material material)
 {
@@ -62,7 +62,8 @@ vec3 evaluate_phong(vec3 world_pos, vec3 eye_pos, Material material)
         vec3 view_dir = normalize(eyePos - world_pos);
 
         vec3 light_color = evaluate_directional_light(directional_light[i], world_pos, light_dir);
-        result += phong(light_dir, view_dir, material) * light_color;
+        float visibility = evaluate_directional_shadow(i, world_pos);
+        result += phong(light_dir, view_dir, material) * light_color * visibility;
     }
 
     for (int i = 0; i < spot_light_num; i++) {

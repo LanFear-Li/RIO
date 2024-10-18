@@ -12,7 +12,7 @@ enum Shading_Model {
     BRDF
 };
 
-const std::vector<const char *> ShadingModelNames = {
+const std::vector<const char *> shading_methods = {
     "PHONG",
     "BLINN_PHONG",
     "BRDF"
@@ -28,7 +28,7 @@ struct Panel_Config {
 
     bool render_gui = true;
 
-    Shading_Model shading_mode{Shading_Model::BRDF};
+    Shading_Model shading_mode{Shading_Model::PHONG};
 
     // Scene config.
     std::string model_name;

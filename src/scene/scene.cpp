@@ -11,6 +11,22 @@
 
 namespace fs = std::filesystem;
 
+glm::vec3 euler_to_direction(glm::vec3 euler) {
+    float pitch = glm::radians(90.0f - euler.x);
+    float yaw = glm::radians(euler.y);
+    float roll = glm::radians(euler.z);
+
+    // Euler (0,   0, 0) -> Points to +Y.
+    // Euler (90,  0, 0) -> Points to -Z.
+    // Euler (180, 0, 0) -> Points to -Y.
+    glm::vec3 direction;
+    direction.x = cos(pitch) * sin(yaw);
+    direction.y = sin(pitch);
+    direction.z = -cos(pitch) * cos(yaw);
+
+    return glm::normalize(direction);
+}
+
 Scene::Scene(std::string scene_name)
 {
     std::string file_path = FileSystem::getPath("runtime/assets/scenes/" + scene_name + ".json");
@@ -168,6 +184,17 @@ void Scene::prepare_scene(std::string scene_name)
         }
     }
 
+    // Initialize light data related to shadow.
+    int directional_light_count = directional_light_list.size();
+    directional_shadow_map_list.resize(directional_light_count);
+    directional_light_matrix_list.resize(directional_light_count);
+
+    int spot_light_count = spot_light_list.size();
+    spot_shadow_map_list.resize(spot_light_count);
+
+    int point_light_count = point_light_list.size();
+    point_shadow_map_list.resize(point_light_count);
+
     model_cube = Model::constructCube();
     model_quad = Model::constructQuad();
 
@@ -304,6 +331,60 @@ void Scene::render(Pass &render_pass)
         ibl_generated = true;
     }
 
+    if (pass_name == "shadow") {
+        auto &shader = render_pass.shader;
+        for (int i = 0; i < directional_light_list.size(); i++) {
+            render_pass.active();
+            render_pass.setup_framebuffer_depth(1024, 1024);
+            glBindFramebuffer(GL_FRAMEBUFFER, render_pass.fbo);
+            glClear(GL_DEPTH_BUFFER_BIT);
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+            auto &light = directional_light_list[i];
+
+            float box_size = 20.0f;
+            glm::vec3 bbox_min = glm::vec3(-box_size, -box_size, -box_size);
+            glm::vec3 bbox_max = glm::vec3(box_size, box_size, box_size);
+            glm::vec3 bbox_center = (bbox_min + bbox_max) / 2.0f;
+            glm::vec3 half_extent = (bbox_max - bbox_min) / 2.0f;
+            float max_extent = glm::max(half_extent.x, glm::max(half_extent.y, half_extent.z));
+
+            std::cout << "EULER: " << light->direction.x << " " << light->direction.y << " " << light->direction.z << std::endl;
+
+            auto light_direction = euler_to_direction(light->direction);
+            auto light_position = bbox_center - light_direction * max_extent;
+
+            std::cout << "DIREC: " << light_direction.x << " " << light_direction.y << " " << light_direction.z << std::endl;
+
+            auto view = glm::lookAt(light_position, bbox_center, glm::vec3(0.0, 1.0, 0.0));
+            auto projection = glm::ortho(bbox_min.x, bbox_max.x, bbox_min.x, bbox_max.x, 1.0f, box_size * 2.0f);
+
+            shader->setMat4("view", view);
+            shader->setMat4("projection", projection);
+
+            // directional_light_matrix_list.emplace_back(projection * view);
+            directional_light_matrix_list[i] = projection * view;
+
+            for (auto &model : model_list) {
+                for (auto &mesh : model->meshes) {
+                    glm::mat4 model_matrix = glm::identity<glm::mat4x4>();
+                    auto rotation_radian = glm::radians(model->rotation);
+                    model_matrix = glm::translate(model_matrix, model->position);
+                    model_matrix = glm::scale(model_matrix, glm::vec3(model->scaling));
+                    model_matrix = glm::rotate(model_matrix, rotation_radian.x, glm::vec3(1.0f, 0.0f, 0.0f));
+                    model_matrix = glm::rotate(model_matrix, rotation_radian.y, glm::vec3(0.0f, 1.0f, 0.0f));
+                    model_matrix = glm::rotate(model_matrix, rotation_radian.z, glm::vec3(0.0f, 0.0f, 1.0f));
+
+                    shader->setMat4("model", model_matrix);
+
+                    render_pass.render_depth(*mesh);
+                }
+            }
+
+            directional_shadow_map_list[i] = std::move(render_pass.output);
+        }
+    }
+
     if (pass_name == "shade") {
         for (auto &model : model_list) {
             for (auto &mesh : model->meshes) {
@@ -356,20 +437,24 @@ void Scene::render(Pass &render_pass)
                     shader->setVec3(light_idx + "direction", glm::normalize(direction));
                     shader->setVec3(light_idx + "color", light->color);
                     shader->setFloat(light_idx + "intensity", light->intensity);
+
+                    shader->setMat4("directional_light_matrix[" + std::to_string(i) + "]", directional_light_matrix_list[i]);
+                    auto shadow_map_name = "directional_shadow_map[" + std::to_string(i) + "]";
+
+                    glActiveTexture(GL_TEXTURE0 + 13);
+                    glUniform1i(glGetUniformLocation(shader->ID, shadow_map_name.c_str()), 13);
+                    glBindTexture(GL_TEXTURE_2D, directional_shadow_map_list[i]->get_id());
                 }
 
                 int spot_light_num = spot_light_list.size();
                 for (int i = 0; i < spot_light_num; i++) {
                     auto &light = spot_light_list[i];
+
                     std::string light_idx = "spot_light[" + std::to_string(i) + "].";
+                    glm::vec3 direction = euler_to_direction(light->direction);
 
                     shader->setVec3(light_idx + "position", light->position);
-
-                    glm::vec3 direction_ori = glm::vec3{0.0f, 0.0f, -1.0f};
-                    auto matrix = glm::eulerAngleXYZ(glm::radians(light->direction.x), glm::radians(light->direction.y), glm::radians(light->direction.z));
-                    glm::vec3 direction = glm::normalize(glm::vec3(matrix * glm::vec4(direction_ori, 0.0f)));
-
-                    shader->setVec3(light_idx + "direction", glm::normalize(direction));
+                    shader->setVec3(light_idx + "direction", direction);
                     shader->setFloat(light_idx + "cutoff", glm::cos(glm::radians(light->cutoff)));
                     shader->setFloat(light_idx + "outer_cutoff", glm::cos(glm::radians(light->outer_cutoff)));
                     shader->setVec3(light_idx + "color", light->color);

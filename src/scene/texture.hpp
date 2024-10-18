@@ -9,7 +9,8 @@ enum Texture_Type
 {
     TEXTURE_2D,
     TEXTURE_EQUIRECTANGULAR,
-    TEXTURE_CUBE_MAP
+    TEXTURE_CUBE_MAP,
+    TEXTURE_2D_DEPTH
 };
 
 struct Texture

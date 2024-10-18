@@ -19,6 +19,7 @@ private:
     std::shared_ptr<Scene> scene;
     std::unique_ptr<Panel> panel;
 
+    std::unique_ptr<Pass> pass_shadow;
     std::unique_ptr<Pass> pass_shade;
     std::unique_ptr<Pass> pass_light;
 

@@ -87,7 +87,14 @@ uniform bool                use_roughness_map;
 uniform bool                use_metal_roughness_map;
 uniform bool                use_ao_map;
 
-const int                   MAX_LIGHT_NUM = 16;
+uniform int                 shading_model;
+uniform vec3                ambient_color;
+
+// ---------------------
+// Lights & Shadows.
+// ---------------------
+
+const int                   MAX_LIGHT_NUM = 2;
 uniform Point_Light         point_light[MAX_LIGHT_NUM];
 uniform Directional_Light   directional_light[MAX_LIGHT_NUM];
 uniform Spot_Light          spot_light[MAX_LIGHT_NUM];
@@ -95,8 +102,9 @@ uniform int                 point_light_num;
 uniform int                 directional_light_num;
 uniform int                 spot_light_num;
 
-uniform int                 shading_model;
-uniform vec3                ambient_color;
+uniform mat4                directional_light_matrix[MAX_LIGHT_NUM];
+uniform sampler2D           directional_shadow_map[MAX_LIGHT_NUM];
+uniform sampler2D           spot_shadow_map[MAX_LIGHT_NUM];
 
 // ---------------------
 // Sampler Definition.

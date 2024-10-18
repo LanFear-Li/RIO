@@ -11,6 +11,7 @@ Renderer::Renderer(std::string scene_name)
     panel = std::make_unique<Panel>(window->glWindow, scene);
 
     // Initialize all render pass.
+    pass_shadow = std::make_unique<Pass>("shadow");
     pass_shade = std::make_unique<Pass>("shade");
 
     pass_rect_to_cube = std::make_unique<Pass>("rect_to_cube");
@@ -99,6 +100,7 @@ void Renderer::run()
 
         // Pass runtime.
         scene->render(*pass_skybox);
+        scene->render(*pass_shadow);
         scene->render(*pass_shade);
         scene->render(*pass_light);
 

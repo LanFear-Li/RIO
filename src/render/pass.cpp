@@ -45,6 +45,22 @@ void Pass::setup_framebuffer(int width, int height, Texture_Type type, bool mipm
     buffer_height = height;
 }
 
+void Pass::setup_framebuffer_depth(int width, int height)
+{
+    output = create_texture(Texture_Type::TEXTURE_2D_DEPTH, width, height, false);
+
+    // Attach depth texture as fbo's depth buffer.
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, output->get_id(), 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    buffer_width = width;
+    buffer_height = height;
+}
+
 void Pass::setup_framebuffer_default(int width, int height)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -191,6 +207,17 @@ void Pass::render(Mesh &mesh, Material &material, IBL_Data &ibl_data)
 
     // always good practice to set everything back to defaults once configured.
     glActiveTexture(GL_TEXTURE0);
+}
+
+void Pass::render_depth(Mesh &mesh)
+{
+    glViewport(0, 0, buffer_width, buffer_height);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glBindVertexArray(mesh.VAO);
+    glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(mesh.indices.size()), GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Pass::render_cubemap(Mesh &mesh, Texture &texture)

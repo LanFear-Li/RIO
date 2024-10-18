@@ -38,6 +38,12 @@ public:
     std::vector<std::unique_ptr<DirectionalLight>> directional_light_list;
     std::vector<std::unique_ptr<SpotLight>> spot_light_list;
 
+    std::vector<std::unique_ptr<Texture>> point_shadow_map_list;
+    std::vector<std::unique_ptr<Texture>> directional_shadow_map_list;
+    std::vector<std::unique_ptr<Texture>> spot_shadow_map_list;
+
+    std::vector<glm::mat4> directional_light_matrix_list;
+
     // Model.
     std::vector<std::unique_ptr<Model>> model_list;
     std::vector<const char *> candidate_model_list;

@@ -54,7 +54,7 @@ void Panel::render() {
         ImGui::Checkbox("Render Shadow", &panel_config->render_shadow);
 
         // Render shading model.
-        auto &shading_list = ShadingModelNames;
+        auto &shading_list = shading_methods;
         int shading_idx = panel_config->shading_mode;
         if (ImGui::Combo("Shading Method", &shading_idx, shading_list.data(), (int) shading_list.size())) {
             panel_config->shading_mode = static_cast<Shading_Model>(shading_idx);
@@ -155,7 +155,7 @@ void Panel::render() {
             ImGui::Text(light->light_name.c_str());
 
             ImGui::PushItemWidth(windowWidth * 0.3f);
-            ImGui::DragFloat("Pitch", &light->direction[0], 0.1f, -90.0f, 90.0f);
+            ImGui::DragFloat("Pitch", &light->direction[0], 0.1f, 0.0f, 180.0f);
             ImGui::SameLine();
             ImGui::DragFloat("Yaw", &light->direction[1], 0.1f, -180.0f, 180.0f);
             ImGui::PopItemWidth();
