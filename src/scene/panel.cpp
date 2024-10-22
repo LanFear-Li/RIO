@@ -34,6 +34,7 @@ void Panel::render() {
     ImGui::Begin("Settings");
 
     ImGui::SetWindowFontScale(1.2);
+    float windowWidth = ImGui::GetWindowWidth();
 
     // Render option.
     if (ImGui::CollapsingHeader("Render Option", ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -53,12 +54,23 @@ void Panel::render() {
         // TODO: Render shadow.
         ImGui::Checkbox("Render Shadow", &panel_config->render_shadow);
 
-        // Render shading model.
+        // Render shading method.
+        ImGui::PushItemWidth(windowWidth * 0.3f);
         auto &shading_list = shading_methods;
-        int shading_idx = panel_config->shading_mode;
-        if (ImGui::Combo("Shading Method", &shading_idx, shading_list.data(), (int) shading_list.size())) {
-            panel_config->shading_mode = static_cast<Shading_Model>(shading_idx);
+        int shading_idx = panel_config->shading_method;
+        if (ImGui::Combo("Shading", &shading_idx, shading_list.data(), (int) shading_list.size())) {
+            panel_config->shading_method = static_cast<Shading_Method>(shading_idx);
         }
+
+        ImGui::SameLine();
+
+        // Render shadow method.
+        auto &shadow_list = shadow_methods;
+        int shadow_idx = panel_config->shadow_method;
+        if (ImGui::Combo("Shadow", &shadow_idx, shadow_list.data(), (int) shadow_list.size())) {
+            panel_config->shadow_method = static_cast<Shadow_Method>(shadow_idx);
+        }
+        ImGui::PopItemWidth();
 
         // Skybox.
         ImGui::PushID("Skybox");
@@ -109,7 +121,6 @@ void Panel::render() {
 
         // Camera
         auto &camera = scene->camera;
-        float windowWidth = ImGui::GetWindowWidth();
 
         ImGui::Separator();
         ImGui::PushID("Camera");

@@ -27,11 +27,11 @@ void main()
     }
 
     vec3 result = vec3(0.0);
-    if (shading_model == PHONG) {
+    if (shading_method == PHONG) {
         result = evaluate_phong(worldPos, eyePos, material);
-    } else if (shading_model == BLINN_PHONG) {
+    } else if (shading_method == BLINN_PHONG) {
         result = evaluate_blinn_phong(worldPos, eyePos, material);
-    } else if (shading_model == BRDF) {
+    } else if (shading_method == BRDF) {
         result = evaluate_brdf(worldPos, eyePos, material);
     }
 

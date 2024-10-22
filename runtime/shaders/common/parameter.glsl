@@ -63,6 +63,13 @@ struct Material
 #define BRDF        2
 
 // ---------------------
+// Shadow Method.
+// ---------------------
+
+#define SHADOW_PCF  0
+#define SHADOW_PCSS 1
+
+// ---------------------
 // Uniform Definition.
 // ---------------------
 uniform vec3                eyePos;
@@ -87,7 +94,7 @@ uniform bool                use_roughness_map;
 uniform bool                use_metal_roughness_map;
 uniform bool                use_ao_map;
 
-uniform int                 shading_model;
+uniform int                 shading_method;
 uniform vec3                ambient_color;
 
 // ---------------------
@@ -105,6 +112,9 @@ uniform int                 spot_light_num;
 uniform mat4                directional_light_matrix[MAX_LIGHT_NUM];
 uniform sampler2D           directional_shadow_map[MAX_LIGHT_NUM];
 uniform sampler2D           spot_shadow_map[MAX_LIGHT_NUM];
+
+uniform bool                render_shadow;
+uniform int                 shadow_method;
 
 // ---------------------
 // Sampler Definition.

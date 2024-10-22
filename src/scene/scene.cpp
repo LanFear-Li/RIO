@@ -133,6 +133,10 @@ void Scene::prepare_scene(std::string scene_name)
         scene_config->enable_ibl = scene_json["enable_ibl"].get<bool>();
     }
 
+    if (model_skybox) {
+        scene_config->skybox_name = model_skybox->model_name;
+    }
+
     // Load candidate skybox from assets/skybox.
     std::string candidate_skybox_path = FileSystem::getPath("runtime/assets/skybox/");
     for (const auto& entry : fs::directory_iterator(candidate_skybox_path)) {
@@ -201,8 +205,12 @@ void Scene::prepare_scene(std::string scene_name)
     // Load config from scene.
     scene_config->model_name = model_list.front()->model_name;
 
-    if (model_skybox) {
-        scene_config->skybox_name = model_skybox->model_name;
+    if (scene_json.contains("shading_method")) {
+        scene_config->shading_method = scene_json["shading_method"].get<Shading_Method>();
+    }
+
+    if (scene_json.contains("shadow_method")) {
+        scene_config->shadow_method = scene_json["shadow_method"].get<Shadow_Method>();
     }
 }
 
@@ -331,7 +339,7 @@ void Scene::render(Pass &render_pass)
         ibl_generated = true;
     }
 
-    if (pass_name == "shadow") {
+    if (pass_name == "shadow" && scene_config->render_shadow) {
         auto &shader = render_pass.shader;
         for (int i = 0; i < directional_light_list.size(); i++) {
             render_pass.active();
@@ -349,20 +357,14 @@ void Scene::render(Pass &render_pass)
             glm::vec3 half_extent = (bbox_max - bbox_min) / 2.0f;
             float max_extent = glm::max(half_extent.x, glm::max(half_extent.y, half_extent.z));
 
-            std::cout << "EULER: " << light->direction.x << " " << light->direction.y << " " << light->direction.z << std::endl;
-
             auto light_direction = euler_to_direction(light->direction);
             auto light_position = bbox_center - light_direction * max_extent;
-
-            std::cout << "DIREC: " << light_direction.x << " " << light_direction.y << " " << light_direction.z << std::endl;
 
             auto view = glm::lookAt(light_position, bbox_center, glm::vec3(0.0, 1.0, 0.0));
             auto projection = glm::ortho(bbox_min.x, bbox_max.x, bbox_min.x, bbox_max.x, 1.0f, box_size * 2.0f);
 
             shader->setMat4("view", view);
             shader->setMat4("projection", projection);
-
-            // directional_light_matrix_list.emplace_back(projection * view);
             directional_light_matrix_list[i] = projection * view;
 
             for (auto &model : model_list) {
@@ -408,8 +410,11 @@ void Scene::render(Pass &render_pass)
                 shader->setMat4("view", camera->GetViewMatrix());
                 shader->setMat4("projection", camera->GetProjectionMatrix());
                 shader->setVec3("eyePos", camera->Position);
-                shader->setInt("shading_model", scene_config->shading_mode);
+                shader->setInt("shading_method", scene_config->shading_method);
                 shader->setVec3("ambient_color", scene_config->ambient_color);
+
+                shader->setBool("render_shadow", scene_config->render_shadow);
+                shader->setInt("shadow_method", scene_config->shadow_method);
 
                 int point_light_num = point_light_list.size();
                 for (int i = 0; i < point_light_num; i++) {
@@ -438,12 +443,14 @@ void Scene::render(Pass &render_pass)
                     shader->setVec3(light_idx + "color", light->color);
                     shader->setFloat(light_idx + "intensity", light->intensity);
 
-                    shader->setMat4("directional_light_matrix[" + std::to_string(i) + "]", directional_light_matrix_list[i]);
-                    auto shadow_map_name = "directional_shadow_map[" + std::to_string(i) + "]";
+                    if (scene_config->render_shadow) {
+                        shader->setMat4("directional_light_matrix[" + std::to_string(i) + "]", directional_light_matrix_list[i]);
+                        auto shadow_map_name = "directional_shadow_map[" + std::to_string(i) + "]";
 
-                    glActiveTexture(GL_TEXTURE0 + 13);
-                    glUniform1i(glGetUniformLocation(shader->ID, shadow_map_name.c_str()), 13);
-                    glBindTexture(GL_TEXTURE_2D, directional_shadow_map_list[i]->get_id());
+                        glActiveTexture(GL_TEXTURE0 + 13);
+                        glUniform1i(glGetUniformLocation(shader->ID, shadow_map_name.c_str()), 13);
+                        glBindTexture(GL_TEXTURE_2D, directional_shadow_map_list[i]->get_id());
+                    }
                 }
 
                 int spot_light_num = spot_light_list.size();

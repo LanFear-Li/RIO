@@ -1,21 +1,39 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <nlohmann/json.hpp>
 
 #include <iostream>
 #include <string>
 #include <vector>
 
-enum Shading_Model {
-    PHONG,
-    BLINN_PHONG,
-    BRDF
+using json = nlohmann::json;
+
+enum Shading_Method {
+    PHONG, BLINN_PHONG, BRDF
 };
 
+NLOHMANN_JSON_SERIALIZE_ENUM(Shading_Method, {
+    { PHONG, "PHONG" },
+    { BLINN_PHONG, "BLINN_PHONG" },
+    { BRDF, "BRDF" }
+})
+
 const std::vector<const char *> shading_methods = {
-    "PHONG",
-    "BLINN_PHONG",
-    "BRDF"
+    "PHONG", "BLINN_PHONG", "BRDF"
+};
+
+enum Shadow_Method {
+    PCF, PCSS
+};
+
+NLOHMANN_JSON_SERIALIZE_ENUM(Shadow_Method, {
+    { PCF, "PCF" },
+    { PCSS, "PCSS" }
+})
+
+const std::vector<const char *> shadow_methods = {
+    "PCF", "PCSS"
 };
 
 struct Panel_Config {
@@ -24,11 +42,11 @@ struct Panel_Config {
     bool enable_ibl = false;
 
     bool render_light = true;
-    bool render_shadow = false;
-
+    bool render_shadow = true;
     bool render_gui = true;
 
-    Shading_Model shading_mode{Shading_Model::PHONG};
+    Shading_Method shading_method{Shading_Method::BRDF};
+    Shadow_Method shadow_method{Shadow_Method::PCSS};
 
     // Scene config.
     std::string model_name;

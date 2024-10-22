@@ -1,8 +1,6 @@
 #pragma once
 
-#define PI          3.141592653589793
-#define INV_PI      0.3183098861837907
-#define HALF_PI     1.5707963267948966
+#include "marcos.glsl"
 
 float saturate(float x)
 {
@@ -18,4 +16,17 @@ float pow4(float x)
 {
     x = pow2(x);
     return x * x;
+}
+
+highp float rand_2to1(vec2 uv)
+{
+	const highp float a = 12.9898, b = 78.233, c = 43758.5453;
+	highp float dt = dot( uv.xy, vec2( a,b ) ), sn = mod( dt, PI );
+	return fract(sin(sn) * c);
+}
+
+float unpack(vec4 rgba_depth)
+{
+    const vec4 bit_shift = vec4(1.0, 1.0 / 256.0, 1.0 / (256.0 * 256.0), 1.0 / (256.0 * 256.0 * 256.0));
+    return dot(rgba_depth, bit_shift);
 }
