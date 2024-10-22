@@ -20,7 +20,7 @@ vec3 evaluate_point_light(Point_Light light, vec3 world_pos, out vec3 light_dir)
 vec3 evaluate_directional_light(Directional_Light light, vec3 world_pos, out vec3 light_dir)
 {
     vec3 light_color = light.color * light.intensity;
-    light_dir = normalize(light.direction);
+    light_dir = normalize(-light.direction);
 
     return light_color;
 }

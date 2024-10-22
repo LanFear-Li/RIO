@@ -432,14 +432,9 @@ void Scene::render(Pass &render_pass)
                     auto &light = directional_light_list[i];
                     std::string light_idx = "directional_light[" + std::to_string(i) + "].";
 
-                    glm::vec3 direction;
-                    float pitch = light->direction.x;
-                    float yaw = light->direction.y;
-                    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-                    direction.y = sin(glm::radians(pitch));
-                    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+                    glm::vec3 direction = euler_to_direction(light->direction);
 
-                    shader->setVec3(light_idx + "direction", glm::normalize(direction));
+                    shader->setVec3(light_idx + "direction", direction);
                     shader->setVec3(light_idx + "color", light->color);
                     shader->setFloat(light_idx + "intensity", light->intensity);
 
