@@ -14,7 +14,7 @@
         },
         "directional-light-1": {
             "type": "directional",
-            "direction": [0.0, 0.0, 0.0],
+            "direction": [120.0, 0.0, 0.0],
             "color": [1, 1, 1],
             "intensity": 5
         },
@@ -46,5 +46,7 @@
     "skybox": {
         "name": "street"
     },
-    "enable_ibl": true
+    "enable_ibl": true,
+    "shading_method": "phong",
+    "shadow_method": "PCSS"
 }
