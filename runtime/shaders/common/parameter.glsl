@@ -58,16 +58,17 @@ struct Material
 // Shading Model.
 // ---------------------
 
-#define PHONG       0
-#define BLINN_PHONG 1
-#define BRDF        2
+#define PHONG           0
+#define BLINN_PHONG     1
+#define BRDF            2
 
 // ---------------------
 // Shadow Method.
 // ---------------------
 
-#define SHADOW_PCF  0
-#define SHADOW_PCSS 1
+#define SHADOW_BASIC    0
+#define SHADOW_PCF      1
+#define SHADOW_PCSS     2
 
 // ---------------------
 // Uniform Definition.

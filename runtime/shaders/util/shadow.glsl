@@ -46,6 +46,16 @@ float find_blocker(sampler2D shadow_map, vec2 uv, float z_receiver) {
     return avg_blocker_depth / blocker_count;
 }
 
+// Hard Shadow Mapping.
+float shadow_mapping(sampler2D shadow_map, vec3 shadow_coord)
+{
+    float current_depth = shadow_coord.z;
+    float shadow_depth = texture2D(shadow_map, shadow_coord.xy).r;
+
+    float visibility = shadow_depth + EPS > current_depth ? 1.0 : 0.0;
+    return visibility;
+}
+
 // Percentage-closer filtering (PCF).
 float PCF(sampler2D shadow_map, vec3 shadow_coord, float filter_size)
 {
@@ -92,7 +102,9 @@ float evaluate_directional_shadow(int index, vec3 world_pos)
     vec3 shadow_coord = (pos_light_space.xyz / pos_light_space.w + 1.0) / 2.0;
 
     float visibility = 1.0;
-    if (shadow_method == SHADOW_PCF) {
+    if (shadow_method == SHADOW_BASIC) {
+        visibility = shadow_mapping(directional_shadow_map[index], shadow_coord);
+    } else if (shadow_method == SHADOW_PCF) {
         visibility = PCF(directional_shadow_map[index], shadow_coord, PCF_PENUMBRA);
     } else if (shadow_method == SHADOW_PCSS) {
         visibility = PCSS(directional_shadow_map[index], shadow_coord);
