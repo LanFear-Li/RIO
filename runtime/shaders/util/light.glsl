@@ -35,7 +35,7 @@ vec3 evaluate_spot_light(Spot_Light light, vec3 world_pos, out vec3 light_dir)
     // Check if the light is in the cone of the spot light.
     vec3 light_color = vec3(0.0);
     if (cos_theta > light.outer_cutoff) {
-        vec3 light_color = light.color * (light.intensity / 4.0 * PI);
+        light_color = light.color * (light.intensity / 4.0 * PI);
 
         // Light attenuation by distance.
         float light_dis = distance(light_pos, world_pos);
