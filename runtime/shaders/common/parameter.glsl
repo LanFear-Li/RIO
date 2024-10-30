@@ -111,6 +111,7 @@ uniform int                 directional_light_num;
 uniform int                 spot_light_num;
 
 uniform mat4                directional_light_matrix[MAX_LIGHT_NUM];
+uniform mat4                spot_light_matrix[MAX_LIGHT_NUM];
 uniform sampler2D           directional_shadow_map[MAX_LIGHT_NUM];
 uniform sampler2D           spot_shadow_map[MAX_LIGHT_NUM];
 

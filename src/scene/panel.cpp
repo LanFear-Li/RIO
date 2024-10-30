@@ -185,7 +185,7 @@ void Panel::render() {
             ImGui::DragFloat3("Position", (float *) &light->position, 0.1f, -1000.0f, -1000.f);
 
             ImGui::PushItemWidth(windowWidth * 0.3f);
-            ImGui::DragFloat("Pitch", &light->direction[0], 0.1f, -180.0f, 180.0f);
+            ImGui::DragFloat("Pitch", &light->direction[0], 0.1f, 0.0f, 180.0f);
             ImGui::SameLine();
             ImGui::DragFloat("Yaw", &light->direction[1], 0.1f, -180.0f, 180.0f);
             ImGui::PopItemWidth();

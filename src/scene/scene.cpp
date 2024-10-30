@@ -195,6 +195,7 @@ void Scene::prepare_scene(std::string scene_name)
 
     int spot_light_count = spot_light_list.size();
     spot_shadow_map_list.resize(spot_light_count);
+    spot_light_matrix_list.resize(spot_light_count);
 
     int point_light_count = point_light_list.size();
     point_shadow_map_list.resize(point_light_count);
@@ -341,6 +342,7 @@ void Scene::render(Pass &render_pass)
 
     if (pass_name == "shadow" && scene_config->render_shadow) {
         auto &shader = render_pass.shader;
+
         for (int i = 0; i < directional_light_list.size(); i++) {
             render_pass.active();
             render_pass.setup_framebuffer_depth(1024, 1024);
@@ -384,6 +386,46 @@ void Scene::render(Pass &render_pass)
             }
 
             directional_shadow_map_list[i] = std::move(render_pass.output);
+        }
+
+        for (int i = 0; i < spot_light_list.size(); i++) {
+            render_pass.active();
+            render_pass.setup_framebuffer_depth(1024, 1024);
+            glBindFramebuffer(GL_FRAMEBUFFER, render_pass.fbo);
+            glClear(GL_DEPTH_BUFFER_BIT);
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+            auto &light = spot_light_list[i];
+
+            auto light_direction = euler_to_direction(light->direction);
+            auto light_position = light->position;
+            glm::vec3 center = light_position + light_direction;
+
+            float box_size = 20.0f;
+            auto view = glm::lookAt(light_position, center, glm::vec3(0.0, 1.0, 0.0));
+            auto projection = glm::ortho(-box_size, box_size, -box_size, box_size, 0.1f, box_size * 2.0f);
+
+            shader->setMat4("view", view);
+            shader->setMat4("projection", projection);
+            spot_light_matrix_list[i] = projection * view;
+
+            for (auto &model : model_list) {
+                for (auto &mesh : model->meshes) {
+                    glm::mat4 model_matrix = glm::identity<glm::mat4x4>();
+                    auto rotation_radian = glm::radians(model->rotation);
+                    model_matrix = glm::translate(model_matrix, model->position);
+                    model_matrix = glm::scale(model_matrix, glm::vec3(model->scaling));
+                    model_matrix = glm::rotate(model_matrix, rotation_radian.x, glm::vec3(1.0f, 0.0f, 0.0f));
+                    model_matrix = glm::rotate(model_matrix, rotation_radian.y, glm::vec3(0.0f, 1.0f, 0.0f));
+                    model_matrix = glm::rotate(model_matrix, rotation_radian.z, glm::vec3(0.0f, 0.0f, 1.0f));
+
+                    shader->setMat4("model", model_matrix);
+
+                    render_pass.render_depth(*mesh);
+                }
+            }
+
+            spot_shadow_map_list[i] = std::move(render_pass.output);
         }
     }
 
@@ -442,8 +484,8 @@ void Scene::render(Pass &render_pass)
                         shader->setMat4("directional_light_matrix[" + std::to_string(i) + "]", directional_light_matrix_list[i]);
                         auto shadow_map_name = "directional_shadow_map[" + std::to_string(i) + "]";
 
-                        glActiveTexture(GL_TEXTURE0 + 13);
-                        glUniform1i(glGetUniformLocation(shader->ID, shadow_map_name.c_str()), 13);
+                        glActiveTexture(GL_TEXTURE0 + 13 + i);
+                        glUniform1i(glGetUniformLocation(shader->ID, shadow_map_name.c_str()), 13 + i);
                         glBindTexture(GL_TEXTURE_2D, directional_shadow_map_list[i]->get_id());
                     }
                 }
@@ -462,6 +504,15 @@ void Scene::render(Pass &render_pass)
                     shader->setVec3(light_idx + "color", light->color);
                     shader->setFloat(light_idx + "radius", light->radius);
                     shader->setFloat(light_idx + "intensity", light->intensity);
+
+                    if (scene_config->render_shadow) {
+                        shader->setMat4("spot_light_matrix[" + std::to_string(i) + "]", spot_light_matrix_list[i]);
+                        auto shadow_map_name = "spot_shadow_map[" + std::to_string(i) + "]";
+
+                        glActiveTexture(GL_TEXTURE0 + 15 + i);
+                        glUniform1i(glGetUniformLocation(shader->ID, shadow_map_name.c_str()), 15 + i);
+                        glBindTexture(GL_TEXTURE_2D, spot_shadow_map_list[i]->get_id());
+                    }
                 }
 
                 shader->setInt("point_light_num", point_light_num);
@@ -521,8 +572,8 @@ void Scene::render(Pass &render_pass)
             auto rotation_radian = glm::radians(light->direction);
             model_matrix = glm::translate(model_matrix, position);
             model_matrix = glm::scale(model_matrix, glm::vec3(radius * 0.5f));
-            model_matrix = glm::rotate(model_matrix, rotation_radian.x, glm::vec3(1.0f, 0.0f, 0.0f));
-            model_matrix = glm::rotate(model_matrix, rotation_radian.y, glm::vec3(0.0f, 1.0f, 0.0f));
+            model_matrix = glm::rotate(model_matrix, rotation_radian.x, glm::vec3(-1.0f, 0.0f, 0.0f));
+            model_matrix = glm::rotate(model_matrix, rotation_radian.y, glm::vec3(0.0f, 0.0f, -1.0f));
 
             shader->setMat4("model", model_matrix);
             shader->setMat4("view", camera->GetViewMatrix());

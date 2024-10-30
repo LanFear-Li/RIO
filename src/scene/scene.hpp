@@ -43,6 +43,7 @@ public:
     std::vector<std::unique_ptr<Texture>> spot_shadow_map_list;
 
     std::vector<glm::mat4> directional_light_matrix_list;
+    std::vector<glm::mat4> spot_light_matrix_list;
 
     // Model.
     std::vector<std::unique_ptr<Model>> model_list;
