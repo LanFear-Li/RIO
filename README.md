@@ -19,8 +19,9 @@ RIO is a real-time rasterization renderer with OpenGL backend. It aims to implem
 
 #### Lighting & Shadowing
 
-- [x] Point Light
-- [ ] Basic Shadow Mapping
+- [x] Point / Directional / Spot lights
+- [x] Shadow Mapping with PCF / PCSS
+
 
 ## Gallery
 
