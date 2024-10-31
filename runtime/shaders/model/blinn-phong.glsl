@@ -101,7 +101,8 @@ vec3 evaluate_blinn_phong(vec3 world_pos, vec3 eye_pos, Material material)
         vec3 view_dir = normalize(eyePos - world_pos);
 
         vec3 light_color = evaluate_directional_light(directional_light[i], world_pos, light_dir);
-        result += blinn_phong(light_dir, view_dir, material) * light_color;
+        float visibility = render_shadow ? evaluate_directional_shadow(i, world_pos) : 1.0;
+        result += blinn_phong(light_dir, view_dir, material) * light_color * visibility;
     }
 
     for (int i = 0; i < spot_light_num; i++) {
@@ -109,7 +110,8 @@ vec3 evaluate_blinn_phong(vec3 world_pos, vec3 eye_pos, Material material)
         vec3 view_dir = normalize(eyePos - world_pos);
 
         vec3 light_color = evaluate_spot_light(spot_light[i], world_pos, light_dir);
-        result += blinn_phong(light_dir, view_dir, material) * light_color;
+        float visibility = render_shadow ? evaluate_spot_shadow(i, world_pos) : 1.0;
+        result += blinn_phong(light_dir, view_dir, material) * light_color * visibility;
     }
 
     result += ambient + material.emissive;
