@@ -13,4 +13,4 @@
 #define NUM_SAMPLES     30
 #define NUM_RINGS       10
 
-#define PCF_PENUMBRA    10
+#define PCF_PENUMBRA    5

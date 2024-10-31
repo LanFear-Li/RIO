@@ -68,8 +68,7 @@ float PCF(sampler2D shadow_map, vec3 shadow_coord, float filter_size)
     float visibility = 0.0;
     for (int i = 0; i < NUM_SAMPLES; i++) {
         vec2 uv =  shadow_coord.xy + poisson_disk[i] * filter_size / shadow_map_size;
-        vec4 rgba  = texture2D(shadow_map, uv).rgba;
-        shadow_depth = unpack(rgba);
+        float shadow_depth = texture2D(shadow_map, uv).r;
 
         visibility += shadow_depth + EPS > current_depth ? 1.0 : 0.0;
     }
