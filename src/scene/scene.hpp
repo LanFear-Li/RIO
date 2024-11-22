@@ -22,8 +22,8 @@ public:
     void render(Pass &render_pass);
     void save_output() const;
 
-    unsigned int screen_width{};
-    unsigned int screen_height{};
+    std::shared_ptr<uint32_t> screen_width;
+    std::shared_ptr<uint32_t> screen_height;
 
     std::shared_ptr<Panel_Config> scene_config;
 

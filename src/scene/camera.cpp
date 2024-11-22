@@ -4,20 +4,11 @@
 
 Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
     : cam_front(glm::vec3(0.0f, 0.0f, -1.0f)),
-      movement_speed(SPEED), mouse_sensitivity(SENSITIVITY), zoom(ZOOM)
+      movement_speed(SPEED), mouse_sensitivity(SENSITIVITY), zoom(ZOOM),
+      camera_width(std::make_shared<uint32_t>(1000)), camera_height(std::make_shared<uint32_t>(800))
 {
     cam_position = position;
     cam_world_up = up;
-    cam_yaw = yaw;
-    cam_pitch = pitch;
-    update_camera_vectors();
-}
-
-Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : cam_front(
-            glm::vec3(0.0f, 0.0f, -1.0f)), movement_speed(SPEED), mouse_sensitivity(SENSITIVITY), zoom(ZOOM)
-{
-    cam_position = glm::vec3(posX, posY, posZ);
-    cam_world_up = glm::vec3(upX, upY, upZ);
     cam_yaw = yaw;
     cam_pitch = pitch;
     update_camera_vectors();
@@ -31,7 +22,7 @@ glm::mat4 Camera::get_view_matrix() const
 
 glm::mat4 Camera::get_projection_matrix() const
 {
-    return glm::perspective(glm::radians(zoom), (float)camera_width / (float)camera_height, z_near, z_far);
+    return glm::perspective(glm::radians(zoom), (float)*camera_width / (float)*camera_height, z_near, z_far);
 }
 
 void Camera::process_keyboard(Camera_Movement direction, float delta_time)

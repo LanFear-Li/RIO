@@ -4,12 +4,13 @@
 #include "GLFW/glfw3.h"
 
 #include <functional>
+#include <memory>
 
 class Window final
 {
 public:
     Window() = delete;
-    Window(int width, int height, const char *title);
+    Window(std::shared_ptr<uint32_t> width, std::shared_ptr<uint32_t> height, const char *title);
 
     void main_loop(const std::function<void()> &func);
 
@@ -42,8 +43,8 @@ public:
     float delta_time = 0.0f;
     float last_frame = 0.0f;
 
-    uint32_t screen_width;
-    uint32_t screen_height;
+    std::shared_ptr<uint32_t> window_width;
+    std::shared_ptr<uint32_t> window_height;
 
     GLFWwindow *gl_window = nullptr;
 

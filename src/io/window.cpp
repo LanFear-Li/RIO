@@ -44,12 +44,13 @@ void glfw_resize_callback(GLFWwindow *glfw_window, int width, int height) {
     auto window = reinterpret_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
     glViewport(0, 0, width, height);
 
-    if (window->screen_width != width || window->screen_height != height) {
+    if (*window->window_width != width || *window->window_height != height) {
         window->resize_callback_(glfw_window, width, height);
     }
 }
 
-Window::Window(int width, int height, const char *title) : screen_width(width), screen_height(height)
+Window::Window(std::shared_ptr<uint32_t> width, std::shared_ptr<uint32_t> height, const char *title)
+    : window_width(width), window_height(height)
 {
     glfwSetErrorCallback(GlfwErrorLogFunc);
     glfwInit();
@@ -59,7 +60,7 @@ Window::Window(int width, int height, const char *title) : screen_width(width), 
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // Glfw window creation.
-    gl_window = glfwCreateWindow(width, height, title, nullptr, nullptr);
+    gl_window = glfwCreateWindow(*width, *height, title, nullptr, nullptr);
     if (gl_window == nullptr) {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();

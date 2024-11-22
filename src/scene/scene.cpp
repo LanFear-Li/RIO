@@ -48,8 +48,8 @@ Scene::Scene(const std::string &scene_name)
     camera = std::make_unique<Camera>(camera_pos);
 
     if (camera_json.contains("resolution")) {
-        camera->camera_width = camera_json["resolution"][0].get<uint32_t>();
-        camera->camera_height = camera_json["resolution"][1].get<uint32_t>();
+        *camera->camera_width = camera_json["resolution"][0].get<uint32_t>();
+        *camera->camera_height = camera_json["resolution"][1].get<uint32_t>();
     }
 
     if (camera_json.contains("draw-distance")) {
@@ -290,7 +290,7 @@ void Scene::render(Pass &render_pass)
         render_pass.prepare();
         render_pass.active();
         render_pass.reset();
-        render_pass.setup_framebuffer_default(screen_width, screen_height);
+        render_pass.setup_framebuffer_default(*screen_width, *screen_height);
 
         auto &material = model_skybox->materials[0];
         auto &mesh = model_skybox->meshes[0];
@@ -436,7 +436,7 @@ void Scene::render(Pass &render_pass)
                 render_pass.prepare();
                 render_pass.active();
                 render_pass.reset();
-                render_pass.setup_framebuffer_default(screen_width, screen_height);
+                render_pass.setup_framebuffer_default(*screen_width, *screen_height);
 
                 auto &material = model->materials[mesh->material_index];
                 auto &shader = render_pass.shader;
@@ -536,7 +536,7 @@ void Scene::render(Pass &render_pass)
             render_pass.prepare();
             render_pass.active();
             render_pass.reset();
-            render_pass.setup_framebuffer_default(screen_width, screen_height);
+            render_pass.setup_framebuffer_default(*screen_width, *screen_height);
 
             auto &material = model_cube->materials[0];
             auto &mesh = model_cube->meshes[0];
@@ -563,7 +563,7 @@ void Scene::render(Pass &render_pass)
             render_pass.prepare();
             render_pass.active();
             render_pass.reset();
-            render_pass.setup_framebuffer_default(screen_width, screen_height);
+            render_pass.setup_framebuffer_default(*screen_width, *screen_height);
 
             auto &material = model_cube->materials[0];
             auto &mesh = model_cube->meshes[0];
@@ -588,8 +588,8 @@ void Scene::render(Pass &render_pass)
 }
 
 void Scene::save_output() const {
-    auto width = screen_width;
-    auto height = screen_height;
+    auto width = *screen_width;
+    auto height = *screen_height;
 
     unsigned char* pixels = new unsigned char[width * height * 3];
     glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);

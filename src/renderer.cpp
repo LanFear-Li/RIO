@@ -5,9 +5,7 @@
 Renderer::Renderer(const std::string &scene_name)
 {
     scene = std::make_shared<Scene>(scene_name);
-
-    auto &camera = scene->camera;
-    window = std::make_unique<Window>(camera->camera_width, camera->camera_height, "RIO: Render In OpenGL");
+    window = std::make_unique<Window>(scene->screen_width, scene->screen_height, "RIO: Render In OpenGL");
     panel = std::make_unique<Panel>(window->gl_window, scene);
 
     // Initialize all render pass.
@@ -68,11 +66,8 @@ void Renderer::run() const
     });
 
     window->set_resize_callback([&](GLFWwindow* glfw_window, uint32_t width, uint32_t height) {
-        auto& cam = scene->camera;
-        cam->camera_width = width;
-        cam->camera_height = height;
-        scene->screen_width = width;
-        scene->screen_height = height;
+        *window->window_width = width;
+        *window->window_height = height;
     });
 
     auto process_key = [&] (float dt) {
