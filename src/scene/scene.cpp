@@ -30,7 +30,7 @@ glm::vec3 euler_to_direction(glm::vec3 euler)
 
 Scene::Scene(const std::string &scene_name)
 {
-    std::string file_path = FileSystem::getPath("runtime/assets/scenes/" + scene_name + ".json");
+    std::string file_path = File_System::get_path("runtime/assets/scenes/" + scene_name + ".json");
     auto scene_json = nlohmann::json::parse(std::ifstream(file_path), nullptr, false);
     if (scene_json.is_discarded()) {
         std::cout << "Initialize scene failed, check your scene config please." << std::endl;
@@ -48,8 +48,8 @@ Scene::Scene(const std::string &scene_name)
     camera = std::make_unique<Camera>(camera_pos);
 
     if (camera_json.contains("resolution")) {
-        camera->cameraWidth = camera_json["resolution"][0].get<uint32_t>();
-        camera->cameraHeight = camera_json["resolution"][1].get<uint32_t>();
+        camera->camera_width = camera_json["resolution"][0].get<uint32_t>();
+        camera->camera_height = camera_json["resolution"][1].get<uint32_t>();
     }
 
     if (camera_json.contains("draw-distance")) {
@@ -58,14 +58,14 @@ Scene::Scene(const std::string &scene_name)
     }
 
     // Init scene config.
-    screen_width = camera->cameraWidth;
-    screen_height = camera->cameraHeight;
+    screen_width = camera->camera_width;
+    screen_height = camera->camera_height;
     scene_config = std::make_shared<Panel_Config>();
 }
 
 void Scene::prepare_scene(const std::string &scene_name)
 {
-    std::string file_path = FileSystem::getPath("runtime/assets/scenes/" + scene_name + ".json");
+    std::string file_path = File_System::get_path("runtime/assets/scenes/" + scene_name + ".json");
     auto scene_json = nlohmann::json::parse(std::ifstream(file_path), nullptr, false);
     if (scene_json.is_discarded()) {
         std::cout << "Initialize scene failed, check your scene config please." << std::endl;
@@ -92,7 +92,7 @@ void Scene::prepare_scene(const std::string &scene_name)
     }
 
     // Load candidate model from assets/models.
-    std::string candidate_model_path = FileSystem::getPath("runtime/assets/models/");
+    std::string candidate_model_path = File_System::get_path("runtime/assets/models/");
     for (const auto& entry : fs::directory_iterator(candidate_model_path)) {
         if (fs::is_directory(entry.path())) {
             std::string dirName = entry.path().filename().string();
@@ -114,9 +114,9 @@ void Scene::prepare_scene(const std::string &scene_name)
         auto skybox_json = scene_json["skybox"];
         std::string skybox_name = skybox_json["name"].get<std::string>();
         std::string skybox_path = "runtime/assets/skybox/" + skybox_name + "/";
-        skybox_path = FileSystem::getPath(skybox_path);
+        skybox_path = File_System::get_path(skybox_path);
 
-        model_skybox = Model::constructSkybox(skybox_path, skybox_name);
+        model_skybox = Model::construct_skybox(skybox_path, skybox_name);
         model_skybox->model_name = skybox_name;
 
         auto &skybox_map = model_skybox->materials[0]->skybox_map;
@@ -139,7 +139,7 @@ void Scene::prepare_scene(const std::string &scene_name)
     }
 
     // Load candidate skybox from assets/skybox.
-    std::string candidate_skybox_path = FileSystem::getPath("runtime/assets/skybox/");
+    std::string candidate_skybox_path = File_System::get_path("runtime/assets/skybox/");
     for (const auto& entry : fs::directory_iterator(candidate_skybox_path)) {
         if (fs::is_directory(entry.path())) {
             std::string dirName = entry.path().filename().string();
@@ -201,8 +201,8 @@ void Scene::prepare_scene(const std::string &scene_name)
     int point_light_count = point_light_list.size();
     point_shadow_map_list.resize(point_light_count);
 
-    model_cube = Model::constructCube();
-    model_quad = Model::constructQuad();
+    model_cube = Model::construct_cube();
+    model_quad = Model::construct_quad();
 
     // Load config from scene.
     scene_config->model_name = model_list.front()->model_name;
@@ -219,7 +219,7 @@ void Scene::prepare_scene(const std::string &scene_name)
 std::string Scene::get_model_path(const std::string &model_name)
 {
     std::string model_path = "runtime/assets/models/" + model_name + "/" + model_name;
-    model_path = FileSystem::getPath(model_path);
+    model_path = File_System::get_path(model_path);
 
     std::string model_exts[] = {".obj", ".gltf", ".fbx", ".dae"};
     for (const auto& ext : model_exts) {
@@ -249,9 +249,9 @@ void Scene::update_model(const std::string &model_name)
 void Scene::update_skybox(const std::string &skybox_name)
 {
     std::string skybox_path = "runtime/assets/skybox/" + skybox_name + "/";
-    skybox_path = FileSystem::getPath(skybox_path);
+    skybox_path = File_System::get_path(skybox_path);
 
-    model_skybox = Model::constructSkybox(skybox_path, skybox_name);
+    model_skybox = Model::construct_skybox(skybox_path, skybox_name);
     model_skybox->model_name = skybox_name;
 
     if (model_skybox->materials[0]->skybox_map->get_type() == Texture_Type::TEXTURE_CUBE_MAP) {
@@ -298,8 +298,8 @@ void Scene::render(Pass &render_pass)
 
         glm::mat4 model_matrix = glm::identity<glm::mat4x4>();
         shader->setMat4("model", model_matrix);
-        shader->setMat4("view", camera->GetViewMatrix());
-        shader->setMat4("projection", camera->GetProjectionMatrix());
+        shader->setMat4("view", camera->get_view_matrix());
+        shader->setMat4("projection", camera->get_projection_matrix());
 
         render_pass.render(*mesh, *material, *ibl_data);
     }
@@ -438,7 +438,7 @@ void Scene::render(Pass &render_pass)
                 render_pass.reset();
                 render_pass.setup_framebuffer_default(screen_width, screen_height);
 
-                auto &material = model->materials[mesh->materialIndex];
+                auto &material = model->materials[mesh->material_index];
                 auto &shader = render_pass.shader;
 
                 glm::mat4 model_matrix = glm::identity<glm::mat4x4>();
@@ -450,9 +450,9 @@ void Scene::render(Pass &render_pass)
                 model_matrix = glm::rotate(model_matrix, rotation_radian.z, glm::vec3(0.0f, 0.0f, 1.0f));
 
                 shader->setMat4("model", model_matrix);
-                shader->setMat4("view", camera->GetViewMatrix());
-                shader->setMat4("projection", camera->GetProjectionMatrix());
-                shader->setVec3("eyePos", camera->Position);
+                shader->setMat4("view", camera->get_view_matrix());
+                shader->setMat4("projection", camera->get_projection_matrix());
+                shader->setVec3("eyePos", camera->cam_position);
                 shader->setInt("shading_method", scene_config->shading_method);
                 shader->setVec3("ambient_color", scene_config->ambient_color);
 
@@ -547,8 +547,8 @@ void Scene::render(Pass &render_pass)
             model_matrix = glm::scale(model_matrix, glm::vec3(radius * 0.5f));
 
             shader->setMat4("model", model_matrix);
-            shader->setMat4("view", camera->GetViewMatrix());
-            shader->setMat4("projection", camera->GetProjectionMatrix());
+            shader->setMat4("view", camera->get_view_matrix());
+            shader->setMat4("projection", camera->get_projection_matrix());
 
             shader->setVec3("lightColor", color);
 
@@ -577,8 +577,8 @@ void Scene::render(Pass &render_pass)
             model_matrix = glm::rotate(model_matrix, rotation_radian.y, glm::vec3(0.0f, 0.0f, -1.0f));
 
             shader->setMat4("model", model_matrix);
-            shader->setMat4("view", camera->GetViewMatrix());
-            shader->setMat4("projection", camera->GetProjectionMatrix());
+            shader->setMat4("view", camera->get_view_matrix());
+            shader->setMat4("projection", camera->get_projection_matrix());
 
             shader->setVec3("lightColor", color);
 
@@ -601,7 +601,7 @@ void Scene::save_output() const {
     }
 
     // Save as png file with stb_image_write.
-    auto file_name = FileSystem::getPath("output.png");
+    auto file_name = File_System::get_path("output.png");
     if (!stbi_write_png(file_name.c_str(), width, height, 3, pixels_flipped, width * 3)) {
         std::cerr << "Failed to write framebuffer to file: " << file_name << std::endl;
     } else {

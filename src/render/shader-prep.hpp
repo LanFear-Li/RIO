@@ -20,9 +20,9 @@ inline std::string read_all_from_file(const fs::path &path) {
     return content;
 }
 
-class FsShaderIncluder final : public pep::cprep::ShaderIncluder {
+class Fs_Shader_Includer final : public pep::cprep::ShaderIncluder {
 public:
-    FsShaderIncluder(std::vector<fs::path> &&include_dirs) : include_dirs_(std::move(include_dirs)) {}
+    Fs_Shader_Includer(std::vector<fs::path> &&include_dirs) : include_dirs_(std::move(include_dirs)) {}
 
     bool require_header(std::string_view header_name, std::string_view file_path, Result &result) override {
         auto rel_path = fs::path{file_path}.parent_path() / header_name;
@@ -62,7 +62,7 @@ inline std::string shader_pre_compile(std::string_view shader_path)
 {
     auto source = read_all_from_file(shader_path);
     std::vector<fs::path> include_dirs{{"runtime/shader/"}};
-    FsShaderIncluder includer{std::move(include_dirs)};
+    Fs_Shader_Includer includer{std::move(include_dirs)};
     pep::cprep::Preprocessor preprocessor{};
 
     auto prep_result = preprocessor.do_preprocess(

@@ -129,19 +129,19 @@ void Panel::render()
         ImGui::Text("Camera");
         ImGui::SameLine();
         if (ImGui::Button("Reset Camera")) {
-            camera->ResetCamera();
+            camera->reset_camera();
         }
 
-        ImGui::DragFloat("Speed", &camera->MovementSpeed, 0.1f, 0.0f, 1000.0f);
-        ImGui::DragFloat3("Position", (float *) &camera->Position, 0.1f, -1000.0f, 1000.f);
+        ImGui::DragFloat("Speed", &camera->movement_speed, 0.1f, 0.0f, 1000.0f);
+        ImGui::DragFloat3("Position", (float *) &camera->cam_position, 0.1f, -1000.0f, 1000.f);
 
         ImGui::PushItemWidth(windowWidth * 0.3f);
-        if (ImGui::DragFloat("Pitch", &camera->Pitch, 0.1f, -90.0f, 90.0f)) {
-            camera->updateCameraVectors();
+        if (ImGui::DragFloat("Pitch", &camera->cam_pitch, 0.1f, -90.0f, 90.0f)) {
+            camera->update_camera_vectors();
         }
         ImGui::SameLine();
-        if (ImGui::DragFloat("Yaw", &camera->Yaw, 0.1f, -180.0f, 0.0f)) {
-            camera->updateCameraVectors();
+        if (ImGui::DragFloat("Yaw", &camera->cam_yaw, 0.1f, -180.0f, 0.0f)) {
+            camera->update_camera_vectors();
         }
         ImGui::PopItemWidth();
 

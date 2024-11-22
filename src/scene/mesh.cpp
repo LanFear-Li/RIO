@@ -6,13 +6,13 @@ Mesh::Mesh(vector<Vertex> vertices, vector<unsigned int> indices, unsigned int i
 {
     this->vertices = vertices;
     this->indices = indices;
-    this->materialIndex = index;
+    this->material_index = index;
 
     // now that we have all the required data, set the vertex buffers and its attribute pointers.
-    setupMesh();
+    setup_mesh();
 }
 
-void Mesh::setupMesh()
+void Mesh::setup_mesh()
 {
     // create buffers/arrays
     glGenVertexArrays(1, &VAO);
@@ -36,26 +36,26 @@ void Mesh::setupMesh()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) 0);
     // vertex normals
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, Normal));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, normal));
     // vertex texture coords
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, TexCoords));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, tex_coord));
     // vertex tangent
     glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, Tangent));
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, tangent));
     // vertex bitangent
     glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, Bitangent));
+    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, bitangent));
     // ids
     glEnableVertexAttribArray(5);
-    glVertexAttribIPointer(5, 4, GL_INT, sizeof(Vertex), (void *) offsetof(Vertex, m_BoneIDs));
+    glVertexAttribIPointer(5, 4, GL_INT, sizeof(Vertex), (void *) offsetof(Vertex, m_bone_ids));
     // weights
     glEnableVertexAttribArray(6);
-    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, m_Weights));
+    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, m_weights));
     glBindVertexArray(0);
 }
 
-void Mesh::setupCubeMesh()
+void Mesh::setup_cube_mesh()
 {
     float cube_vertices[] = {
         // back face
@@ -119,7 +119,7 @@ void Mesh::setupCubeMesh()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void Mesh::setupQuadMesh()
+void Mesh::setup_quad_mesh()
 {
     float quad_vertices[] = {
         // Positions, Texture Coords

@@ -15,10 +15,10 @@ namespace fs = std::filesystem;
 
 Model::Model(std::string const &path)
 {
-    loadModel(path);
+    load_model(path);
 }
 
-void Model::loadModel(std::string const &path)
+void Model::load_model(std::string const &path)
 {
     // read file via ASSIMP
     Assimp::Importer importer;
@@ -34,17 +34,17 @@ void Model::loadModel(std::string const &path)
     directory = path.substr(0, path.find_last_of('/'));
 
     // process ASSIMP's root node recursively
-    processNode(scene->mRootNode, scene);
+    process_node(scene->mRootNode, scene);
 
     // Process each material located at the current node.
     // Assimp will stbi_set_flip_vertically_on_load(true) for you.
     for (unsigned int i = 0; i < scene->mNumMaterials; i++) {
         aiMaterial *material = scene->mMaterials[i];
-        materials.push_back(processMaterial(material, scene));
+        materials.push_back(process_material(material, scene));
     }
 }
 
-std::unique_ptr<Model> Model::constructSkybox(const std::string &skybox_path, const std::string &skybox_name)
+std::unique_ptr<Model> Model::construct_skybox(const std::string &skybox_path, const std::string &skybox_name)
 {
     fs::path directoryPath(skybox_path);
 
@@ -74,11 +74,11 @@ std::unique_ptr<Model> Model::constructSkybox(const std::string &skybox_path, co
         skybox_path + "back.jpg"
         };
 
-        return Model::constructCubemap(faces);
+        return Model::construct_cubemap(faces);
     } else if (file_count == 1) {
         // Format equirectangular map.
         std::string hdr_path = skybox_path + skybox_name + file_path.extension().string();
-        return Model::constructEquirectangular(hdr_path);
+        return Model::construct_equirectangular(hdr_path);
     }
 
     std::cout << "Initialize skybox failed, check your file format please." << std::endl;
@@ -86,7 +86,7 @@ std::unique_ptr<Model> Model::constructSkybox(const std::string &skybox_path, co
     return nullptr;
 }
 
-std::unique_ptr<Model> Model::constructEquirectangular(const std::string &rect_path)
+std::unique_ptr<Model> Model::construct_equirectangular(const std::string &rect_path)
 {
     auto model = std::make_unique<Model>();
 
@@ -94,7 +94,7 @@ std::unique_ptr<Model> Model::constructEquirectangular(const std::string &rect_p
     material->skybox_map = load_rect_map(rect_path, 3);
 
     auto mesh = std::make_unique<Mesh>();
-    mesh->setupCubeMesh();
+    mesh->setup_cube_mesh();
 
     model->materials.push_back(std::move(material));
     model->meshes.push_back(std::move(mesh));
@@ -102,7 +102,7 @@ std::unique_ptr<Model> Model::constructEquirectangular(const std::string &rect_p
     return model;
 }
 
-std::unique_ptr<Model> Model::constructCubemap(std::vector<std::string> cubemap_path)
+std::unique_ptr<Model> Model::construct_cubemap(std::vector<std::string> cubemap_path)
 {
     auto model = std::make_unique<Model>();
 
@@ -110,7 +110,7 @@ std::unique_ptr<Model> Model::constructCubemap(std::vector<std::string> cubemap_
     material->skybox_map = load_cube_map(cubemap_path, 3);
 
     auto mesh = std::make_unique<Mesh>();
-    mesh->setupCubeMesh();
+    mesh->setup_cube_mesh();
 
     model->materials.push_back(std::move(material));
     model->meshes.push_back(std::move(mesh));
@@ -118,13 +118,13 @@ std::unique_ptr<Model> Model::constructCubemap(std::vector<std::string> cubemap_
     return model;
 }
 
-std::unique_ptr<Model> Model::constructCube()
+std::unique_ptr<Model> Model::construct_cube()
 {
     auto model = std::make_unique<Model>();
 
     auto material = std::make_unique<Material>();
     auto mesh = std::make_unique<Mesh>();
-    mesh->setupCubeMesh();
+    mesh->setup_cube_mesh();
 
     model->materials.push_back(std::move(material));
     model->meshes.push_back(std::move(mesh));
@@ -132,13 +132,13 @@ std::unique_ptr<Model> Model::constructCube()
     return model;
 }
 
-std::unique_ptr<Model> Model::constructQuad()
+std::unique_ptr<Model> Model::construct_quad()
 {
     auto model = std::make_unique<Model>();
 
     auto material = std::make_unique<Material>();
     auto mesh = std::make_unique<Mesh>();
-    mesh->setupQuadMesh();
+    mesh->setup_quad_mesh();
 
     model->materials.push_back(std::move(material));
     model->meshes.push_back(std::move(mesh));
@@ -147,23 +147,23 @@ std::unique_ptr<Model> Model::constructQuad()
 }
 
 // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
-void Model::processNode(aiNode *node, const aiScene *scene)
+void Model::process_node(aiNode *node, const aiScene *scene)
 {
     // process each mesh located at the current node
     for (unsigned int i = 0; i < node->mNumMeshes; i++) {
         // the node object only contains indices to index the actual objects in the scene.
         // the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
         aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-        meshes.push_back(processMesh(mesh, scene));
+        meshes.push_back(process_mesh(mesh, scene));
     }
 
     // after we've processed all of the meshes (if any) we then recursively process each of the children nodes
     for (unsigned int i = 0; i < node->mNumChildren; i++) {
-        processNode(node->mChildren[i], scene);
+        process_node(node->mChildren[i], scene);
     }
 }
 
-std::unique_ptr<Mesh> Model::processMesh(aiMesh *mesh, const aiScene *scene)
+std::unique_ptr<Mesh> Model::process_mesh(aiMesh *mesh, const aiScene *scene)
 {
     // data to fill
     vector<Vertex> vertices;
@@ -178,13 +178,13 @@ std::unique_ptr<Mesh> Model::processMesh(aiMesh *mesh, const aiScene *scene)
         vector.x = mesh->mVertices[i].x;
         vector.y = mesh->mVertices[i].y;
         vector.z = mesh->mVertices[i].z;
-        vertex.Position = vector;
+        vertex.position = vector;
         // normals
         if (mesh->HasNormals()) {
             vector.x = mesh->mNormals[i].x;
             vector.y = mesh->mNormals[i].y;
             vector.z = mesh->mNormals[i].z;
-            vertex.Normal = vector;
+            vertex.normal = vector;
         }
         // texture coordinates
         if (mesh->mTextureCoords[0]) { // does the mesh contain texture coordinates?
@@ -193,19 +193,19 @@ std::unique_ptr<Mesh> Model::processMesh(aiMesh *mesh, const aiScene *scene)
             // use models where a vertex can have multiple texture coordinates so we always take the first set (0).
             vec.x = mesh->mTextureCoords[0][i].x;
             vec.y = mesh->mTextureCoords[0][i].y;
-            vertex.TexCoords = vec;
+            vertex.tex_coord = vec;
             // tangent
             vector.x = mesh->mTangents[i].x;
             vector.y = mesh->mTangents[i].y;
             vector.z = mesh->mTangents[i].z;
-            vertex.Tangent = vector;
+            vertex.tangent = vector;
             // bitangent
             vector.x = mesh->mBitangents[i].x;
             vector.y = mesh->mBitangents[i].y;
             vector.z = mesh->mBitangents[i].z;
-            vertex.Bitangent = vector;
+            vertex.bitangent = vector;
         } else {
-            vertex.TexCoords = glm::vec2(0.0f, 0.0f);
+            vertex.tex_coord = glm::vec2(0.0f, 0.0f);
         }
 
         vertices.push_back(vertex);
@@ -238,7 +238,7 @@ glm::vec3 get_vec3_from_color(const C_STRUCT aiColor4D &c)
     return glm::vec3{c.r, c.g, c.b};
 }
 
-std::unique_ptr<Material> Model::processMaterial(aiMaterial *material, const aiScene *scene)
+std::unique_ptr<Material> Model::process_material(aiMaterial *material, const aiScene *scene)
 {
     auto result = std::make_unique<Material>();
 
@@ -289,31 +289,31 @@ std::unique_ptr<Material> Model::processMaterial(aiMaterial *material, const aiS
         result->roughness = temp_float;
     }
 
-    result->normal_map = genMaterialTexture(material, aiTextureType_NORMALS, "texture_normal");
+    result->normal_map = gen_material_texture(material, aiTextureType_NORMALS, "texture_normal");
 
-    result->diffuse_map = genMaterialTexture(material, aiTextureType_DIFFUSE, "texture_diffuse");
-    result->specular_map = genMaterialTexture(material, aiTextureType_SPECULAR, "texture_specular");
+    result->diffuse_map = gen_material_texture(material, aiTextureType_DIFFUSE, "texture_diffuse");
+    result->specular_map = gen_material_texture(material, aiTextureType_SPECULAR, "texture_specular");
 
-    result->emissive_map = genMaterialTexture(material, aiTextureType_EMISSIVE, "texture_emissive");
-    result->roughness_map = genMaterialTexture(material, aiTextureType_DIFFUSE_ROUGHNESS, "texture_roughness");
-    result->metallic_map = genMaterialTexture(material, aiTextureType_METALNESS, "texture_metallic");
+    result->emissive_map = gen_material_texture(material, aiTextureType_EMISSIVE, "texture_emissive");
+    result->roughness_map = gen_material_texture(material, aiTextureType_DIFFUSE_ROUGHNESS, "texture_roughness");
+    result->metallic_map = gen_material_texture(material, aiTextureType_METALNESS, "texture_metallic");
     // There's no metal roughness texture type in assimp, using aiTextureType_UNKNOWN instead.
-    result->metal_roughness_map = genMaterialTexture(material, aiTextureType_UNKNOWN, "texture_metal_roughness");
-    result->ao_map = genMaterialTexture(material, aiTextureType_LIGHTMAP, "texture_ao");
+    result->metal_roughness_map = gen_material_texture(material, aiTextureType_UNKNOWN, "texture_metal_roughness");
+    result->ao_map = gen_material_texture(material, aiTextureType_LIGHTMAP, "texture_ao");
 
     return result;
 }
 
-std::unique_ptr<Texture> Model::genMaterialTexture(aiMaterial *mat, aiTextureType type, const std::string &typeName)
+std::unique_ptr<Texture> Model::gen_material_texture(aiMaterial *mat, aiTextureType type, const std::string &type_name)
 {
     aiString str;
     if (AI_SUCCESS == mat->GetTexture(type, 0, &str)) {
         std::string filename = std::string(str.C_Str());
         filename = directory + '/' + filename;
 
-        int width, height, nrComponents;
-        unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
-        auto texture = load_texture_2d(width, height, nrComponents, data);
+        int width, height, n_components;
+        unsigned char *data = stbi_load(filename.c_str(), &width, &height, &n_components, 0);
+        auto texture = load_texture_2d(width, height, n_components, data);
         stbi_image_free(data);
 
         return texture;

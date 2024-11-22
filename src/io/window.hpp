@@ -11,7 +11,7 @@ public:
     Window() = delete;
     Window(int width, int height, const char *title);
 
-    void mainLoop(const std::function<void()> &func);
+    void main_loop(const std::function<void()> &func);
 
     enum Mouse
     {
@@ -20,36 +20,37 @@ public:
         MOUSE_MIDDLE = 4,
     };
 
-    using mouseCallback = std::function<void(GLFWwindow*, uint32_t, float, float, float, float)>;
-    using keyCallback = std::function<void(GLFWwindow*, int, int)>;
-    using resizeCallback = std::function<void(GLFWwindow*, uint32_t, uint32_t)>;
+    using mouse_callback = std::function<void(GLFWwindow*, uint32_t, float, float, float, float)>;
+    using key_callback = std::function<void(GLFWwindow*, int, int)>;
+    using resize_callback = std::function<void(GLFWwindow*, uint32_t, uint32_t)>;
 
-    void setMouseCallback(const mouseCallback &callback);
-    void setKeyCallback(const keyCallback &callback);
-    void setResizeCallback(const resizeCallback &callback);
+    void set_mouse_callback(const mouse_callback &callback);
+    void set_key_callback(const key_callback &callback);
+    void set_resize_callback(const resize_callback &callback);
 
-    float deltaTime = 0.0f;
-    float lastFrame = 0.0f;
+    friend void glfw_cursor_pos_callback(GLFWwindow *window, double x, double y);
+    friend void glfw_key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
+    friend void glfw_resize_callback(GLFWwindow *window, int width, int height);
 
-    bool firstMouse = true;
-    float lastX = 0.0f;
-    float lastY = 0.0f;
+    mouse_callback mouse_callback_ = [](GLFWwindow*, uint32_t, float, float, float, float) {};
+    key_callback key_callback_ = [](GLFWwindow*, int, int) {};
+    resize_callback resize_callback_ = [](GLFWwindow*, uint32_t, uint32_t) {};
 
-    uint32_t screenWidth;
-    uint32_t screenHeight;
-
-    GLFWwindow *glWindow = nullptr;
-
-    friend void GlfwCursorPosCallback(GLFWwindow *window, double x, double y);
-    friend void GlfwKeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
-    friend void GlfwResizeCallback(GLFWwindow *window, int width, int height);
-
-    mouseCallback mouse_callback_ = [](GLFWwindow*, uint32_t, float, float, float, float) {};
-    keyCallback key_callback_ = [](GLFWwindow*, int, int) {};
-    resizeCallback resize_callback_ = [](GLFWwindow*, uint32_t, uint32_t) {};
-
-    void switchFullScreen();
+    void switch_full_screen();
     void exit() const;
 
-    bool isFullScreen = false;
+    float delta_time = 0.0f;
+    float last_frame = 0.0f;
+
+    uint32_t screen_width;
+    uint32_t screen_height;
+
+    GLFWwindow *gl_window = nullptr;
+
+private:
+    bool first_mouse = true;
+    float last_x = 0.0f;
+    float last_y = 0.0f;
+
+    bool full_screen = false;
 };

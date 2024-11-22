@@ -3,18 +3,18 @@
 #include <glad/glad.h>
 #include <stb_image.h>
 
-std::unique_ptr<Texture> load_texture_2d(uint32_t width, uint32_t height, uint32_t nrComponents, const void *data)
+std::unique_ptr<Texture> load_texture_2d(uint32_t width, uint32_t height, uint32_t n_components, const void *data)
 {
     unsigned int texture_id;
 
     glGenTextures(1, &texture_id);
 
     GLenum format = GL_RGB;
-    if (nrComponents == 1) {
+    if (n_components == 1) {
         format = GL_RED;
-    } else if (nrComponents == 3) {
+    } else if (n_components == 3) {
         format = GL_RGB;
-    } else if (nrComponents == 4) {
+    } else if (n_components == 4) {
         format = GL_RGBA;
     }
 
@@ -30,7 +30,7 @@ std::unique_ptr<Texture> load_texture_2d(uint32_t width, uint32_t height, uint32
     return std::make_unique<Texture>(texture_id, Texture_Type::TEXTURE_2D);
 }
 
-std::shared_ptr<Texture> load_rect_map(std::string file_path, uint32_t nrComponents)
+std::shared_ptr<Texture> load_rect_map(std::string file_path, uint32_t n_components)
 {
     unsigned int texture_id;
 
@@ -38,18 +38,18 @@ std::shared_ptr<Texture> load_rect_map(std::string file_path, uint32_t nrCompone
     glBindTexture(GL_TEXTURE_2D, texture_id);
 
     GLenum format = GL_RGB;
-    if (nrComponents == 1) {
+    if (n_components == 1) {
         format = GL_RED;
-    } else if (nrComponents == 3) {
+    } else if (n_components == 3) {
         format = GL_RGB;
-    } else if (nrComponents == 4) {
+    } else if (n_components == 4) {
         format = GL_RGBA;
     }
 
     stbi_set_flip_vertically_on_load(true);
 
-    int width, height, nrChannels;
-    float *data = stbi_loadf(file_path.c_str(), &width, &height, &nrChannels, 0);
+    int width, height, n_channels;
+    float *data = stbi_loadf(file_path.c_str(), &width, &height, &n_channels, 0);
     if (data) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, format, GL_FLOAT, data);
         stbi_image_free(data);
@@ -67,7 +67,7 @@ std::shared_ptr<Texture> load_rect_map(std::string file_path, uint32_t nrCompone
     return std::make_shared<Texture>(texture_id, Texture_Type::TEXTURE_EQUIRECTANGULAR);
 }
 
-std::shared_ptr<Texture> load_cube_map(std::vector<std::string> faces, uint32_t nrComponents)
+std::shared_ptr<Texture> load_cube_map(std::vector<std::string> faces, uint32_t n_components)
 {
     unsigned int texture_id;
 
@@ -75,17 +75,17 @@ std::shared_ptr<Texture> load_cube_map(std::vector<std::string> faces, uint32_t 
     glBindTexture(GL_TEXTURE_CUBE_MAP, texture_id);
 
     GLenum format = GL_RGB;
-    if (nrComponents == 1) {
+    if (n_components == 1) {
         format = GL_RED;
-    } else if (nrComponents == 3) {
+    } else if (n_components == 3) {
         format = GL_RGB;
-    } else if (nrComponents == 4) {
+    } else if (n_components == 4) {
         format = GL_RGBA;
     }
 
-    int width, height, nrChannels;
+    int width, height, n_channels;
     for (unsigned int i = 0; i < faces.size(); i++) {
-        unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+        unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &n_channels, 0);
         if (data) {
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
             stbi_image_free(data);
@@ -153,8 +153,8 @@ std::unique_ptr<Texture> create_texture(Texture_Type texture_type, int width, in
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-        float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
-        glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+        float border_color[] = { 1.0, 1.0, 1.0, 1.0 };
+        glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, border_color);
     }
 
     return std::make_unique<Texture>(texture_id, texture_type);

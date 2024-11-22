@@ -17,11 +17,11 @@ public:
     Model() = default;
     Model(std::string const &path);
 
-    static std::unique_ptr<Model> constructSkybox(const std::string &skybox_path, const std::string &skybox_name);
-    static std::unique_ptr<Model> constructEquirectangular(const std::string &rect_path);
-    static std::unique_ptr<Model> constructCubemap(std::vector<std::string> cubemap_path);
-    static std::unique_ptr<Model> constructCube();
-    static std::unique_ptr<Model> constructQuad();
+    static std::unique_ptr<Model> construct_skybox(const std::string &skybox_path, const std::string &skybox_name);
+    static std::unique_ptr<Model> construct_equirectangular(const std::string &rect_path);
+    static std::unique_ptr<Model> construct_cubemap(std::vector<std::string> cubemap_path);
+    static std::unique_ptr<Model> construct_cube();
+    static std::unique_ptr<Model> construct_quad();
 
     // Model data storage.
     vector<std::unique_ptr<Mesh>> meshes;
@@ -34,15 +34,15 @@ public:
 
 private:
     // Loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
-    void loadModel(std::string const &path);
+    void load_model(std::string const &path);
 
     // Processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
-    void processNode(aiNode *node, const aiScene *scene);
-    std::unique_ptr<Mesh> processMesh(aiMesh *mesh, const aiScene *scene);
-    std::unique_ptr<Material> processMaterial(aiMaterial *material, const aiScene *scene);
+    void process_node(aiNode *node, const aiScene *scene);
+    std::unique_ptr<Mesh> process_mesh(aiMesh *mesh, const aiScene *scene);
+    std::unique_ptr<Material> process_material(aiMaterial *material, const aiScene *scene);
 
     // Helper function for material loading.
-    std::unique_ptr<Texture> genMaterialTexture(aiMaterial *mat, aiTextureType type, const std::string &typeName);
+    std::unique_ptr<Texture> gen_material_texture(aiMaterial *mat, aiTextureType type, const std::string &type_name);
 
     std::string directory;
 };

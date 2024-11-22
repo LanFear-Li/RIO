@@ -3,27 +3,27 @@
 #include <string>
 #include <cstdlib>
 
-class FileSystem final
+class File_System final
 {
 private:
-    typedef std::string (*Builder)(const std::string &path);
+    typedef std::string (*builder)(const std::string &path);
 
 public:
-    static std::string getPath(const std::string &path);
+    static std::string get_path(const std::string &path);
 
 private:
-    static std::string const &getRoot();
+    static std::string const &get_root();
 
-    static Builder getPathBuilder()
+    static builder get_path_builder()
     {
-        if (!getRoot().empty()) {
-            return &FileSystem::getPathRelativeRoot;
+        if (!get_root().empty()) {
+            return &File_System::get_path_relative_root;
         } else {
-            return &FileSystem::getPathRelativeBinary;
+            return &File_System::get_path_relative_binary;
         }
     }
 
-    static std::string getPathRelativeRoot(const std::string &path);
+    static std::string get_path_relative_root(const std::string &path);
 
-    static std::string getPathRelativeBinary(const std::string &path);
+    static std::string get_path_relative_binary(const std::string &path);
 };

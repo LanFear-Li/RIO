@@ -4,7 +4,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-// Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum Camera_Movement
 {
     FORWARD,
@@ -15,14 +14,13 @@ enum Camera_Movement
     DOWN
 };
 
-// Default camera values
+// Default camera values.
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
 const float SPEED = 2.5f;
 const float SENSITIVITY = 0.1f;
 const float ZOOM = 45.0f;
 
-// An abstract camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
 class Camera final
 {
 public:
@@ -33,45 +31,38 @@ public:
     // Constructor with scalar values.
     Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
 
-    glm::mat4 GetViewMatrix() const;
-    glm::mat4 GetProjectionMatrix() const;
+    glm::mat4 get_view_matrix() const;
+    glm::mat4 get_projection_matrix() const;
 
-    void ResetCamera();
+    void increase_speed(float deltaSpeed = 1.0f);
+    void decrease_speed(float deltaSpeed = 1.0f);
 
-    // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-    void ProcessKeyboard(Camera_Movement direction, float deltaTime);
+    void process_keyboard(Camera_Movement direction, float delta_time);
+    void process_mouse_movement(float xoffset, float yoffset, GLboolean constrain_pitch = true);
+    void process_mouse_scroll(float y_offset);
 
-    void IncreaseSpeed(float deltaSpeed = 1.0f);
-    void DecreaseSpeed(float deltaSpeed = 1.0f);
+    // Calculates the front vector from the Camera's (updated) Euler Angles.
+    void update_camera_vectors();
+    void reset_camera();
 
-    // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-    void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true);
+    // Camera attributes.
+    glm::vec3 cam_position{};
+    glm::vec3 cam_front;
+    glm::vec3 cam_up{};
+    glm::vec3 cam_right{};
+    glm::vec3 cam_world_up{};
 
-    // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
-    void ProcessMouseScroll(float y_offset);
-
-    // calculates the front vector from the Camera's (updated) Euler Angles
-    void updateCameraVectors();
-
-    // camera Attributes
-    glm::vec3 Position{};
-    glm::vec3 Front;
-    glm::vec3 Up{};
-    glm::vec3 Right{};
-    glm::vec3 WorldUp{};
-
-    // euler Angles
-    float Yaw;
-    float Pitch;
-
-    // camera options
-    float MovementSpeed;
-    float MouseSensitivity;
-    float Zoom;
+    float cam_yaw;
+    float cam_pitch;
 
     float z_near = 0.1f;
     float z_far = 1000.0f;
 
-    uint32_t cameraWidth = 1000;
-    uint32_t cameraHeight = 800;
+    uint32_t camera_width = 1000;
+    uint32_t camera_height = 800;
+
+    // Camera options.
+    float movement_speed;
+    float mouse_sensitivity;
+    float zoom;
 };

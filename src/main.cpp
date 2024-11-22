@@ -8,7 +8,7 @@ int main(int argc, char* argv[])
         scene_name = argv[1];
     }
 
-    Renderer renderer(scene_name);
-    renderer.run();
+    auto renderer = std::make_unique<Renderer>(scene_name);
+    renderer->run();
     return 0;
 }
