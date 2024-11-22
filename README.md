@@ -9,18 +9,19 @@ RIO is a real-time rasterization renderer with OpenGL backend. It aims to implem
 
 #### Basic
 
-- [x] User Interface
+- [x] User Interface with Control Panel and Camera Operation
 
 #### Shading
 
-- [x] Blinn-Phong Shading
-- [x] Physically-Based Rendering
-- [x] Image-Based Lighting / Environment Lighting
+- [x] Classic Blinn-Phong Shading
+- [x] Physically-Based Shading with Lambertian BRDF
+- [x] Image-Based Lighting (IBL) / Environment Lighting
 
 #### Lighting & Shadowing
 
 - [x] Point / Directional / Spot lights
-- [x] Shadow Mapping with PCF / PCSS
+- [x] Shadow Mapping with Percentage Closer Filtering (PCF)
+- [x] Percentage Closer Soft Shadow (PCSS)
 
 
 ## Gallery
@@ -43,7 +44,7 @@ RIO is a real-time rasterization renderer with OpenGL backend. It aims to implem
 
 **Build**
 
-Since all dependencies are included with source code, you can build RIO from any IDE with CMake on Windows or Linux.
+Since all dependencies are included with source code, you can build RIO freely with CMake on Windows or Linux.
 
 **Control**
 
@@ -51,8 +52,8 @@ Since all dependencies are included with source code, you can build RIO from any
 
 The image above shows the RIO interface with ImGui. You can modify several **render options** like
 
-- Show skybox / Enable IBL / Render Light Model, etc.
-- Switch shading method / Switch skybox.
+- Show skybox / Enable IBL / Render Light Model / Render shadow, etc.
+- Switch shading method / Switch shadow method / Switch skybox.
 
 You can modify **scene options** with a camera, all lights, and models with
 
@@ -84,7 +85,7 @@ Additionally, keyboard control for the camera and events is supported
 
 ## Acknowledgements
 
+- [pep-cprep](https://github.com/PepcyCh/pep-cprep)
 - [LearnOpenGL](https://learnopengl.com)
 - [renderer](https://github.com/zauonlok/renderer)
-- [pep-cprep](https://github.com/PepcyCh/pep-cprep)
 - [SoftGLRender](https://github.com/keith2018/SoftGLRender)
