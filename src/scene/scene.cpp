@@ -11,7 +11,8 @@
 
 namespace fs = std::filesystem;
 
-glm::vec3 euler_to_direction(glm::vec3 euler) {
+glm::vec3 euler_to_direction(glm::vec3 euler)
+{
     float pitch = glm::radians(90.0f - euler.x);
     float yaw = glm::radians(euler.y);
     float roll = glm::radians(euler.z);
@@ -27,7 +28,7 @@ glm::vec3 euler_to_direction(glm::vec3 euler) {
     return glm::normalize(direction);
 }
 
-Scene::Scene(std::string scene_name)
+Scene::Scene(const std::string &scene_name)
 {
     std::string file_path = FileSystem::getPath("runtime/assets/scenes/" + scene_name + ".json");
     auto scene_json = nlohmann::json::parse(std::ifstream(file_path), nullptr, false);
@@ -62,7 +63,7 @@ Scene::Scene(std::string scene_name)
     scene_config = std::make_shared<Panel_Config>();
 }
 
-void Scene::prepare_scene(std::string scene_name)
+void Scene::prepare_scene(const std::string &scene_name)
 {
     std::string file_path = FileSystem::getPath("runtime/assets/scenes/" + scene_name + ".json");
     auto scene_json = nlohmann::json::parse(std::ifstream(file_path), nullptr, false);
@@ -215,7 +216,7 @@ void Scene::prepare_scene(std::string scene_name)
     }
 }
 
-std::string Scene::get_model_path(std::string model_name)
+std::string Scene::get_model_path(const std::string &model_name)
 {
     std::string model_path = "runtime/assets/models/" + model_name + "/" + model_name;
     model_path = FileSystem::getPath(model_path);
@@ -234,7 +235,7 @@ std::string Scene::get_model_path(std::string model_name)
     return {};
 }
 
-void Scene::update_model(std::string model_name)
+void Scene::update_model(const std::string &model_name)
 {
     model_list.clear();
 
@@ -245,7 +246,7 @@ void Scene::update_model(std::string model_name)
     model_list.push_back(std::move(model));
 }
 
-void Scene::update_skybox(std::string skybox_name)
+void Scene::update_skybox(const std::string &skybox_name)
 {
     std::string skybox_path = "runtime/assets/skybox/" + skybox_name + "/";
     skybox_path = FileSystem::getPath(skybox_path);
@@ -586,7 +587,7 @@ void Scene::render(Pass &render_pass)
     }
 }
 
-void Scene::save_output() {
+void Scene::save_output() const {
     auto width = screen_width;
     auto height = screen_height;
 

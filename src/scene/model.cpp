@@ -8,11 +8,12 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#include <iostream>
 #include <filesystem>
 
 namespace fs = std::filesystem;
 
-Model::Model(std::string const &path, bool gamma) : gammaCorrection(gamma)
+Model::Model(std::string const &path)
 {
     loadModel(path);
 }
@@ -43,7 +44,7 @@ void Model::loadModel(std::string const &path)
     }
 }
 
-std::unique_ptr<Model> Model::constructSkybox(std::string skybox_path, std::string skybox_name)
+std::unique_ptr<Model> Model::constructSkybox(const std::string &skybox_path, const std::string &skybox_name)
 {
     fs::path directoryPath(skybox_path);
 
@@ -85,7 +86,7 @@ std::unique_ptr<Model> Model::constructSkybox(std::string skybox_path, std::stri
     return nullptr;
 }
 
-std::unique_ptr<Model> Model::constructEquirectangular(std::string rect_path)
+std::unique_ptr<Model> Model::constructEquirectangular(const std::string &rect_path)
 {
     auto model = std::make_unique<Model>();
 
@@ -303,7 +304,7 @@ std::unique_ptr<Material> Model::processMaterial(aiMaterial *material, const aiS
     return result;
 }
 
-std::unique_ptr<Texture> Model::genMaterialTexture(aiMaterial *mat, aiTextureType type, std::string typeName)
+std::unique_ptr<Texture> Model::genMaterialTexture(aiMaterial *mat, aiTextureType type, const std::string &typeName)
 {
     aiString str;
     if (AI_SUCCESS == mat->GetTexture(type, 0, &str)) {

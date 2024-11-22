@@ -17,7 +17,6 @@ struct IBL_Data
 
 struct Material
 {
-public:
     std::string mat_name{};
 
     // --------------------------------------

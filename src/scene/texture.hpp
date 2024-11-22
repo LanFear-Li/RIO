@@ -1,7 +1,6 @@
 #pragma once
 
 #include <iostream>
-#include <cstdint>
 #include <memory>
 #include <vector>
 
@@ -13,14 +12,15 @@ enum Texture_Type
     TEXTURE_2D_DEPTH
 };
 
-struct Texture
+class Texture final
 {
 public:
     Texture(unsigned int texture_id, Texture_Type texture_type) : id(texture_id), type(texture_type) {}
     ~Texture();
 
-    unsigned int get_id() { return id; }
-    Texture_Type get_type() { return type; }
+    unsigned int get_id() const { return id; }
+    Texture_Type get_type() const { return type; }
+
 private:
     unsigned int id;
     Texture_Type type{Texture_Type::TEXTURE_2D};

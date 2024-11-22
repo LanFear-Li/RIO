@@ -28,7 +28,7 @@ struct Vertex
     float m_Weights[MAX_BONE_INFLUENCE];
 };
 
-class Mesh
+class Mesh final
 {
 public:
     Mesh() = default;
@@ -44,7 +44,7 @@ public:
     unsigned int VAO{};
 
 private:
-    // initializes all the buffer objects/arrays
+    // Initializes all the buffer objects / arrays.
     void setupMesh();
 
     // Render data storage.

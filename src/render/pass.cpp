@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-Pass::Pass(std::string pass_name)
+Pass::Pass(const std::string &pass_name)
 {
     std::string vert_path = "runtime/shaders/pass/" + pass_name + ".vert";
     std::string frag_path = "runtime/shaders/pass/" + pass_name + ".frag";
@@ -13,7 +13,7 @@ Pass::Pass(std::string pass_name)
     name = pass_name;
 }
 
-void Pass::prepare()
+void Pass::prepare() const
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -72,12 +72,12 @@ void Pass::setup_framebuffer_default(int width, int height)
     buffer_height = height;
 }
 
-void Pass::active()
+void Pass::active() const
 {
     shader->use();
 }
 
-void Pass::reset()
+void Pass::reset() const
 {
     shader->setBool("use_normal_map", false);
     shader->setBool("use_ambient_map", false);
@@ -92,7 +92,7 @@ void Pass::reset()
     shader->setBool("use_ibl_data", false);
 }
 
-void Pass::render(Mesh &mesh, Material &material, IBL_Data &ibl_data)
+void Pass::render(const Mesh &mesh, const Material &material, const IBL_Data &ibl_data)
 {
     shader->setVec3("_mat_ambient", material.ambient);
     shader->setVec3("_mat_diffuse", material.diffuse);
@@ -209,7 +209,7 @@ void Pass::render(Mesh &mesh, Material &material, IBL_Data &ibl_data)
     glActiveTexture(GL_TEXTURE0);
 }
 
-void Pass::render_depth(Mesh &mesh)
+void Pass::render_depth(const Mesh &mesh)
 {
     glViewport(0, 0, buffer_width, buffer_height);
 
@@ -220,7 +220,7 @@ void Pass::render_depth(Mesh &mesh)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Pass::render_cubemap(Mesh &mesh, Texture &texture)
+void Pass::render_cubemap(const Mesh &mesh, const Texture &texture)
 {
     unsigned int texture_idx = 0;
 
@@ -269,7 +269,7 @@ void Pass::render_cubemap(Mesh &mesh, Texture &texture)
     glActiveTexture(GL_TEXTURE0);
 }
 
-void Pass::render_quad(Mesh &mesh)
+void Pass::render_quad(const Mesh &mesh)
 {
     glViewport(0, 0, buffer_width, buffer_height);
 
@@ -287,7 +287,7 @@ void Pass::render_quad(Mesh &mesh)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Pass::render_cubemap_mipmap(Mesh &mesh, Texture &texture)
+void Pass::render_cubemap_mipmap(const Mesh &mesh, const Texture &texture)
 {
     unsigned int texture_idx = 0;
 

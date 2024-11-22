@@ -9,26 +9,21 @@
 #include <vector>
 #include <memory>
 
-struct Scene
+class Scene final
 {
 public:
     Scene() = delete;
-    Scene(std::string scene_name);
-    void prepare_scene(std::string scene_name);
+    Scene(const std::string &scene_name);
 
-    std::string get_model_path(std::string model_name);
-    void update_model(std::string model_name);
-    void update_skybox(std::string skybox_name);
+    void prepare_scene(const std::string &scene_name);
+    void update_model(const std::string &model_name);
+    void update_skybox(const std::string &skybox_name);
 
-    void update();
     void render(Pass &render_pass);
-    void save_output();
+    void save_output() const;
 
     unsigned int screen_width{};
     unsigned int screen_height{};
-
-    bool cubemap_converted = false;
-    bool ibl_generated = false;
 
     std::shared_ptr<Panel_Config> scene_config;
 
@@ -59,4 +54,10 @@ public:
     // Mesh model for pass.
     std::unique_ptr<Model> model_cube;
     std::unique_ptr<Model> model_quad;
+
+private:
+    std::string get_model_path(const std::string &model_name);
+
+    bool cubemap_converted = false;
+    bool ibl_generated = false;
 };

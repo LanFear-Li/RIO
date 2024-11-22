@@ -2,7 +2,8 @@
 
 #include "render/shader-prep.hpp"
 
-bool check_file_existence(const char *vertexPath) {
+bool check_file_existence(const char *vertexPath)
+{
     std::ifstream file(vertexPath);
     return file.good();
 }

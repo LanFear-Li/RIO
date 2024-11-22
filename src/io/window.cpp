@@ -58,8 +58,7 @@ Window::Window(int width, int height, const char *title) : screenWidth(width), s
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    // glfw window creation
-    // --------------------
+    // Glfw window creation.
     glWindow = glfwCreateWindow(width, height, title, nullptr, nullptr);
     if (glWindow == nullptr) {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -74,7 +73,7 @@ Window::Window(int width, int height, const char *title) : screenWidth(width), s
     glfwSetCursorPosCallback(glWindow, GlfwCursorPosCallback);
     glfwSetFramebufferSizeCallback(glWindow, GlfwResizeCallback);
 
-    // tell GLFW to capture our mouse
+    // Tell GLFW to capture our mouse.
     glfwSetInputMode(glWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -122,9 +121,6 @@ void Window::switchFullScreen()
 {
     isFullScreen = !isFullScreen;
 
-    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-
     if (isFullScreen) {
         glfwMaximizeWindow(glWindow);
     } else {
@@ -132,7 +128,7 @@ void Window::switchFullScreen()
     }
 }
 
-void Window::exit()
+void Window::exit() const
 {
     glfwSetWindowShouldClose(glWindow, GLFW_TRUE);
 }

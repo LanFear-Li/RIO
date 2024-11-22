@@ -7,7 +7,8 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
-Panel::Panel(void *window, std::shared_ptr<Scene> scene) {
+Panel::Panel(void *window, std::shared_ptr<Scene> scene)
+{
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
@@ -21,7 +22,8 @@ Panel::Panel(void *window, std::shared_ptr<Scene> scene) {
     this->panel_config = scene->scene_config;
 }
 
-void Panel::render() {
+void Panel::render()
+{
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();

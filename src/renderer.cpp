@@ -2,7 +2,7 @@
 
 #include <utility>
 
-Renderer::Renderer(std::string scene_name)
+Renderer::Renderer(const std::string &scene_name)
 {
     scene = std::make_shared<Scene>(scene_name);
 
@@ -29,7 +29,7 @@ Renderer::Renderer(std::string scene_name)
     scene->prepare_scene(scene_name);
 }
 
-void Renderer::run()
+void Renderer::run() const
 {
     // Bind key, mouse, resize callback for window.
     std::vector<bool> key_state = std::vector<bool>(1025, false);
@@ -110,5 +110,5 @@ void Renderer::run()
         process_key(window->deltaTime);
     });
 
-    glfwTerminate();
+    window->exit();
 }

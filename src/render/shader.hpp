@@ -8,12 +8,12 @@
 #include <sstream>
 #include <iostream>
 
-class Shader
+class Shader final
 {
 public:
     unsigned int ID;
 
-    Shader() = default;
+    Shader() = delete;
 
     // constructor generates the shader on the fly
     // ------------------------------------------------------------------------

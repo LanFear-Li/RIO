@@ -3,9 +3,6 @@
 #include <glad/glad.h>
 #include <stb_image.h>
 
-#include <vector>
-#include <string>
-
 std::unique_ptr<Texture> load_texture_2d(uint32_t width, uint32_t height, uint32_t nrComponents, const void *data)
 {
     unsigned int texture_id;

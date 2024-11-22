@@ -5,7 +5,7 @@
 
 #include <functional>
 
-struct Window
+class Window final
 {
 public:
     Window() = delete;
@@ -49,7 +49,7 @@ public:
     resizeCallback resize_callback_ = [](GLFWwindow*, uint32_t, uint32_t) {};
 
     void switchFullScreen();
-    void exit();
+    void exit() const;
 
     bool isFullScreen = false;
 };

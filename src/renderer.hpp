@@ -7,22 +7,25 @@
 
 #include <memory>
 
-class Renderer
+class Renderer final
 {
 public:
     Renderer() = delete;
-    Renderer(std::string scene_name);
-    void run();
+    Renderer(const std::string &scene_name);
+
+    void run() const;
 
 private:
     std::unique_ptr<Window> window;
     std::shared_ptr<Scene> scene;
     std::unique_ptr<Panel> panel;
 
+    // Pass for lighting / shadowing.
     std::unique_ptr<Pass> pass_shadow;
     std::unique_ptr<Pass> pass_shade;
     std::unique_ptr<Pass> pass_light;
 
+    // Pass for environment lighting.
     // Convert Equirectangular Map to CubeMap.
     std::unique_ptr<Pass> pass_rect_to_cube;
     std::unique_ptr<Pass> pass_skybox;

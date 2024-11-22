@@ -6,7 +6,8 @@
 #include <iostream>
 #include <string>
 
-struct Panel {
+class Panel final
+{
 public:
     Panel(void *window, std::shared_ptr<Scene> scene);
     void render();
