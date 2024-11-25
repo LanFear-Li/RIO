@@ -1,12 +1,16 @@
 #pragma once
 
+#include "platform/vertex-array.hpp"
+#include "platform/vertex-buffer.hpp"
+#include "platform/index-buffer.hpp"
+#include "platform/vertex-attribute.hpp"
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <string>
 #include <vector>
-
-using namespace std;
+#include <memory>
 
 #define MAX_BONE_INFLUENCE 4
 
@@ -24,26 +28,36 @@ struct Vertex
     float m_weights[MAX_BONE_INFLUENCE];
 };
 
+enum Mesh_Type
+{
+    MESH_NORMAL,
+    MESH_CUBE,
+    MESH_QUAD
+};
+
 class Mesh final
 {
 public:
-    Mesh() = default;
-    Mesh(vector<Vertex> vertices, vector<unsigned int> indices, unsigned int index);
-
-    void setup_cube_mesh();
-    void setup_quad_mesh();
+    Mesh() = delete;
+    Mesh(Mesh_Type type);
+    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, unsigned int index);
 
     // Mesh data storage.
-    vector<Vertex> vertices;
-    vector<unsigned int> indices;
+    std::vector<Vertex> vertices;
+    std::vector<unsigned int> indices;
     unsigned int material_index;
-    unsigned int VAO{};
+
+    // Vertex array object storage.
+    std::unique_ptr<Vertex_Array> vertex_array;
 
 private:
     // Initializes all the buffer objects / arrays.
     void setup_mesh();
+    void setup_cube_mesh();
+    void setup_quad_mesh();
 
-    // Render data storage.
-    unsigned int VBO{};
-    unsigned int EBO{};
+    // Vertex buffer and index buffer storage.
+    std::unique_ptr<Vertex_Buffer> vertex_buffer;
+    std::unique_ptr<Index_Buffer> index_buffer;
+    std::unique_ptr<Vertex_Attribute> vertex_attribute;
 };

@@ -196,14 +196,13 @@ void Pass::render(const Mesh &mesh, const Material &material, const IBL_Data &ib
 
     glViewport(0, 0, buffer_width, buffer_height);
 
-    // Draw mesh via VAO.
-    glBindVertexArray(mesh.VAO);
+    mesh.vertex_array->bind();
     if (name == "skybox" || name == "light") {
         glDrawArrays(GL_TRIANGLES, 0, 36);
     } else {
         glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(mesh.indices.size()), GL_UNSIGNED_INT, 0);
     }
-    glBindVertexArray(0);
+    mesh.vertex_array->unbind();
 
     // always good practice to set everything back to defaults once configured.
     glActiveTexture(GL_TEXTURE0);
@@ -214,9 +213,9 @@ void Pass::render_depth(const Mesh &mesh)
     glViewport(0, 0, buffer_width, buffer_height);
 
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-    glBindVertexArray(mesh.VAO);
+    mesh.vertex_array->bind();
     glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(mesh.indices.size()), GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
+    mesh.vertex_array->unbind();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
@@ -254,10 +253,9 @@ void Pass::render_cubemap(const Mesh &mesh, const Texture &texture)
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, output->get_id(), 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Draw mesh via VAO.
-        glBindVertexArray(mesh.VAO);
+        mesh.vertex_array->bind();
         glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
+        mesh.vertex_array->unbind();
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -279,10 +277,10 @@ void Pass::render_quad(const Mesh &mesh)
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, output->get_id(), 0);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    // Draw mesh via VAO.
-    glBindVertexArray(mesh.VAO);
+
+    mesh.vertex_array->bind();
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    glBindVertexArray(0);
+    mesh.vertex_array->unbind();
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -331,10 +329,9 @@ void Pass::render_cubemap_mipmap(const Mesh &mesh, const Texture &texture)
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            // Draw mesh via VAO.
-            glBindVertexArray(mesh.VAO);
+            mesh.vertex_array->bind();
             glDrawArrays(GL_TRIANGLES, 0, 36);
-            glBindVertexArray(0);
+            mesh.vertex_array->unbind();
         }
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

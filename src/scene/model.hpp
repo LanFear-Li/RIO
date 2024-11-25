@@ -24,8 +24,8 @@ public:
     static std::unique_ptr<Model> construct_quad();
 
     // Model data storage.
-    vector<std::unique_ptr<Mesh>> meshes;
-    vector<std::unique_ptr<Material>> materials;
+    std::vector<std::unique_ptr<Mesh>> meshes;
+    std::vector<std::unique_ptr<Material>> materials;
 
     std::string model_name{};
     glm::vec3 position{0.0, 0.0, 0.0};

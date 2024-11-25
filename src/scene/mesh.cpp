@@ -2,144 +2,123 @@
 
 #include <glad/glad.h>
 
-Mesh::Mesh(vector<Vertex> vertices, vector<unsigned int> indices, unsigned int index)
-{
-    this->vertices = vertices;
-    this->indices = indices;
-    this->material_index = index;
+#include <iostream>
 
-    // now that we have all the required data, set the vertex buffers and its attribute pointers.
+static float cube_vertices[] = {
+    // back face
+    -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
+     1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
+     1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f, // bottom-right
+     1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
+    -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
+    -1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f, // top-left
+    // front face
+    -1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
+     1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, // bottom-right
+     1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
+     1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
+    -1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, // top-left
+    -1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
+    // left face
+    -1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+    -1.0f,  1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-left
+    -1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
+    -1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
+    -1.0f, -1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+    -1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+    // right face
+     1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+     1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
+     1.0f,  1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-right
+     1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
+     1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+     1.0f, -1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-left
+    // bottom face
+    -1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+     1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, // top-left
+     1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
+     1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
+    -1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+    -1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+    // top face
+    -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
+     1.0f,  1.0f , 1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
+     1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, // top-right
+     1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
+    -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
+    -1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left
+    };
+
+static float quad_vertices[] = {
+    // Positions, Texture Coords
+    -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+    -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+     1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+     1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+};
+
+Mesh::Mesh(Mesh_Type type)
+{
+    if (type == Mesh_Type::MESH_CUBE) {
+        setup_cube_mesh();
+    } else if (type == Mesh_Type::MESH_QUAD) {
+        setup_quad_mesh();
+    } else {
+        std::cerr << "Invalid mesh type" << std::endl;
+    }
+}
+
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, unsigned int index)
+    : vertices(vertices), indices(indices), material_index(index)
+{
     setup_mesh();
 }
 
 void Mesh::setup_mesh()
 {
-    // create buffers/arrays
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
+    // Create buffers / arrays.
+    vertex_array = std::make_unique<Vertex_Array>();
+    vertex_buffer = std::make_unique<Vertex_Buffer>(&vertices[0], vertices.size() * sizeof(Vertex));
+    index_buffer = std::make_unique<Index_Buffer>(&indices[0], indices.size() * sizeof(unsigned int));
 
-    glBindVertexArray(VAO);
-    // load data into vertex buffers
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    // A great thing about structs is that their memory layout is sequential for all its items.
-    // The effect is that we can simply pass a pointer to the struct and it translates perfectly to a glm::vec3/2 array which
-    // again translates to 3/2 floats which translates to a byte array.
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+    // Set the vertex attribute pointers.
+    vertex_attribute = std::make_unique<Vertex_Attribute>(sizeof(Vertex));
+    vertex_attribute->add_attribute(Vertex_Data_Type::FLOAT, 3, 0);
+    vertex_attribute->add_attribute(Vertex_Data_Type::FLOAT, 3, offsetof(Vertex, normal));
+    vertex_attribute->add_attribute(Vertex_Data_Type::FLOAT, 2, offsetof(Vertex, tex_coord));
+    vertex_attribute->add_attribute(Vertex_Data_Type::FLOAT, 3, offsetof(Vertex, tangent));
+    vertex_attribute->add_attribute(Vertex_Data_Type::FLOAT, 3, offsetof(Vertex, bitangent));
+    vertex_attribute->add_attribute(Vertex_Data_Type::INT, 4, offsetof(Vertex, m_bone_ids));
+    vertex_attribute->add_attribute(Vertex_Data_Type::FLOAT, 4, offsetof(Vertex, m_weights));
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
-
-    // set the vertex attribute pointers
-    // vertex Positions
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) 0);
-    // vertex normals
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, normal));
-    // vertex texture coords
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, tex_coord));
-    // vertex tangent
-    glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, tangent));
-    // vertex bitangent
-    glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, bitangent));
-    // ids
-    glEnableVertexAttribArray(5);
-    glVertexAttribIPointer(5, 4, GL_INT, sizeof(Vertex), (void *) offsetof(Vertex, m_bone_ids));
-    // weights
-    glEnableVertexAttribArray(6);
-    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, m_weights));
-    glBindVertexArray(0);
+    vertex_array->unbind();
+    vertex_buffer->unbind();
+    index_buffer->unbind();
 }
 
 void Mesh::setup_cube_mesh()
 {
-    float cube_vertices[] = {
-        // back face
-        -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
-         1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
-         1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f, // bottom-right
-         1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
-        -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
-        -1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f, // top-left
-        // front face
-        -1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
-         1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, // bottom-right
-         1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
-         1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
-        -1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, // top-left
-        -1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
-        // left face
-        -1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
-        -1.0f,  1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-left
-        -1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
-        -1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
-        -1.0f, -1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
-        -1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
-        // right face
-         1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
-         1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
-         1.0f,  1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-right
-         1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
-         1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
-         1.0f, -1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-left
-        // bottom face
-        -1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
-         1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, // top-left
-         1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
-         1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
-        -1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // bottom-right
-        -1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
-        // top face
-        -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
-         1.0f,  1.0f , 1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
-         1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, // top-right
-         1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
-        -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
-        -1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left
-    };
+    vertex_array = std::make_unique<Vertex_Array>();
+    vertex_buffer = std::make_unique<Vertex_Buffer>(&cube_vertices, sizeof(cube_vertices));
 
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
+    vertex_attribute = std::make_unique<Vertex_Attribute>(8 * sizeof(float));
+    vertex_attribute->add_attribute(Vertex_Data_Type::FLOAT, 3, 0);
+    vertex_attribute->add_attribute(Vertex_Data_Type::FLOAT, 3, (3 * sizeof(float)));
+    vertex_attribute->add_attribute(Vertex_Data_Type::FLOAT, 2, (6 * sizeof(float)));
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(cube_vertices), &cube_vertices, GL_STATIC_DRAW);
-
-    glBindVertexArray(VAO);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) 0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (3 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (6 * sizeof(float)));
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    vertex_array->unbind();
+    vertex_buffer->unbind();
 }
 
 void Mesh::setup_quad_mesh()
 {
-    float quad_vertices[] = {
-        // Positions, Texture Coords
-        -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-        -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-         1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-         1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-    };
+    vertex_array = std::make_unique<Vertex_Array>();
+    vertex_buffer = std::make_unique<Vertex_Buffer>(&quad_vertices, sizeof(quad_vertices));
 
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
+    vertex_attribute = std::make_unique<Vertex_Attribute>(5 * sizeof(float));
+    vertex_attribute->add_attribute(Vertex_Data_Type::FLOAT, 3, 0);
+    vertex_attribute->add_attribute(Vertex_Data_Type::FLOAT, 2, (3 * sizeof(float)));
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(quad_vertices), &quad_vertices, GL_STATIC_DRAW);
-
-    glBindVertexArray(VAO);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) 0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (3 * sizeof(float)));
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    vertex_array->unbind();
+    vertex_buffer->unbind();
 }

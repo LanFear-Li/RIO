@@ -27,7 +27,7 @@ void Model::load_model(std::string const &path)
     // check for errors
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
     {
-        cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
+        std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
         return;
     }
     // retrieve the directory path of the filepath
@@ -93,8 +93,7 @@ std::unique_ptr<Model> Model::construct_equirectangular(const std::string &rect_
     auto material = std::make_unique<Material>();
     material->skybox_map = load_rect_map(rect_path, 3);
 
-    auto mesh = std::make_unique<Mesh>();
-    mesh->setup_cube_mesh();
+    auto mesh = std::make_unique<Mesh>(Mesh_Type::MESH_CUBE);
 
     model->materials.push_back(std::move(material));
     model->meshes.push_back(std::move(mesh));
@@ -109,8 +108,7 @@ std::unique_ptr<Model> Model::construct_cubemap(std::vector<std::string> cubemap
     auto material = std::make_unique<Material>();
     material->skybox_map = load_cube_map(cubemap_path, 3);
 
-    auto mesh = std::make_unique<Mesh>();
-    mesh->setup_cube_mesh();
+    auto mesh = std::make_unique<Mesh>(Mesh_Type::MESH_CUBE);
 
     model->materials.push_back(std::move(material));
     model->meshes.push_back(std::move(mesh));
@@ -123,8 +121,7 @@ std::unique_ptr<Model> Model::construct_cube()
     auto model = std::make_unique<Model>();
 
     auto material = std::make_unique<Material>();
-    auto mesh = std::make_unique<Mesh>();
-    mesh->setup_cube_mesh();
+    auto mesh = std::make_unique<Mesh>(Mesh_Type::MESH_CUBE);
 
     model->materials.push_back(std::move(material));
     model->meshes.push_back(std::move(mesh));
@@ -137,8 +134,7 @@ std::unique_ptr<Model> Model::construct_quad()
     auto model = std::make_unique<Model>();
 
     auto material = std::make_unique<Material>();
-    auto mesh = std::make_unique<Mesh>();
-    mesh->setup_quad_mesh();
+    auto mesh = std::make_unique<Mesh>(Mesh_Type::MESH_QUAD);
 
     model->materials.push_back(std::move(material));
     model->meshes.push_back(std::move(mesh));
@@ -166,9 +162,9 @@ void Model::process_node(aiNode *node, const aiScene *scene)
 std::unique_ptr<Mesh> Model::process_mesh(aiMesh *mesh, const aiScene *scene)
 {
     // data to fill
-    vector<Vertex> vertices;
-    vector<unsigned int> indices;
-    vector<Texture> textures;
+    std::vector<Vertex> vertices;
+    std::vector<unsigned int> indices;
+    std::vector<Texture> textures;
 
     // walk through each of the mesh's vertices
     for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
