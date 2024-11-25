@@ -1,7 +1,7 @@
 #pragma once
 
 #include "scene/model.hpp"
-#include "render/shader.hpp"
+#include "platform/shader.hpp"
 
 #include <memory>
 

@@ -15,6 +15,7 @@ enum Texture_Type
 class Texture final
 {
 public:
+    Texture() = delete;
     Texture(unsigned int texture_id, Texture_Type texture_type) : id(texture_id), type(texture_type) {}
     ~Texture();
 

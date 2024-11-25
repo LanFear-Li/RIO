@@ -2,7 +2,7 @@
 
 #include "io/window.hpp"
 #include "scene/scene.hpp"
-#include "scene/panel.hpp"
+#include "io/panel.hpp"
 #include "render/pass.hpp"
 
 #include <memory>

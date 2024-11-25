@@ -1,6 +1,6 @@
 #include "model.hpp"
 
-#include "scene/texture.hpp"
+#include "platform/texture.hpp"
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>

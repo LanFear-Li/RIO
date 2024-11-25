@@ -1,6 +1,6 @@
 #pragma once
 
-#include "scene/texture.hpp"
+#include "platform/texture.hpp"
 
 #include <glm/glm.hpp>
 

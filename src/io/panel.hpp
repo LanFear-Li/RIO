@@ -1,6 +1,6 @@
 #pragma once
 
-#include "scene/config.hpp"
+#include "render/config.hpp"
 #include "scene/scene.hpp"
 
 #include <iostream>

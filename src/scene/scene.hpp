@@ -2,7 +2,7 @@
 
 #include "scene/camera.hpp"
 #include "scene/model.hpp"
-#include "scene/config.hpp"
+#include "render/config.hpp"
 #include "scene/light.hpp"
 #include "render/pass.hpp"
 
