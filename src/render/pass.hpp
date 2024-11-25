@@ -2,6 +2,8 @@
 
 #include "scene/model.hpp"
 #include "platform/shader.hpp"
+#include "platform/frame-buffer.hpp"
+#include "platform/render-buffer.hpp"
 
 #include <memory>
 
@@ -20,6 +22,7 @@ public:
     void prepare() const;
     void active() const;
     void reset() const;
+    void clear_depth() const;
 
     void setup_framebuffer(int width, int height, Texture_Type type, bool mipmap=false);
     void setup_framebuffer_depth(int width, int height);
@@ -35,9 +38,9 @@ public:
     std::string name;
     std::unique_ptr<Shader> shader;
 
-    unsigned int fbo;
-    unsigned int rbo;
     std::unique_ptr<Texture> output;
+    std::unique_ptr<Frame_Buffer> frame_buffer;
+    std::unique_ptr<Render_Buffer> render_buffer;
 
     bool state_depth_test{true};
     Depth_Func depth_func{Depth_Func::less};

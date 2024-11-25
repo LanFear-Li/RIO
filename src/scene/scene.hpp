@@ -51,6 +51,9 @@ public:
     // IBL.
     std::unique_ptr<IBL_Data> ibl_data;
 
+    // Present texture.
+    std::unique_ptr<Texture> present_color;
+
     // Mesh model for pass.
     std::unique_ptr<Model> model_cube;
     std::unique_ptr<Model> model_quad;

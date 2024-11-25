@@ -273,7 +273,7 @@ void Scene::render(Pass &render_pass)
         render_pass.prepare();
         render_pass.active();
         render_pass.reset();
-        render_pass.setup_framebuffer(1024, 1024, Texture_Type::TEXTURE_CUBE_MAP);
+        render_pass.setup_framebuffer(1024, 1024, Texture_Type::TEXTURE_CUBE_MAP, true);
 
         auto &material = model_skybox->materials[0];
         auto &mesh = model_skybox->meshes[0];
@@ -347,9 +347,7 @@ void Scene::render(Pass &render_pass)
         for (int i = 0; i < directional_light_list.size(); i++) {
             render_pass.active();
             render_pass.setup_framebuffer_depth(1024, 1024);
-            glBindFramebuffer(GL_FRAMEBUFFER, render_pass.fbo);
-            glClear(GL_DEPTH_BUFFER_BIT);
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            render_pass.clear_depth();
 
             auto &light = directional_light_list[i];
 
@@ -392,9 +390,7 @@ void Scene::render(Pass &render_pass)
         for (int i = 0; i < spot_light_list.size(); i++) {
             render_pass.active();
             render_pass.setup_framebuffer_depth(1024, 1024);
-            glBindFramebuffer(GL_FRAMEBUFFER, render_pass.fbo);
-            glClear(GL_DEPTH_BUFFER_BIT);
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            render_pass.clear_depth();
 
             auto &light = spot_light_list[i];
 
