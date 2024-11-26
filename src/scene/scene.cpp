@@ -283,7 +283,7 @@ void Scene::render(Pass &render_pass)
     render_pass.shader_reset();
 
     if (pass_name == "rect_to_cube" && scene_config->show_skybox && !cubemap_converted) {
-        render_pass.setup_framebuffer(1024, 1024, Texture_Type::TEXTURE_CUBE_MAP, true);
+        render_pass.setup_framebuffer(1024, 1024, Texture_Type::TEXTURE_CUBE_MAP);
 
         auto &material = model_skybox->materials[0];
         auto &mesh = model_skybox->meshes[0];
