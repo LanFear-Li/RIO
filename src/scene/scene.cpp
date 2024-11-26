@@ -216,6 +216,16 @@ void Scene::prepare_scene(const std::string &scene_name)
     }
 }
 
+void Scene::prepare_present()
+{
+    present_fbo = std::make_shared<Frame_Buffer>(0);
+    present_color = create_texture(Texture_Type::TEXTURE_2D, *screen_width, *screen_height);
+    present_depth = create_texture(Texture_Type::TEXTURE_2D_DEPTH, *screen_width, *screen_height);
+
+    present_fbo->attach_texture(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, present_color->get_id());
+    present_fbo->attach_texture(GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, present_depth->get_id());
+}
+
 std::string Scene::get_model_path(const std::string &model_name)
 {
     std::string model_path = "runtime/assets/models/" + model_name + "/" + model_name;
@@ -269,10 +279,10 @@ void Scene::render(Pass &render_pass)
 {
     auto pass_name = render_pass.name;
 
+    render_pass.prepare();
+    render_pass.shader_reset();
+
     if (pass_name == "rect_to_cube" && scene_config->show_skybox && !cubemap_converted) {
-        render_pass.prepare();
-        render_pass.active();
-        render_pass.reset();
         render_pass.setup_framebuffer(1024, 1024, Texture_Type::TEXTURE_CUBE_MAP, true);
 
         auto &material = model_skybox->materials[0];
@@ -287,10 +297,7 @@ void Scene::render(Pass &render_pass)
     }
 
     if (pass_name == "skybox" && scene_config->show_skybox) {
-        render_pass.prepare();
-        render_pass.active();
-        render_pass.reset();
-        render_pass.setup_framebuffer_default(*screen_width, *screen_height);
+        render_pass.setup_framebuffer(*screen_width, *screen_height, present_fbo);
 
         auto &material = model_skybox->materials[0];
         auto &mesh = model_skybox->meshes[0];
@@ -301,13 +308,11 @@ void Scene::render(Pass &render_pass)
         shader->setMat4("view", camera->get_view_matrix());
         shader->setMat4("projection", camera->get_projection_matrix());
 
-        render_pass.render(*mesh, *material, *ibl_data);
+        // render_pass.render(*mesh, *material, *ibl_data);
+        render_pass.render_others(*mesh, *material);
     }
 
     if (pass_name == "ibl_irradiance" && scene_config->enable_ibl && !ibl_generated) {
-        render_pass.prepare();
-        render_pass.active();
-        render_pass.reset();
         render_pass.setup_framebuffer(32, 32, Texture_Type::TEXTURE_CUBE_MAP);
 
         auto &mesh = model_cube->meshes[0];
@@ -317,9 +322,6 @@ void Scene::render(Pass &render_pass)
     }
 
     if (pass_name == "ibl_prefiltered_map" && scene_config->enable_ibl && !ibl_generated) {
-        render_pass.prepare();
-        render_pass.active();
-        render_pass.reset();
         render_pass.setup_framebuffer(128, 128, Texture_Type::TEXTURE_CUBE_MAP ,true);
 
         auto &mesh = model_cube->meshes[0];
@@ -329,9 +331,6 @@ void Scene::render(Pass &render_pass)
     }
 
     if (pass_name == "ibl_precomputed_brdf" && scene_config->enable_ibl && !ibl_generated) {
-        render_pass.prepare();
-        render_pass.active();
-        render_pass.reset();
         render_pass.setup_framebuffer(512, 512, Texture_Type::TEXTURE_2D);
 
         auto &mesh = model_quad->meshes[0];
@@ -343,9 +342,7 @@ void Scene::render(Pass &render_pass)
 
     if (pass_name == "shadow" && scene_config->render_shadow) {
         auto &shader = render_pass.shader;
-
         for (int i = 0; i < directional_light_list.size(); i++) {
-            render_pass.active();
             render_pass.setup_framebuffer_depth(1024, 1024);
             render_pass.clear_depth();
 
@@ -388,7 +385,6 @@ void Scene::render(Pass &render_pass)
         }
 
         for (int i = 0; i < spot_light_list.size(); i++) {
-            render_pass.active();
             render_pass.setup_framebuffer_depth(1024, 1024);
             render_pass.clear_depth();
 
@@ -427,12 +423,11 @@ void Scene::render(Pass &render_pass)
     }
 
     if (pass_name == "shade") {
+        render_pass.setup_framebuffer(*screen_width, *screen_height, present_fbo);
+
         for (auto &model : model_list) {
             for (auto &mesh : model->meshes) {
-                render_pass.prepare();
-                render_pass.active();
-                render_pass.reset();
-                render_pass.setup_framebuffer_default(*screen_width, *screen_height);
+                render_pass.shader_reset();
 
                 auto &material = model->materials[mesh->material_index];
                 auto &shader = render_pass.shader;
@@ -476,14 +471,16 @@ void Scene::render(Pass &render_pass)
                     shader->setVec3(light_idx + "direction", direction);
                     shader->setVec3(light_idx + "color", light->color);
                     shader->setFloat(light_idx + "intensity", light->intensity);
+                }
 
-                    if (scene_config->render_shadow) {
+                for (int i = 0; i < MAX_LIGHT_NUM; i++) {
+                    auto shadow_map_name = "directional_shadow_map[" + std::to_string(i) + "]";
+
+                    if (scene_config->render_shadow && i < directional_light_num) {
                         shader->setMat4("directional_light_matrix[" + std::to_string(i) + "]", directional_light_matrix_list[i]);
-                        auto shadow_map_name = "directional_shadow_map[" + std::to_string(i) + "]";
-
-                        glActiveTexture(GL_TEXTURE0 + 13 + i);
-                        glUniform1i(glGetUniformLocation(shader->ID, shadow_map_name.c_str()), 13 + i);
-                        glBindTexture(GL_TEXTURE_2D, directional_shadow_map_list[i]->get_id());
+                        render_pass.frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, directional_shadow_map_list[i]->get_id(), shadow_map_name.c_str());
+                    } else {
+                        render_pass.frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, 0, shadow_map_name.c_str());
                     }
                 }
 
@@ -501,14 +498,16 @@ void Scene::render(Pass &render_pass)
                     shader->setVec3(light_idx + "color", light->color);
                     shader->setFloat(light_idx + "radius", light->radius);
                     shader->setFloat(light_idx + "intensity", light->intensity);
+                }
 
-                    if (scene_config->render_shadow) {
+                for (int i = 0; i < MAX_LIGHT_NUM; i++) {
+                    auto shadow_map_name = "spot_shadow_map[" + std::to_string(i) + "]";
+
+                    if (scene_config->render_shadow && i < spot_light_num) {
                         shader->setMat4("spot_light_matrix[" + std::to_string(i) + "]", spot_light_matrix_list[i]);
-                        auto shadow_map_name = "spot_shadow_map[" + std::to_string(i) + "]";
-
-                        glActiveTexture(GL_TEXTURE0 + 15 + i);
-                        glUniform1i(glGetUniformLocation(shader->ID, shadow_map_name.c_str()), 15 + i);
-                        glBindTexture(GL_TEXTURE_2D, spot_shadow_map_list[i]->get_id());
+                        render_pass.frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, spot_shadow_map_list[i]->get_id(), shadow_map_name.c_str());
+                    } else {
+                        render_pass.frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, 0, shadow_map_name.c_str());
                     }
                 }
 
@@ -524,15 +523,12 @@ void Scene::render(Pass &render_pass)
     }
 
     if (pass_name == "light" && scene_config->render_light) {
+        render_pass.setup_framebuffer(*screen_width, *screen_height, present_fbo);
+
         for (auto& light : point_light_list) {
             auto position = light->position;
             auto color = light->color;
             auto radius = light->radius;
-
-            render_pass.prepare();
-            render_pass.active();
-            render_pass.reset();
-            render_pass.setup_framebuffer_default(*screen_width, *screen_height);
 
             auto &material = model_cube->materials[0];
             auto &mesh = model_cube->meshes[0];
@@ -548,18 +544,14 @@ void Scene::render(Pass &render_pass)
 
             shader->setVec3("lightColor", color);
 
-            render_pass.render(*mesh, *material, *ibl_data);
+            // render_pass.render(*mesh, *material, *ibl_data);
+            render_pass.render_others(*mesh, *material);
         }
 
         for (auto& light : spot_light_list) {
             auto position = light->position;
             auto color = light->color;
             auto radius = light->radius;
-
-            render_pass.prepare();
-            render_pass.active();
-            render_pass.reset();
-            render_pass.setup_framebuffer_default(*screen_width, *screen_height);
 
             auto &material = model_cube->materials[0];
             auto &mesh = model_cube->meshes[0];
@@ -578,7 +570,8 @@ void Scene::render(Pass &render_pass)
 
             shader->setVec3("lightColor", color);
 
-            render_pass.render(*mesh, *material, *ibl_data);
+            // render_pass.render(*mesh, *material, *ibl_data);
+            render_pass.render_others(*mesh, *material);
         }
     }
 }

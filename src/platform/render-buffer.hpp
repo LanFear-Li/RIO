@@ -7,6 +7,7 @@ class Render_Buffer final
 public:
     Render_Buffer() = delete;
     Render_Buffer(int width, int height, GLenum buffer_format);
+    Render_Buffer(GLuint buffer_id);
     ~Render_Buffer();
 
     void bind() const;
@@ -17,6 +18,6 @@ public:
     unsigned int get_id() const { return rbo_id; }
 
 private:
-    unsigned int rbo_id;
+    GLuint rbo_id;
     int rbo_width, rbo_height;
 };

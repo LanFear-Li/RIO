@@ -16,8 +16,6 @@ Pass::Pass(const std::string &pass_name)
 
 void Pass::prepare() const
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
     if (state_depth_test) {
         glEnable(GL_DEPTH_TEST);
 
@@ -33,23 +31,27 @@ void Pass::prepare() const
 
 void Pass::setup_framebuffer(int width, int height, Texture_Type type, bool mipmap)
 {
-    frame_buffer = std::make_unique<Frame_Buffer>();
-    render_buffer = std::make_unique<Render_Buffer>(width, height, GL_DEPTH_COMPONENT24);
-
-    frame_buffer->attach_render_buffer(GL_DEPTH_ATTACHMENT, render_buffer->get_id());
+    frame_buffer = std::make_shared<Frame_Buffer>();
     frame_buffer->unbind();
-    render_buffer->unbind();
 
     output = create_texture(type, width, height, mipmap);
+
+    buffer_width = width;
+    buffer_height = height;
+}
+
+void Pass::setup_framebuffer(int width, int height, std::shared_ptr<Frame_Buffer> buffer)
+{
+    frame_buffer = buffer;
     buffer_width = width;
     buffer_height = height;
 }
 
 void Pass::setup_framebuffer_depth(int width, int height)
 {
-    output = create_texture(Texture_Type::TEXTURE_2D_DEPTH, width, height, false);
+    output = create_texture(Texture_Type::TEXTURE_2D_DEPTH, width, height);
 
-    frame_buffer = std::make_unique<Frame_Buffer>();
+    frame_buffer = std::make_shared<Frame_Buffer>();
     frame_buffer->attach_texture(GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, output->get_id());
     frame_buffer->unbind();
 
@@ -57,24 +59,10 @@ void Pass::setup_framebuffer_depth(int width, int height)
     buffer_height = height;
 }
 
-void Pass::setup_framebuffer_default(int width, int height)
-{
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
-
-    buffer_width = width;
-    buffer_height = height;
-}
-
-void Pass::active() const
+void Pass::shader_reset() const
 {
     shader->use();
-}
 
-void Pass::reset() const
-{
     shader->setBool("use_normal_map", false);
     shader->setBool("use_ambient_map", false);
     shader->setBool("use_diffuse_map", false);
@@ -108,108 +96,78 @@ void Pass::render(const Mesh &mesh, const Material &material, const IBL_Data &ib
     shader->setFloat("_mat_roughness", material.roughness);
     shader->setFloat("_mat_metallic", material.metallic);
 
-    if (material.normal_map != nullptr) {
-        glActiveTexture(GL_TEXTURE0 + 0);
-        glUniform1i(glGetUniformLocation(shader->ID, "_texture_normal"), 0);
-        glBindTexture(GL_TEXTURE_2D, material.normal_map->get_id());
+    auto tex_state = false;
 
-        // frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, material.normal_map->get_id(), "_texture_normal");
-        shader->setBool("use_normal_map", true);
-    }
+    tex_state = material.normal_map != nullptr;
+    frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, tex_state ? material.normal_map->get_id() : 0, "_texture_normal");
+    shader->setBool("use_normal_map", tex_state);
 
-    if (material.ambient_map != nullptr) {
-        glActiveTexture(GL_TEXTURE0 + 1);
-        glUniform1i(glGetUniformLocation(shader->ID, "_texture_ambient"), 1);
-        glBindTexture(GL_TEXTURE_2D, material.ambient_map->get_id());
-        shader->setBool("use_ambient_map", true);
-    }
+    tex_state = material.ambient_map != nullptr;
+    frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, tex_state ? material.ambient_map->get_id() : 0, "_texture_ambient");
+    shader->setBool("use_ambient_map", tex_state);
 
-    if (material.diffuse_map != nullptr) {
-        glActiveTexture(GL_TEXTURE0 + 2);
-        glUniform1i(glGetUniformLocation(shader->ID, "_texture_diffuse"), 2);
-        glBindTexture(GL_TEXTURE_2D, material.diffuse_map->get_id());
-        shader->setBool("use_diffuse_map", true);
-    }
+    tex_state = material.diffuse_map != nullptr;
+    frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, tex_state ? material.diffuse_map->get_id() : 0, "_texture_diffuse");
+    shader->setBool("use_diffuse_map", tex_state);
 
-    if (material.specular_map != nullptr) {
-        glActiveTexture(GL_TEXTURE0 + 3);
-        glUniform1i(glGetUniformLocation(shader->ID, "_texture_specular"), 3);
-        glBindTexture(GL_TEXTURE_2D, material.specular_map->get_id());
-        shader->setBool("use_specular_map", true);
-    }
+    tex_state = material.specular_map != nullptr;
+    frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, tex_state ? material.specular_map->get_id() : 0, "_texture_specular");
+    shader->setBool("use_specular_map", tex_state);
 
-    if (material.emissive_map != nullptr) {
-        glActiveTexture(GL_TEXTURE0 + 4);
-        glUniform1i(glGetUniformLocation(shader->ID, "_texture_emissive"), 4);
-        glBindTexture(GL_TEXTURE_2D, material.emissive_map->get_id());
-        shader->setBool("use_emissive_map", true);
-    }
+    tex_state = material.emissive_map != nullptr;
+    frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, tex_state ? material.emissive_map->get_id() : 0, "_texture_emissive");
+    shader->setBool("use_emissive_map", tex_state);
 
-    if (material.metallic_map != nullptr) {
-        glActiveTexture(GL_TEXTURE0 + 5);
-        glUniform1i(glGetUniformLocation(shader->ID, "_texture_metallic"), 5);
-        glBindTexture(GL_TEXTURE_2D, material.metallic_map->get_id());
-        shader->setBool("use_metallic_map", true);
-    }
+    tex_state = material.metallic_map != nullptr;
+    frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, tex_state ? material.metallic_map->get_id() : 0, "_texture_metallic");
+    shader->setBool("use_metallic_map", tex_state);
 
-    if (material.roughness_map != nullptr) {
-        glActiveTexture(GL_TEXTURE0 + 6);
-        glUniform1i(glGetUniformLocation(shader->ID, "_texture_roughness"), 6);
-        glBindTexture(GL_TEXTURE_2D, material.roughness_map->get_id());
-        shader->setBool("use_roughness_map", true);
-    }
+    tex_state = material.roughness_map != nullptr;
+    frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, tex_state ? material.roughness_map->get_id() : 0, "_texture_roughness");
+    shader->setBool("use_roughness_map", tex_state);
 
-    if (material.ao_map != nullptr) {
-        glActiveTexture(GL_TEXTURE0 + 7);
-        glUniform1i(glGetUniformLocation(shader->ID, "_texture_ao"), 7);
-        glBindTexture(GL_TEXTURE_2D, material.ao_map->get_id());
-        shader->setBool("use_ao_map", true);
-    }
+    tex_state = material.ao_map != nullptr;
+    frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, tex_state ? material.ao_map->get_id() : 0, "_texture_ao");
+    shader->setBool("use_ao_map", tex_state);
 
-    if (material.metal_roughness_map != nullptr) {
-        glActiveTexture(GL_TEXTURE0 + 8);
-        glUniform1i(glGetUniformLocation(shader->ID, "_texture_metal_roughness"), 8);
-        glBindTexture(GL_TEXTURE_2D, material.metal_roughness_map->get_id());
-        shader->setBool("use_metal_roughness_map", true);
-    }
+    tex_state = material.metal_roughness_map != nullptr;
+    frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, tex_state ? material.metal_roughness_map->get_id() : 0, "_texture_metal_roughness");
+    shader->setBool("use_metal_roughness_map", tex_state);
 
     // Bind IBL data as texture.
-    if (ibl_data.irrandiance_map != nullptr) {
-        glActiveTexture(GL_TEXTURE0 + 9);
-        glUniform1i(glGetUniformLocation(shader->ID, "irrandiance_map"), 9);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, ibl_data.irrandiance_map->get_id());
-    }
+    tex_state = ibl_data.irrandiance_map != nullptr;
+    frame_buffer->bind_texture(GL_TEXTURE_CUBE_MAP, shader->ID, tex_state ? ibl_data.irrandiance_map->get_id() : 0, "irrandiance_map");
 
-    if (ibl_data.prefiltered_map != nullptr) {
-        glActiveTexture(GL_TEXTURE0 + 10);
-        glUniform1i(glGetUniformLocation(shader->ID, "prefiltered_map"), 10);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, ibl_data.prefiltered_map->get_id());
-    }
+    tex_state = ibl_data.prefiltered_map != nullptr;
+    frame_buffer->bind_texture(GL_TEXTURE_CUBE_MAP, shader->ID, tex_state ? ibl_data.prefiltered_map->get_id() : 0, "prefiltered_map");
 
-    if (ibl_data.precomputed_brdf != nullptr) {
-        glActiveTexture(GL_TEXTURE0 + 11);
-        glUniform1i(glGetUniformLocation(shader->ID, "precomputed_brdf"), 11);
-        glBindTexture(GL_TEXTURE_2D, ibl_data.precomputed_brdf->get_id());
-    }
+    tex_state = ibl_data.precomputed_brdf != nullptr;
+    frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, tex_state ? ibl_data.precomputed_brdf->get_id() : 0, "precomputed_brdf");
 
+    Api_Function::set_viewport(buffer_width, buffer_height);
+
+    frame_buffer->bind();
+    mesh.vertex_array->bind();
+    Api_Function::draw_elements(GL_TRIANGLES, static_cast<unsigned int>(mesh.indices.size()), GL_UNSIGNED_INT, 0);
+    mesh.vertex_array->unbind();
+    frame_buffer->unbind();
+    frame_buffer->reset_active_id();
+}
+
+void Pass::render_others(const Mesh &mesh, const Material &material)
+{
     // Specially for pass_skybox.
     if (name == "skybox" && material.skybox_map != nullptr) {
-        glActiveTexture(GL_TEXTURE0 + 12);
-        glUniform1i(glGetUniformLocation(shader->ID, "environment_map"), 12);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, material.skybox_map->get_id());
+        frame_buffer->bind_texture(GL_TEXTURE_CUBE_MAP, shader->ID, material.skybox_map->get_id(), "environment_map");
     }
 
     Api_Function::set_viewport(buffer_width, buffer_height);
 
+    frame_buffer->bind();
     mesh.vertex_array->bind();
-    if (name == "skybox" || name == "light") {
-        Api_Function::draw_arrays(GL_TRIANGLES, 0, 36);
-    } else {
-        Api_Function::draw_elements(GL_TRIANGLES, static_cast<unsigned int>(mesh.indices.size()), GL_UNSIGNED_INT, 0);
-    }
+    Api_Function::draw_arrays(GL_TRIANGLES, 0, 36);
     mesh.vertex_array->unbind();
-
-    // always good practice to set everything back to defaults once configured.
+    frame_buffer->unbind();
     frame_buffer->reset_active_id();
 }
 
@@ -229,13 +187,9 @@ void Pass::render_cubemap(const Mesh &mesh, const Texture &texture)
     unsigned int texture_idx = 0;
 
     if (name == "rect_to_cube") {
-        glActiveTexture(GL_TEXTURE0 + texture_idx);
-        glUniform1i(glGetUniformLocation(shader->ID, "equirectangular_map"), texture_idx);
-        glBindTexture(GL_TEXTURE_2D, texture.get_id());
+        frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, texture.get_id(), "equirectangular_map");
     } else if (name == "ibl_irradiance") {
-        glActiveTexture(GL_TEXTURE0 + texture_idx);
-        glUniform1i(glGetUniformLocation(shader->ID, "environment_map"), texture_idx);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, texture.get_id());
+        frame_buffer->bind_texture(GL_TEXTURE_CUBE_MAP, shader->ID, texture.get_id(), "environment_map");
     }
 
     glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
@@ -262,9 +216,9 @@ void Pass::render_cubemap(const Mesh &mesh, const Texture &texture)
         Api_Function::draw_arrays(GL_TRIANGLES, 0, 36);
         mesh.vertex_array->unbind();
     }
-    frame_buffer->unbind();
 
-    glActiveTexture(GL_TEXTURE0);
+    frame_buffer->unbind();
+    frame_buffer->reset_active_id();
 }
 
 void Pass::render_quad(const Mesh &mesh)
@@ -272,9 +226,6 @@ void Pass::render_quad(const Mesh &mesh)
     Api_Function::set_viewport(buffer_width, buffer_height);
 
     frame_buffer->bind();
-    // glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-    // glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, buffer_width, buffer_height);
-    // glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, output->get_id(), 0);
     frame_buffer->attach_texture(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, output->get_id());
 
     mesh.vertex_array->bind();
@@ -289,9 +240,7 @@ void Pass::render_cubemap_mipmap(const Mesh &mesh, const Texture &texture)
     unsigned int texture_idx = 0;
 
     if (name == "ibl_prefiltered_map") {
-        glActiveTexture(GL_TEXTURE0 + texture_idx);
-        glUniform1i(glGetUniformLocation(shader->ID, "environment_map"), texture_idx);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, texture.get_id());
+        frame_buffer->bind_texture(GL_TEXTURE_CUBE_MAP, shader->ID, texture.get_id(), "environment_map");
     }
 
     glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
@@ -334,4 +283,5 @@ void Pass::render_cubemap_mipmap(const Mesh &mesh, const Texture &texture)
     }
 
     frame_buffer->unbind();
+    frame_buffer->reset_active_id();
 }

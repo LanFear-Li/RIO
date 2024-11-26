@@ -1,8 +1,15 @@
 #include "frame-buffer.hpp"
 
+#include <iostream>
+
 Frame_Buffer::Frame_Buffer(): active_id(0)
 {
     glGenFramebuffers(1, &fbo_id);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo_id);
+}
+
+Frame_Buffer::Frame_Buffer(GLuint buffer_id): fbo_id(buffer_id), active_id(0)
+{
     glBindFramebuffer(GL_FRAMEBUFFER, fbo_id);
 }
 
@@ -43,5 +50,5 @@ void Frame_Buffer::bind_texture(GLenum target, GLuint shader_id, GLuint texture_
 void Frame_Buffer::reset_active_id()
 {
     glActiveTexture(GL_TEXTURE0);
-    // active_id = 0;
+    active_id = 0;
 }

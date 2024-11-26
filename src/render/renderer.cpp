@@ -8,6 +8,10 @@ Renderer::Renderer(const std::string &scene_name)
     window = std::make_unique<Window>(scene->screen_width, scene->screen_height, "RIO: Render In OpenGL");
     panel = std::make_unique<Panel>(window->gl_window, scene);
 
+    // Load model, light, etc.
+    scene->prepare_scene(scene_name);
+    scene->prepare_present();
+
     // Initialize all render pass.
     pass_shadow = std::make_unique<Pass>("shadow");
     pass_shade = std::make_unique<Pass>("shade");
@@ -22,9 +26,6 @@ Renderer::Renderer(const std::string &scene_name)
 
     pass_light = std::make_unique<Pass>("light");
     pass_light->depth_func = Depth_Func::less_equal;
-
-    // Load model, light, etc.
-    scene->prepare_scene(scene_name);
 }
 
 void Renderer::run() const

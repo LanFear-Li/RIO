@@ -8,6 +8,7 @@ class Frame_Buffer final
 {
 public:
     Frame_Buffer();
+    Frame_Buffer(GLuint buffer_id);
     ~Frame_Buffer();
 
     void bind() const;

@@ -9,6 +9,8 @@
 #include <vector>
 #include <memory>
 
+constexpr int MAX_LIGHT_NUM = 2;
+
 class Scene final
 {
 public:
@@ -16,6 +18,7 @@ public:
     Scene(const std::string &scene_name);
 
     void prepare_scene(const std::string &scene_name);
+    void prepare_present();
     void update_model(const std::string &model_name);
     void update_skybox(const std::string &skybox_name);
 
@@ -51,8 +54,10 @@ public:
     // IBL.
     std::unique_ptr<IBL_Data> ibl_data;
 
-    // Present texture.
-    std::unique_ptr<Texture> present_color;
+    // Present Framebuffer & texture.
+    std::shared_ptr<Frame_Buffer> present_fbo;
+    std::shared_ptr<Texture> present_color;
+    std::shared_ptr<Texture> present_depth;
 
     // Mesh model for pass.
     std::unique_ptr<Model> model_cube;

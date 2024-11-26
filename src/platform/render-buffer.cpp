@@ -7,6 +7,10 @@ Render_Buffer::Render_Buffer(int width, int height, GLenum buffer_format)
     glRenderbufferStorage(GL_RENDERBUFFER, buffer_format, width, height);
 }
 
+Render_Buffer::Render_Buffer(GLuint buffer_id): rbo_id(buffer_id) {
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo_id);
+}
+
 Render_Buffer::~Render_Buffer() {
     glDeleteRenderbuffers(1, &rbo_id);
 }

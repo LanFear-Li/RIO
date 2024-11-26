@@ -20,15 +20,15 @@ public:
     Pass(const std::string &pass_name);
 
     void prepare() const;
-    void active() const;
-    void reset() const;
+    void shader_reset() const;
     void clear_depth() const;
 
     void setup_framebuffer(int width, int height, Texture_Type type, bool mipmap=false);
+    void setup_framebuffer(int width, int height, std::shared_ptr<Frame_Buffer> buffer);
     void setup_framebuffer_depth(int width, int height);
-    void setup_framebuffer_default(int width, int height);
 
     void render(const Mesh &mesh, const Material &material, const IBL_Data &ibl_data);
+    void render_others(const Mesh &mesh, const Material &material);
     void render_depth(const Mesh &mesh);
 
     void render_cubemap(const Mesh &mesh, const Texture &texture);
@@ -39,8 +39,7 @@ public:
     std::unique_ptr<Shader> shader;
 
     std::unique_ptr<Texture> output;
-    std::unique_ptr<Frame_Buffer> frame_buffer;
-    std::unique_ptr<Render_Buffer> render_buffer;
+    std::shared_ptr<Frame_Buffer> frame_buffer;
 
     bool state_depth_test{true};
     Depth_Func depth_func{Depth_Func::less};
