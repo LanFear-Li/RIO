@@ -40,6 +40,6 @@
         "name": "street"
     },
     "enable_ibl": true,
-    "shading_method": "phong",
-    "shadow_method": "PCSS"
+    "shading_method": "BRDF",
+    "shadow_method": "PCF"
 }
