@@ -38,6 +38,12 @@ void Panel::render()
     ImGui::SetWindowFontScale(1.2);
     float windowWidth = ImGui::GetWindowWidth();
 
+    // Render Statistics.
+    if (ImGui::CollapsingHeader("Statistics", ImGuiTreeNodeFlags_DefaultOpen)) {
+        float fps = ImGui::GetIO().Framerate;
+        ImGui::Text("Total: %.2f fps / Frametime %.4f mspf", fps, 1000.0f / fps);
+    }
+
     // Render option.
     if (ImGui::CollapsingHeader("Render Option", ImGuiTreeNodeFlags_DefaultOpen)) {
         // Skybox & IBL.

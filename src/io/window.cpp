@@ -67,6 +67,7 @@ Window::Window(std::shared_ptr<uint32_t> width, std::shared_ptr<uint32_t> height
         return;
     }
     glfwMakeContextCurrent(gl_window);
+    glfwSwapInterval(0);
 
     glfwSetWindowUserPointer(gl_window, this);
 
