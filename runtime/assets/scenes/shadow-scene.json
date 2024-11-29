@@ -1,4 +1,7 @@
 {
+    // Scenes for shadow mapping related method demonstration.
+
+    // Scene settings.
     "camera": {
         "position": [0, 0, 3],
         "resolution": [1280, 720],
@@ -39,6 +42,8 @@
     "skybox": {
         "name": "street"
     },
+
+    // Rendering settings.
     "enable_ibl": true,
     "shading_method": "BRDF",
     "shadow_method": "PCF"
