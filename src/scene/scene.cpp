@@ -31,7 +31,7 @@ glm::vec3 euler_to_direction(glm::vec3 euler)
 Scene::Scene(const std::string &scene_name)
 {
     std::string file_path = File_System::get_path("runtime/assets/scenes/" + scene_name + ".json");
-    auto scene_json = nlohmann::json::parse(std::ifstream(file_path), nullptr, false);
+    auto scene_json = nlohmann::json::parse(std::ifstream(file_path), nullptr, false, true);
     if (scene_json.is_discarded()) {
         std::cout << "Initialize scene failed, check your scene config please." << std::endl;
         assert(0);
@@ -66,7 +66,7 @@ Scene::Scene(const std::string &scene_name)
 void Scene::prepare_scene(const std::string &scene_name)
 {
     std::string file_path = File_System::get_path("runtime/assets/scenes/" + scene_name + ".json");
-    auto scene_json = nlohmann::json::parse(std::ifstream(file_path), nullptr, false);
+    auto scene_json = nlohmann::json::parse(std::ifstream(file_path), nullptr, false, true);
     if (scene_json.is_discarded()) {
         std::cout << "Initialize scene failed, check your scene config please." << std::endl;
         assert(0);
