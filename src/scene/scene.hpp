@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <memory>
+#include <map>
 
 constexpr int MAX_LIGHT_NUM = 2;
 
@@ -47,6 +48,9 @@ public:
     std::vector<std::unique_ptr<Model>> model_list;
     std::vector<const char *> candidate_model_list;
 
+    std::unique_ptr<Model> model_cube;
+    std::unique_ptr<Model> model_quad;
+
     // Skybox.
     std::unique_ptr<Model> model_skybox;
     std::vector<const char *> candidate_skybox_list;
@@ -59,9 +63,8 @@ public:
     std::shared_ptr<Texture> present_color;
     std::shared_ptr<Texture> present_depth;
 
-    // Mesh model for pass.
-    std::unique_ptr<Model> model_cube;
-    std::unique_ptr<Model> model_quad;
+    // Pass statictics data.
+    std::map<std::string, std::shared_ptr<Pass_Profile_Info>> pass_data_map;
 
 private:
     std::string get_model_path(const std::string &model_name);

@@ -39,9 +39,22 @@ void Panel::render()
     float windowWidth = ImGui::GetWindowWidth();
 
     // Render Statistics.
-    if (ImGui::CollapsingHeader("Statistics", ImGuiTreeNodeFlags_DefaultOpen)) {
-        float fps = ImGui::GetIO().Framerate;
-        ImGui::Text("Total: %.2f fps / Frametime %.4f mspf", fps, 1000.0f / fps);
+    float fps = ImGui::GetIO().Framerate;
+    ImGui::Text("Total: %.2f fps / %.4f mspf", fps, 1000.0f / fps);
+    if (ImGui::CollapsingHeader("Statistics (Total Time / GPU Time)", ImGuiTreeNodeFlags_DefaultOpen)) {
+        ImGui::BeginTable("Statistics Table", 2, ImGuiTableFlags_SizingFixedSame);
+
+        for (auto& pass_data : scene->pass_data_map) {
+            auto& pass_name = pass_data.first;
+            auto& profile_info = pass_data.second;
+
+            ImGui::TableNextColumn();
+            ImGui::Text("%s", pass_name.c_str());
+            ImGui::TableNextColumn();
+            ImGui::Text(": %.3f / %.3f mspf", profile_info->cost_total_ms, profile_info->cost_gpu_ms);
+        }
+
+        ImGui::EndTable();
     }
 
     // Render option.

@@ -8,6 +8,7 @@
 #include <stb_image_write.h>
 
 #include <filesystem>
+#include <chrono>
 
 namespace fs = std::filesystem;
 
@@ -278,6 +279,9 @@ void Scene::update_skybox(const std::string &skybox_name)
 void Scene::render(Pass &render_pass)
 {
     auto pass_name = render_pass.name;
+
+    const auto total_start{std::chrono::steady_clock::now()};
+    render_pass.time_query->query_start();
 
     render_pass.prepare();
     render_pass.shader_reset();
@@ -574,6 +578,14 @@ void Scene::render(Pass &render_pass)
             render_pass.render_others(*mesh, *material);
         }
     }
+
+    // Total time & GPU time cost profile.
+    render_pass.profile_info->cost_gpu_ms = render_pass.time_query->query_end();
+
+    const auto total_end{std::chrono::steady_clock::now()};
+    render_pass.profile_info->cost_total_ms = std::chrono::duration_cast<std::chrono::microseconds>(total_end - total_start).count() / 1000.0f;
+
+    pass_data_map[pass_name] = render_pass.profile_info;
 }
 
 void Scene::save_output() const {

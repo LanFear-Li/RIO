@@ -4,6 +4,7 @@
 #include "platform/shader.hpp"
 #include "platform/frame-buffer.hpp"
 #include "platform/render-buffer.hpp"
+#include "platform/time-query.hpp"
 
 #include <memory>
 
@@ -11,6 +12,12 @@ enum struct Depth_Func
 {
     less,
     less_equal
+};
+
+struct Pass_Profile_Info
+{
+    float cost_total_ms;
+    float cost_gpu_ms;
 };
 
 class Pass final
@@ -43,6 +50,9 @@ public:
 
     bool state_depth_test{true};
     Depth_Func depth_func{Depth_Func::less};
+
+    std::shared_ptr<Pass_Profile_Info> profile_info;
+    std::unique_ptr<Time_Query> time_query;
 
 private:
     int buffer_width;

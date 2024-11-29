@@ -12,6 +12,9 @@ Pass::Pass(const std::string &pass_name)
 
     shader = std::make_unique<Shader>(File_System::get_path(vert_path).c_str(), File_System::get_path(frag_path).c_str());
     name = pass_name;
+
+    profile_info = std::make_shared<Pass_Profile_Info>();
+    time_query = std::make_unique<Time_Query>();
 }
 
 void Pass::prepare() const
