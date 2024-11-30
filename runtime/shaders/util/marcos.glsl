@@ -9,8 +9,8 @@
 #define EPS             1e-3
 
 // Marcos for shadow mapping.
-#define LIGHT_WIDTH     50.0
-#define NUM_SAMPLES     30
+#define LIGHT_WIDTH     20.0
+#define NUM_SAMPLES     50
 #define NUM_RINGS       10
 
 #define PCF_PENUMBRA    5

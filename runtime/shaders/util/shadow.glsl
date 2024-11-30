@@ -36,9 +36,9 @@ float find_blocker(sampler2D shadow_map, vec2 uv, float z_receiver) {
         vec4 rgba  = texture2D(shadow_map, shadow_coord).rgba;
         blocker_depth = unpack(rgba);
 
-        if (blocker_depth + 0.01 < z_receiver) {
-        avg_blocker_depth += blocker_depth;
-        blocker_count += 1.0;
+        if (blocker_depth + 0.001 < z_receiver) {
+            avg_blocker_depth += blocker_depth;
+            blocker_count += 1.0;
         }
     }
 
@@ -86,7 +86,9 @@ float PCSS(sampler2D shadow_map, vec3 shadow_coord)
 
     // Calculate penumbra size.
     float penumbra = (receiver_depth - blocker_depth) * LIGHT_WIDTH / blocker_depth;
-    if (penumbra < 0.0) penumbra = 5.0;
+    if (penumbra < 0.0) {
+        penumbra = 5.0;
+    }
 
     // Do PCF filtering,
     float visibility = PCF(shadow_map, shadow_coord, penumbra);
