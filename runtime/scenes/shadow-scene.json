@@ -12,18 +12,18 @@
             "type": "directional",
             "direction": [170.0, 0.0, 0.0],
             "color": [1, 1, 1],
-            "intensity": 0.0
-        },
-        "spot-light-1": {
-            "type": "spot",
-            "position": [0, 4, 0],
-            "direction": [170.0, 0.0, 0.0],
-            "cutoff": 12.5,
-            "outer-cutoff": 20.0,
-            "color": [1, 1, 1],
-            "radius": 0.1,
             "intensity": 5.0
         }
+        // "spot-light-1": {
+        //     "type": "spot",
+        //     "position": [0, 4, 0],
+        //     "direction": [170.0, 0.0, 0.0],
+        //     "cutoff": 12.5,
+        //     "outer-cutoff": 20.0,
+        //     "color": [1, 1, 1],
+        //     "radius": 0.1,
+        //     "intensity": 5.0
+        // }
     },
     "models": {
         "model-1": {
@@ -44,7 +44,7 @@
     },
 
     // Rendering settings.
-    "enable_ibl": true,
+    "enable_ibl": false,
     "shading_method": "BRDF",
-    "shadow_method": "PCF"
+    "shadow_method": "BASIC"
 }
