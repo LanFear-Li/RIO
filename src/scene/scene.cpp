@@ -352,7 +352,7 @@ void Scene::render(Pass &render_pass)
 
             auto &light = directional_light_list[i];
 
-            float box_size = 20.0f;
+            float box_size = 5.0f;
             glm::vec3 bbox_min = glm::vec3(-box_size, -box_size, -box_size);
             glm::vec3 bbox_max = glm::vec3(box_size, box_size, box_size);
             glm::vec3 bbox_center = (bbox_min + bbox_max) / 2.0f;
@@ -363,7 +363,7 @@ void Scene::render(Pass &render_pass)
             auto light_position = bbox_center - light_direction * max_extent;
 
             auto view = glm::lookAt(light_position, bbox_center, glm::vec3(0.0, 1.0, 0.0));
-            auto projection = glm::ortho(bbox_min.x, bbox_max.x, bbox_min.x, bbox_max.x, 1.0f, box_size * 2.0f);
+            auto projection = glm::ortho(bbox_min.x, bbox_max.x, bbox_min.x, bbox_max.x, 0.1f, 1000.0f);
 
             shader->setMat4("view", view);
             shader->setMat4("projection", projection);
@@ -398,9 +398,9 @@ void Scene::render(Pass &render_pass)
             auto light_position = light->position;
             glm::vec3 center = light_position + light_direction;
 
-            float box_size = 20.0f;
+            float box_size = 5.0f;
             auto view = glm::lookAt(light_position, center, glm::vec3(0.0, 1.0, 0.0));
-            auto projection = glm::ortho(-box_size, box_size, -box_size, box_size, 0.1f, box_size * 2.0f);
+            auto projection = glm::ortho(-box_size, box_size, -box_size, box_size, 0.1f, 1000.0f);
 
             shader->setMat4("view", view);
             shader->setMat4("projection", projection);
