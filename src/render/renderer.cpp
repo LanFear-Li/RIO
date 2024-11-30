@@ -32,7 +32,19 @@ void Renderer::run() const
 {
     // Bind key, mouse, resize callback for window.
     std::vector<bool> key_state = std::vector<bool>(1025, false);
+    bool camera_speed_dirty = false;
     window->set_key_callback([&](GLFWwindow* glfw_window, int key, int action) mutable {
+        if (key == GLFW_KEY_UP || key == GLFW_KEY_DOWN) {
+            if (action == GLFW_PRESS) {
+                key_state[key] = true;
+            } else if (action == GLFW_RELEASE) {
+                key_state[key] = false;
+                camera_speed_dirty = false;
+            }
+
+            return;
+        }
+
         if (key >= 0 && key <= 1024) {
             if (action == GLFW_PRESS) {
                 key_state[key] = true;
@@ -80,8 +92,17 @@ void Renderer::run() const
         if (key_state[GLFW_KEY_E]) cam->process_keyboard(Camera_Movement::UP, dt);
         if (key_state[GLFW_KEY_Q]) cam->process_keyboard(Camera_Movement::DOWN, dt);
 
-        if (key_state[GLFW_KEY_UP]) cam->increase_speed();
-        if (key_state[GLFW_KEY_DOWN]) cam->decrease_speed();
+        if (camera_speed_dirty == false) {
+            if (key_state[GLFW_KEY_UP]) {
+                cam->increase_speed();
+                camera_speed_dirty = true;
+            }
+
+            if (key_state[GLFW_KEY_DOWN]) {
+                cam->decrease_speed();
+                camera_speed_dirty = true;
+            }
+        }
     };
 
     // Start window mainloop.
