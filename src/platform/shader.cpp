@@ -66,7 +66,36 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath, const char *geo
     glDeleteShader(fragment);
     if (geometryPath != nullptr)
         glDeleteShader(geometry);
+}
 
+Shader::Shader(const char *compPath)
+{
+    // Check shader file existence.
+    if (!check_file_existence(compPath)) {
+        std::cerr << "Shader file not exist at: " << compPath << std::endl;
+        return;
+    }
+
+    // Retrieve the compute shader source code from filePath.
+    std::string computeCode;
+    computeCode = glsl_version + shader_pre_compile(std::string_view{compPath});
+
+    // Compile shaders.
+    unsigned int compute;
+    const char *cShaderCode = computeCode.c_str();
+    compute = glCreateShader(GL_COMPUTE_SHADER);
+    glShaderSource(compute, 1, &cShaderCode, NULL);
+    glCompileShader(compute);
+    checkCompileErrors(compute, "COMPUTE");
+
+    // Create shader program.
+    ID = glCreateProgram();
+    glAttachShader(ID, compute);
+    glLinkProgram(ID);
+    checkCompileErrors(ID, "PROGRAM");
+
+    // Delete the shaders as they're linked into our program now and no longer necessary.
+    glDeleteShader(compute);
 }
 
 // activate the shader

@@ -15,6 +15,7 @@ public:
 
     Shader() = delete;
     Shader(const char *vertexPath, const char *fragmentPath, const char *geometryPath = nullptr);
+    Shader(const char *compPath);
 
 private:
     std::string glsl_version = "#version 450\n";
