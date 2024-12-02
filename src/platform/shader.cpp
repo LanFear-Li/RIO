@@ -31,41 +31,49 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath, const char *geo
 
     const char *vShaderCode = vertexCode.c_str();
     const char *fShaderCode = fragmentCode.c_str();
-    // 2. compile shaders
+
+    // Compile shaders.
     unsigned int vertex, fragment;
-    // vertex shader
+
+    // Vertex shader.
     vertex = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex, 1, &vShaderCode, NULL);
     glCompileShader(vertex);
     checkCompileErrors(vertex, "VERTEX");
-    // fragment Shader
+
+    // Fragment Shader.
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment, 1, &fShaderCode, NULL);
     glCompileShader(fragment);
     checkCompileErrors(fragment, "FRAGMENT");
-    // if geometry shader is given, compile geometry shader
+
+    // If geometry shader is given, compile geometry shader.
     unsigned int geometry;
-    if (geometryPath != nullptr)
-    {
+    if (geometryPath != nullptr) {
         const char *gShaderCode = geometryCode.c_str();
         geometry = glCreateShader(GL_GEOMETRY_SHADER);
         glShaderSource(geometry, 1, &gShaderCode, NULL);
         glCompileShader(geometry);
         checkCompileErrors(geometry, "GEOMETRY");
     }
-    // shader Program
+
+    // Create shader program.
     ID = glCreateProgram();
     glAttachShader(ID, vertex);
     glAttachShader(ID, fragment);
-    if (geometryPath != nullptr)
+    if (geometryPath != nullptr) {
         glAttachShader(ID, geometry);
+    }
+
     glLinkProgram(ID);
     checkCompileErrors(ID, "PROGRAM");
-    // delete the shaders as they're linked into our program now and no longer necessary
+
+    // Delete the shaders as they're linked into our program now and no longer necessary.
     glDeleteShader(vertex);
     glDeleteShader(fragment);
-    if (geometryPath != nullptr)
+    if (geometryPath != nullptr) {
         glDeleteShader(geometry);
+    }
 }
 
 Shader::Shader(const char *compPath)
