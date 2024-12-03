@@ -69,6 +69,8 @@ struct Material
 #define SHADOW_BASIC    0
 #define SHADOW_PCF      1
 #define SHADOW_PCSS     2
+#define SHADOW_VSM      3
+#define SHADOW_VSSM     4
 
 // ---------------------
 // Uniform Definition.
@@ -114,6 +116,8 @@ uniform mat4                directional_light_matrix[MAX_LIGHT_NUM];
 uniform mat4                spot_light_matrix[MAX_LIGHT_NUM];
 uniform sampler2D           directional_shadow_map[MAX_LIGHT_NUM];
 uniform sampler2D           spot_shadow_map[MAX_LIGHT_NUM];
+uniform sampler2D           directional_SAT_map[MAX_LIGHT_NUM];
+uniform sampler2D           spot_SAT_map[MAX_LIGHT_NUM];
 
 uniform bool                render_shadow;
 uniform int                 shadow_method;

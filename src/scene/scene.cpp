@@ -194,10 +194,12 @@ void Scene::prepare_scene(const std::string &scene_name)
     int directional_light_count = directional_light_list.size();
     directional_shadow_map_list.resize(directional_light_count);
     directional_light_matrix_list.resize(directional_light_count);
+    directional_SAT_map_list.resize(directional_light_count);
 
     int spot_light_count = spot_light_list.size();
     spot_shadow_map_list.resize(spot_light_count);
     spot_light_matrix_list.resize(spot_light_count);
+    spot_SAT_map_list.resize(spot_light_count);
 
     int point_light_count = point_light_list.size();
     point_shadow_map_list.resize(point_light_count);
@@ -312,7 +314,6 @@ void Scene::render(Pass &render_pass)
         shader->setMat4("view", camera->get_view_matrix());
         shader->setMat4("projection", camera->get_projection_matrix());
 
-        // render_pass.render(*mesh, *material, *ibl_data);
         render_pass.render_others(*mesh, *material);
     }
 
@@ -346,8 +347,12 @@ void Scene::render(Pass &render_pass)
 
     if (pass_name == "shadow" && scene_config->render_shadow) {
         auto &shader = render_pass.shader;
+        bool shadow_vsm = (scene_config->shadow_method == Shadow_Method::VSM || scene_config->shadow_method == Shadow_Method::VSSM);
+
+        shader->setBool("use_vsm", shadow_vsm);
+
         for (int i = 0; i < directional_light_list.size(); i++) {
-            render_pass.setup_framebuffer_depth(1024, 1024);
+            render_pass.setup_framebuffer_depth(1024, 1024, shadow_vsm);
             render_pass.clear_depth();
 
             auto &light = directional_light_list[i];
@@ -363,7 +368,7 @@ void Scene::render(Pass &render_pass)
             auto light_position = bbox_center - light_direction * max_extent;
 
             auto view = glm::lookAt(light_position, bbox_center, glm::vec3(0.0, 1.0, 0.0));
-            auto projection = glm::ortho(bbox_min.x, bbox_max.x, bbox_min.x, bbox_max.x, 0.1f, 1000.0f);
+            auto projection = glm::ortho(bbox_min.x, bbox_max.x, bbox_min.x, bbox_max.x, 0.1f, 10.0f);
 
             shader->setMat4("view", view);
             shader->setMat4("projection", projection);
@@ -389,7 +394,7 @@ void Scene::render(Pass &render_pass)
         }
 
         for (int i = 0; i < spot_light_list.size(); i++) {
-            render_pass.setup_framebuffer_depth(1024, 1024);
+            render_pass.setup_framebuffer_depth(1024, 1024, shadow_vsm);
             render_pass.clear_depth();
 
             auto &light = spot_light_list[i];
@@ -400,7 +405,7 @@ void Scene::render(Pass &render_pass)
 
             float box_size = 5.0f;
             auto view = glm::lookAt(light_position, center, glm::vec3(0.0, 1.0, 0.0));
-            auto projection = glm::ortho(-box_size, box_size, -box_size, box_size, 0.1f, 1000.0f);
+            auto projection = glm::ortho(-box_size, box_size, -box_size, box_size, 0.1f, 10.0f);
 
             shader->setMat4("view", view);
             shader->setMat4("projection", projection);
@@ -426,8 +431,31 @@ void Scene::render(Pass &render_pass)
         }
     }
 
+    if (pass_name == "compute_SAT" && scene_config->render_shadow &&
+    (scene_config->shadow_method == Shadow_Method::VSM || scene_config->shadow_method == Shadow_Method::VSSM)) {
+        auto &shader = render_pass.shader;
+        shader->setInt("input_image", 0);
+        shader->setInt("output_image", 1);
+
+        for (int i = 0; i < directional_light_list.size(); i++) {
+            render_pass.setup_framebuffer_comp_SAT(1024, 1024);
+            render_pass.render_comp_SAT(directional_shadow_map_list[i]->get_id());
+
+            directional_SAT_map_list[i] = std::move(render_pass.SAT_map[1]);
+        }
+
+        for (int i = 0; i < spot_light_list.size(); i++) {
+            render_pass.setup_framebuffer_comp_SAT(1024, 1024);
+            render_pass.render_comp_SAT(spot_shadow_map_list[i]->get_id());
+
+            spot_SAT_map_list[i] = std::move(render_pass.SAT_map[1]);
+        }
+    }
+
     if (pass_name == "shade") {
         render_pass.setup_framebuffer(*screen_width, *screen_height, present_fbo);
+
+        bool shadow_vsm = (scene_config->shadow_method == Shadow_Method::VSM || scene_config->shadow_method == Shadow_Method::VSSM);
 
         for (auto &model : model_list) {
             for (auto &mesh : model->meshes) {
@@ -479,12 +507,17 @@ void Scene::render(Pass &render_pass)
 
                 for (int i = 0; i < MAX_LIGHT_NUM; i++) {
                     auto shadow_map_name = "directional_shadow_map[" + std::to_string(i) + "]";
+                    auto SAT_map_name = "directional_SAT_map[" + std::to_string(i) + "]";
 
                     if (scene_config->render_shadow && i < directional_light_num) {
                         shader->setMat4("directional_light_matrix[" + std::to_string(i) + "]", directional_light_matrix_list[i]);
+
+                        auto tex_id = shadow_vsm ? directional_SAT_map_list[i]->get_id() : 0;
                         render_pass.frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, directional_shadow_map_list[i]->get_id(), shadow_map_name.c_str());
+                        render_pass.frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, tex_id, SAT_map_name.c_str());
                     } else {
                         render_pass.frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, 0, shadow_map_name.c_str());
+                        render_pass.frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, 0, SAT_map_name.c_str());
                     }
                 }
 
@@ -506,12 +539,17 @@ void Scene::render(Pass &render_pass)
 
                 for (int i = 0; i < MAX_LIGHT_NUM; i++) {
                     auto shadow_map_name = "spot_shadow_map[" + std::to_string(i) + "]";
+                    auto SAT_map_name = "spot_SAT_map[" + std::to_string(i) + "]";
 
                     if (scene_config->render_shadow && i < spot_light_num) {
                         shader->setMat4("spot_light_matrix[" + std::to_string(i) + "]", spot_light_matrix_list[i]);
+
+                        auto tex_id = shadow_vsm ? spot_SAT_map_list[i]->get_id() : 0;
                         render_pass.frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, spot_shadow_map_list[i]->get_id(), shadow_map_name.c_str());
+                        render_pass.frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, tex_id, SAT_map_name.c_str());
                     } else {
                         render_pass.frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, 0, shadow_map_name.c_str());
+                        render_pass.frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, 0, SAT_map_name.c_str());
                     }
                 }
 
@@ -548,7 +586,6 @@ void Scene::render(Pass &render_pass)
 
             shader->setVec3("lightColor", color);
 
-            // render_pass.render(*mesh, *material, *ibl_data);
             render_pass.render_others(*mesh, *material);
         }
 

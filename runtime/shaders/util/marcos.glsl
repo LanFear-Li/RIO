@@ -14,3 +14,4 @@
 #define NUM_RINGS       10
 
 #define PCF_PENUMBRA    5
+#define VSM_PENUMBRA    5

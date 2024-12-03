@@ -14,6 +14,8 @@ Renderer::Renderer(const std::string &scene_name)
 
     // Initialize all render pass.
     pass_shadow = std::make_unique<Pass>("shadow");
+    pass_compute_SAT = std::make_unique<Pass>("compute_SAT", true);
+
     pass_shade = std::make_unique<Pass>("shade");
 
     pass_rect_to_cube = std::make_unique<Pass>("rect_to_cube");
@@ -116,9 +118,11 @@ void Renderer::run() const
         scene->render(*pass_ibl_precomputed_brdf);
 
         // Pass runtime.
-        scene->render(*pass_skybox);
         scene->render(*pass_shadow);
+        scene->render(*pass_compute_SAT);
+
         scene->render(*pass_shade);
+        scene->render(*pass_skybox);
         scene->render(*pass_light);
 
         // Pass ui.

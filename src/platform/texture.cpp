@@ -160,6 +160,26 @@ std::unique_ptr<Texture> create_texture(Texture_Type texture_type, int width, in
     return std::make_unique<Texture>(texture_id, texture_type);
 }
 
+std::unique_ptr<Texture> create_texture_RG(int width, int height)
+{
+    unsigned int texture_id;
+    glGenTextures(1, &texture_id);
+
+    glBindTexture(GL_TEXTURE_2D, texture_id);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, width, height, 0, GL_RG, GL_FLOAT, nullptr);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    float border_color[] = { 1.0, 1.0, 1.0, 1.0 };
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, border_color);
+
+    return std::make_unique<Texture>(texture_id, Texture_Type::TEXTURE_2D);
+}
+
 Texture::~Texture()
 {
     glDeleteTextures(1, &id);

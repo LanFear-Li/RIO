@@ -22,6 +22,8 @@ private:
 
     // Pass for lighting / shadowing.
     std::unique_ptr<Pass> pass_shadow;
+    std::unique_ptr<Pass> pass_compute_SAT;
+
     std::unique_ptr<Pass> pass_shade;
     std::unique_ptr<Pass> pass_light;
 

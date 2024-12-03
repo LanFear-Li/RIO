@@ -23,17 +23,19 @@ const std::vector<const char *> shading_methods = {
 };
 
 enum Shadow_Method {
-    BASIC, PCF, PCSS
+    BASIC, PCF, PCSS, VSM, VSSM
 };
 
 NLOHMANN_JSON_SERIALIZE_ENUM(Shadow_Method, {
     { BASIC, "BASIC" },
     { PCF, "PCF" },
-    { PCSS, "PCSS" }
+    { PCSS, "PCSS" },
+    { VSM, "VSM" },
+    { VSSM, "VSSM" }
 })
 
 const std::vector<const char *> shadow_methods = {
-    "BASIC", "PCF", "PCSS"
+    "BASIC", "PCF", "PCSS", "VSM", "VSSM"
 };
 
 struct Panel_Config {

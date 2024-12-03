@@ -5,12 +5,19 @@
 
 #include <iostream>
 
-Pass::Pass(const std::string &pass_name)
+Pass::Pass(const std::string &pass_name, bool is_comp)
 {
-    std::string vert_path = "runtime/shaders/pass/" + pass_name + ".vert";
-    std::string frag_path = "runtime/shaders/pass/" + pass_name + ".frag";
+    if (is_comp) {
+        std::string comp_path = "runtime/shaders/pass/" + pass_name + ".comp";
 
-    shader = std::make_unique<Shader>(File_System::get_path(vert_path).c_str(), File_System::get_path(frag_path).c_str());
+        shader = std::make_unique<Shader>(File_System::get_path(comp_path).c_str());
+    } else {
+        std::string vert_path = "runtime/shaders/pass/" + pass_name + ".vert";
+        std::string frag_path = "runtime/shaders/pass/" + pass_name + ".frag";
+
+        shader = std::make_unique<Shader>(File_System::get_path(vert_path).c_str(), File_System::get_path(frag_path).c_str());
+    }
+
     name = pass_name;
 
     profile_info = std::make_shared<Pass_Profile_Info>();
@@ -50,12 +57,38 @@ void Pass::setup_framebuffer(int width, int height, std::shared_ptr<Frame_Buffer
     buffer_height = height;
 }
 
-void Pass::setup_framebuffer_depth(int width, int height)
+void Pass::setup_framebuffer_depth(int width, int height, bool shadow_vsm)
 {
-    output = create_texture(Texture_Type::TEXTURE_2D_DEPTH, width, height);
-
     frame_buffer = std::make_shared<Frame_Buffer>();
-    frame_buffer->attach_texture(GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, output->get_id());
+    render_buffer = std::make_unique<Render_Buffer>(width, height, GL_DEPTH_COMPONENT32);
+
+    if (shadow_vsm) {
+        output = create_texture_RG(width, height);
+        frame_buffer->attach_texture(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, output->get_id());
+        frame_buffer->attach_render_buffer(GL_DEPTH_ATTACHMENT, render_buffer->get_id());
+    } else {
+        output = create_texture(Texture_Type::TEXTURE_2D_DEPTH, width, height);
+        frame_buffer->attach_texture(GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, output->get_id());
+    }
+
+    frame_buffer->unbind();
+    render_buffer->unbind();
+
+    buffer_width = width;
+    buffer_height = height;
+}
+
+void Pass::setup_framebuffer_comp_SAT(int width, int height)
+{
+    frame_buffer = std::make_shared<Frame_Buffer>();
+
+    SAT_map[0] = create_texture_RG(width, height);
+    frame_buffer->attach_texture(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, SAT_map[0]->get_id());
+    Api_Function::clear();
+    SAT_map[1] = create_texture_RG(width, height);
+    frame_buffer->attach_texture(GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, SAT_map[1]->get_id());
+    Api_Function::clear();
+
     frame_buffer->unbind();
 
     buffer_width = width;
@@ -183,6 +216,21 @@ void Pass::render_depth(const Mesh &mesh)
     Api_Function::draw_elements(GL_TRIANGLES, static_cast<unsigned int>(mesh.indices.size()), GL_UNSIGNED_INT, 0);
     mesh.vertex_array->unbind();
     frame_buffer->unbind();
+}
+
+void Pass::render_comp_SAT(GLuint shadow_map)
+{
+    Api_Function::set_viewport(buffer_width, buffer_height);
+
+    glBindImageTexture(0, shadow_map, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
+    glBindImageTexture(1, SAT_map[0]->get_id(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
+    glDispatchCompute(buffer_width, 1, 1);
+    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+    glBindImageTexture(0, SAT_map[0]->get_id(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
+    glBindImageTexture(1, SAT_map[1]->get_id(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
+    glDispatchCompute(buffer_width, 1, 1);
+    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 
 void Pass::render_cubemap(const Mesh &mesh, const Texture &texture)
