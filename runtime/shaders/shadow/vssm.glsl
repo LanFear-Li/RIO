@@ -58,10 +58,10 @@ float VSM(sampler2D shadow_map, sampler2D SAT_map, vec3 shadow_coord, float filt
 }
 
 // Variance Soft Shadow Mapping (VSSM).
-float VSSM(sampler2D shadow_map, sampler2D SAT_map, vec3 shadow_coord)
+float VSSM(sampler2D shadow_map, sampler2D SAT_map, vec3 shadow_coord, float bias)
 {
     // Estimate average blocker depth.
-    float current_depth = shadow_coord.z;
+    float current_depth = shadow_coord.z - bias;
     float clostest_depth = texture(shadow_map, shadow_coord.xy).r;
     float blocker_search_size = LIGHT_WIDTH;
 

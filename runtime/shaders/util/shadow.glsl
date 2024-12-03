@@ -3,7 +3,7 @@
 #include "../shadow/pcss.glsl"
 #include "../shadow/vssm.glsl"
 
-float evaluate_directional_shadow(int index, vec3 world_pos)
+float evaluate_directional_shadow(int index, vec3 world_pos, float bias)
 {
     mat4 light_matrix = directional_light_matrix[index];
 
@@ -20,13 +20,13 @@ float evaluate_directional_shadow(int index, vec3 world_pos)
     } else if (shadow_method == SHADOW_VSM) {
         visibility = VSM(directional_shadow_map[index], directional_SAT_map[index], shadow_coord, VSM_PENUMBRA);
     } else if (shadow_method == SHADOW_VSSM) {
-        visibility = VSSM(directional_shadow_map[index], directional_SAT_map[index], shadow_coord);
+        visibility = VSSM(directional_shadow_map[index], directional_SAT_map[index], shadow_coord, bias);
     }
 
     return visibility;
 }
 
-float evaluate_spot_shadow(int index, vec3 world_pos)
+float evaluate_spot_shadow(int index, vec3 world_pos, float bias)
 {
     mat4 light_matrix = spot_light_matrix[index];
 
@@ -43,7 +43,7 @@ float evaluate_spot_shadow(int index, vec3 world_pos)
     } else if (shadow_method == SHADOW_VSM) {
         visibility = VSM(spot_shadow_map[index], spot_SAT_map[index], shadow_coord, VSM_PENUMBRA);
     } else if (shadow_method == SHADOW_VSSM) {
-        visibility = VSSM(spot_shadow_map[index], spot_SAT_map[index], shadow_coord);
+        visibility = VSSM(spot_shadow_map[index], spot_SAT_map[index], shadow_coord, bias);
     }
 
     return visibility;
