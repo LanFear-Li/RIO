@@ -174,7 +174,7 @@ std::unique_ptr<Texture> create_texture_RG(int width, int height)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    float border_color[] = { 1.0, 1.0, 1.0, 1.0 };
+    float border_color[] = { 1.0, 1.0 };
     glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, border_color);
 
     return std::make_unique<Texture>(texture_id, Texture_Type::TEXTURE_2D);

@@ -61,7 +61,7 @@ float VSM(sampler2D shadow_map, sampler2D SAT_map, vec3 shadow_coord, float filt
 float VSSM(sampler2D shadow_map, sampler2D SAT_map, vec3 shadow_coord, float bias)
 {
     // Estimate average blocker depth.
-    float current_depth = shadow_coord.z - bias;
+    float current_depth = shadow_coord.z + bias;
     float clostest_depth = texture(shadow_map, shadow_coord.xy).r;
     float blocker_search_size = LIGHT_WIDTH;
 
@@ -80,9 +80,9 @@ float VSSM(sampler2D shadow_map, sampler2D SAT_map, vec3 shadow_coord, float bia
     float alpha = chebyshev(moments, current_depth);
     float blocker_depth = (average_blocker_depth - alpha * (current_depth)) / (1.0 - alpha);
 
-    // if (blocker_depth < EPS) {
-	// 	return 0.0;
-	// }
+    if (blocker_depth < EPS) {
+		return 0.0;
+	}
 	if (blocker_depth > 1.0) {
 		return 1.0;
 	}

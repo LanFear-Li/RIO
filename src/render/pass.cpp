@@ -66,6 +66,9 @@ void Pass::setup_framebuffer_depth(int width, int height, bool shadow_vsm)
         output = create_texture_RG(width, height);
         frame_buffer->attach_texture(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, output->get_id());
         frame_buffer->attach_render_buffer(GL_DEPTH_ATTACHMENT, render_buffer->get_id());
+
+        Api_Function::set_clear_color(glm::vec4(1.0f));
+        Api_Function::clear_color_and_depth();
     } else {
         output = create_texture(Texture_Type::TEXTURE_2D_DEPTH, width, height);
         frame_buffer->attach_texture(GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, output->get_id());
@@ -84,10 +87,10 @@ void Pass::setup_framebuffer_comp_SAT(int width, int height)
 
     SAT_map[0] = create_texture_RG(width, height);
     frame_buffer->attach_texture(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, SAT_map[0]->get_id());
-    Api_Function::clear();
+    Api_Function::clear_color_and_depth();
     SAT_map[1] = create_texture_RG(width, height);
     frame_buffer->attach_texture(GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, SAT_map[1]->get_id());
-    Api_Function::clear();
+    Api_Function::clear_color_and_depth();
 
     frame_buffer->unbind();
 
@@ -213,6 +216,7 @@ void Pass::render_depth(const Mesh &mesh)
 
     frame_buffer->bind();
     mesh.vertex_array->bind();
+
     Api_Function::draw_elements(GL_TRIANGLES, static_cast<unsigned int>(mesh.indices.size()), GL_UNSIGNED_INT, 0);
     mesh.vertex_array->unbind();
     frame_buffer->unbind();
@@ -263,7 +267,7 @@ void Pass::render_cubemap(const Mesh &mesh, const Texture &texture)
         frame_buffer->attach_texture(GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, output->get_id());
 
         mesh.vertex_array->bind();
-        Api_Function::clear();
+        Api_Function::clear_color_and_depth();
         Api_Function::draw_arrays(GL_TRIANGLES, 0, 36);
         mesh.vertex_array->unbind();
     }
@@ -280,7 +284,7 @@ void Pass::render_quad(const Mesh &mesh)
     frame_buffer->attach_texture(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, output->get_id());
 
     mesh.vertex_array->bind();
-    Api_Function::clear();
+    Api_Function::clear_color_and_depth();
     Api_Function::draw_arrays(GL_TRIANGLE_STRIP, 0, 4);
     mesh.vertex_array->unbind();
     frame_buffer->unbind();
@@ -327,7 +331,7 @@ void Pass::render_cubemap_mipmap(const Mesh &mesh, const Texture &texture)
             frame_buffer->attach_texture(GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, output->get_id(), mip);
 
             mesh.vertex_array->bind();
-            Api_Function::clear();
+            Api_Function::clear_color_and_depth();
             Api_Function::draw_arrays(GL_TRIANGLES, 0, 36);
             mesh.vertex_array->unbind();
         }

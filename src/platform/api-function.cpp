@@ -5,7 +5,7 @@ void Api_Function::set_viewport(int width, int height)
     glViewport(0, 0, width, height);
 }
 
-void Api_Function::clear_color(const glm::vec4 &color)
+void Api_Function::set_clear_color(const glm::vec4 &color)
 {
     glClearColor(color.r, color.g, color.b, color.a);
 }
@@ -15,7 +15,7 @@ void Api_Function::clear_depth()
     glClear(GL_DEPTH_BUFFER_BIT);
 }
 
-void Api_Function::clear()
+void Api_Function::clear_color_and_depth()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
