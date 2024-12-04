@@ -10,11 +10,12 @@ RIO is a real-time rasterization renderer with OpenGL backend. It aims to implem
 #### Basic
 
 - [x] User Interface with Control Panel and Camera Operation
+- [x] Frame timetracer with Total Time and GPU Time
 
 #### Shading
 
-- [x] Classic Blinn-Phong Shading
-- [x] Physically-Based Shading with Lambertian BRDF
+- [x] Classic Phong / Blinn-Phong Shading
+- [x] Physically-Based Shading with Cook-Torrance BRDF
 - [x] Image-Based Lighting (IBL) / Environment Lighting
 
 #### Lighting & Shadowing
@@ -22,6 +23,7 @@ RIO is a real-time rasterization renderer with OpenGL backend. It aims to implem
 - [x] Point / Directional / Spot lights
 - [x] Shadow Mapping with Percentage Closer Filtering (PCF)
 - [x] Percentage Closer Soft Shadow (PCSS)
+- [x] Variance Soft Shadow Mapping (VSSM)
 
 
 ## Gallery
