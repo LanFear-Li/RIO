@@ -10,7 +10,7 @@ RIO is a real-time rasterization renderer with OpenGL backend. It aims to implem
 #### Basic
 
 - [x] User Interface with Control Panel and Camera Operation
-- [x] Frame timetracer with Total Time and GPU Time
+- [x] Frame Tracer with Total Time and GPU Time
 
 #### Shading
 
@@ -25,30 +25,33 @@ RIO is a real-time rasterization renderer with OpenGL backend. It aims to implem
 - [x] Percentage Closer Soft Shadow (PCSS)
 - [x] Variance Soft Shadow Mapping (VSSM)
 
-
 ## Gallery
 
-**PBR & IBL**
+#### **PBR & IBL**
 
-<img src="screenshot\pbr\helmet_hotel.png" alt="helmet_hotel" style="zoom:50%;" />
+| Helmet in Hotel                                              | Helmet in Street                                             |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| <img src="screenshot\pbr\helmet_hotel.png" alt="helmet_hotel" style="zoom:50%;" /> | <img src="screenshot\pbr\helmet_street.png" alt="helmet_street" style="zoom:50%;" /> |
 
-<img src="screenshot\pbr\helmet_street.png" alt="helmet_street" style="zoom:50%;" />
+#### **Blinn-Phong**
 
-**Blinn-Phong**
+| Sponza                                                       | Erato                                                        | Robot                                                        |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| <img src="screenshot\blinn-phong\sponza.png" alt="sponza" style="zoom: 50%;" /> | <img src="screenshot\blinn-phong\erato.png" alt="erato" style="zoom:50%;" /> | <img src="screenshot\blinn-phong\robot.png" alt="robot" style="zoom:50%;" /> |
 
-<img src="screenshot\blinn-phong\sponza.png" alt="sponza" style="zoom: 50%;" />
+#### Shadow
 
-<img src="screenshot\blinn-phong\erato.png" alt="erato" style="zoom:50%;" />
-
-<img src="screenshot\blinn-phong\robot.png" alt="robot" style="zoom:50%;" />
+| Basic                                                        | PCF                                                          | PCSS                                                         | VSM                                                          | VSSM                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| <img src="screenshot\shadow\basic.png" alt="basic" style="zoom:25%;" /> | <img src="screenshot\shadow\pcf.png" alt="pcf" style="zoom:25%;" /> | <img src="screenshot\shadow\pcss.png" alt="pcss" style="zoom:25%;" /> | <img src="screenshot\shadow\vsm.png" alt="vsm" style="zoom:25%;" /> | <img src="screenshot\shadow\vssm.png" alt="vssm" style="zoom:25%;" /> |
 
 ## Usage
 
-**Build**
+#### **Build**
 
 Since all dependencies are included with source code, you can build RIO freely with CMake on Windows or Linux.
 
-**Control**
+#### **Control**
 
 <img src="screenshot\rio_interface.png" alt="rio_interface"  />
 
