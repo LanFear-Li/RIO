@@ -87,9 +87,6 @@ void Pass::setup_framebuffer_depth(int width, int height, bool shadow_vsm)
         output = create_texture_RG(width, height);
         frame_buffer->attach_texture(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, output->get_id());
         frame_buffer->attach_render_buffer(GL_DEPTH_ATTACHMENT, render_buffer->get_id());
-
-        Api_Function::set_clear_color(glm::vec4(1.0f));
-        Api_Function::clear_color_and_depth();
     } else {
         output = create_texture(Texture_Type::TEXTURE_2D_DEPTH, width, height);
         frame_buffer->attach_texture(GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, output->get_id());

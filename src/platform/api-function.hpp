@@ -10,6 +10,7 @@ public:
 
     static void set_clear_color(const glm::vec4 &color);
     static void clear_depth();
+    static void clear_color();
     static void clear_color_and_depth();
 
     static void draw_arrays(GLenum mode, int first, int count);

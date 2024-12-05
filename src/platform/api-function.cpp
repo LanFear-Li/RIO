@@ -15,6 +15,11 @@ void Api_Function::clear_depth()
     glClear(GL_DEPTH_BUFFER_BIT);
 }
 
+void Api_Function::clear_color()
+{
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
 void Api_Function::clear_color_and_depth()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
