@@ -1,5 +1,17 @@
 #include "renderer.hpp"
 
+#include "pass/pass_rect_to_cube.hpp"
+#include "pass/pass_ibl_irradiance.hpp"
+#include "pass/pass_ibl_prefiltered_map.hpp"
+#include "pass/pass_ibl_precomputed_brdf.hpp"
+
+#include "pass/pass_shadow.hpp"
+#include "pass/pass_compute_SAT.hpp"
+
+#include "pass/pass_shade.hpp"
+#include "pass/pass_skybox.hpp"
+#include "pass/pass_light.hpp"
+
 #include <utility>
 
 Renderer::Renderer(const std::string &scene_name)
@@ -13,20 +25,18 @@ Renderer::Renderer(const std::string &scene_name)
     scene->prepare_present();
 
     // Initialize all render pass.
-    pass_shadow = std::make_unique<Pass>("shadow");
-    pass_compute_SAT = std::make_unique<Pass>("compute_SAT", true);
+    pass_rect_to_cube = std::make_unique<Pass_Rect_To_Cube>("rect_to_cube", scene);
+    pass_ibl_irradiance = std::make_unique<Pass_IBL_Irradiance>("ibl_irradiance", scene);
+    pass_ibl_prefiltered_map = std::make_unique<Pass_IBL_Prefiltered_Map>("ibl_prefiltered_map", scene);
+    pass_ibl_precomputed_brdf = std::make_unique<Pass_IBL_Precomputed_BRDF>("ibl_precomputed_brdf", scene);
 
-    pass_shade = std::make_unique<Pass>("shade");
+    pass_shadow = std::make_unique<Pass_Shadow>("shadow", scene);
+    pass_compute_SAT = std::make_unique<Pass_Compute_SAT>("compute_SAT", scene, true);
 
-    pass_rect_to_cube = std::make_unique<Pass>("rect_to_cube");
-    pass_skybox = std::make_unique<Pass>("skybox");
+    pass_shade = std::make_unique<Pass_Shade>("shade", scene);
+    pass_skybox = std::make_unique<Pass_Skybox>("skybox", scene);
     pass_skybox->depth_func = Depth_Func::less_equal;
-
-    pass_ibl_irradiance = std::make_unique<Pass>("ibl_irradiance");
-    pass_ibl_prefiltered_map = std::make_unique<Pass>("ibl_prefiltered_map");
-    pass_ibl_precomputed_brdf = std::make_unique<Pass>("ibl_precomputed_brdf");
-
-    pass_light = std::make_unique<Pass>("light");
+    pass_light = std::make_unique<Pass_Light>("light", scene);
     pass_light->depth_func = Depth_Func::less_equal;
 }
 
@@ -112,18 +122,18 @@ void Renderer::run() const
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Pass precompute.
-        scene->render(*pass_rect_to_cube);
-        scene->render(*pass_ibl_irradiance);
-        scene->render(*pass_ibl_prefiltered_map);
-        scene->render(*pass_ibl_precomputed_brdf);
+        pass_rect_to_cube->render();
+        pass_ibl_irradiance->render();
+        pass_ibl_prefiltered_map->render();
+        pass_ibl_precomputed_brdf->render();
 
         // Pass runtime.
-        scene->render(*pass_shadow);
-        scene->render(*pass_compute_SAT);
+        pass_shadow->render();
+        pass_compute_SAT->render();
 
-        scene->render(*pass_shade);
-        scene->render(*pass_skybox);
-        scene->render(*pass_light);
+        pass_shade->render();
+        pass_skybox->render();
+        pass_light->render();
 
         // Pass ui.
         panel->render();

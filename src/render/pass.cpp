@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-Pass::Pass(const std::string &pass_name, bool is_comp)
+Pass::Pass(const std::string &pass_name, std::shared_ptr<Scene> scene_ptr, bool is_comp)
 {
     if (is_comp) {
         std::string comp_path = "runtime/shaders/pass/" + pass_name + ".comp";
@@ -19,6 +19,7 @@ Pass::Pass(const std::string &pass_name, bool is_comp)
     }
 
     name = pass_name;
+    scene = scene_ptr;
 
     profile_info = std::make_shared<Pass_Profile_Info>();
     time_query = std::make_unique<Time_Query>();
@@ -37,6 +38,26 @@ void Pass::prepare() const
     } else {
         glDisable(GL_DEPTH_TEST);
     }
+}
+
+void Pass::render()
+{
+    const auto total_start{std::chrono::steady_clock::now()};
+    time_query->query_start();
+
+    prepare();
+    shader_reset();
+
+    // Render pass logic is modified by each pass.
+    render_pass();
+
+    // Total time & GPU time cost profile.
+    profile_info->cost_gpu_ms = time_query->query_end();
+
+    const auto total_end{std::chrono::steady_clock::now()};
+    profile_info->cost_total_ms = std::chrono::duration_cast<std::chrono::microseconds>(total_end - total_start).count() / 1000.0f;
+
+    scene->pass_data_map[name] = profile_info;
 }
 
 void Pass::setup_framebuffer(int width, int height, Texture_Type type, bool mipmap)
@@ -122,7 +143,7 @@ void Pass::clear_depth() const
     frame_buffer->unbind();
 }
 
-void Pass::render(const Mesh &mesh, const Material &material, const IBL_Data &ibl_data)
+void Pass::render_color(const Mesh &mesh, const Material &material, const IBL_Data &ibl_data)
 {
     shader->setVec3("_mat_ambient", material.ambient);
     shader->setVec3("_mat_diffuse", material.diffuse);

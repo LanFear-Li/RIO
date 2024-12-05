@@ -2,15 +2,23 @@
 
 #include "scene/camera.hpp"
 #include "scene/model.hpp"
-#include "render/config.hpp"
 #include "scene/light.hpp"
-#include "render/pass.hpp"
+#include "render/config.hpp"
+#include "platform/frame-buffer.hpp"
 
 #include <vector>
 #include <memory>
 #include <map>
 
 constexpr int MAX_LIGHT_NUM = 2;
+
+struct Pass_Profile_Info
+{
+    float cost_total_ms;
+    float cost_gpu_ms;
+};
+
+glm::vec3 euler_to_direction(glm::vec3 euler);
 
 class Scene final
 {
@@ -23,7 +31,6 @@ public:
     void update_model(const std::string &model_name);
     void update_skybox(const std::string &skybox_name);
 
-    void render(Pass &render_pass);
     void save_output() const;
 
     std::shared_ptr<uint32_t> screen_width;
@@ -61,6 +68,8 @@ public:
 
     // IBL.
     std::unique_ptr<IBL_Data> ibl_data;
+    bool cubemap_converted = false;
+    bool ibl_generated = false;
 
     // Present Framebuffer & texture.
     std::shared_ptr<Frame_Buffer> present_fbo;
@@ -72,7 +81,4 @@ public:
 
 private:
     std::string get_model_path(const std::string &model_name);
-
-    bool cubemap_converted = false;
-    bool ibl_generated = false;
 };

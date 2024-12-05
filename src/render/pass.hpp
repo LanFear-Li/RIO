@@ -1,12 +1,10 @@
 #pragma once
 
-#include "scene/model.hpp"
+#include "scene/scene.hpp"
 #include "platform/shader.hpp"
 #include "platform/frame-buffer.hpp"
 #include "platform/render-buffer.hpp"
 #include "platform/time-query.hpp"
-
-#include <memory>
 
 enum struct Depth_Func
 {
@@ -14,28 +12,25 @@ enum struct Depth_Func
     less_equal
 };
 
-struct Pass_Profile_Info
-{
-    float cost_total_ms;
-    float cost_gpu_ms;
-};
-
-class Pass final
+class Pass
 {
 public:
     Pass() = delete;
-    Pass(const std::string &pass_name, bool is_comp=false);
+    Pass(const std::string &pass_name, std::shared_ptr<Scene> scene_ptr, bool is_comp=false);
 
     void prepare() const;
     void shader_reset() const;
     void clear_depth() const;
+
+    void render();
+    virtual void render_pass() {};
 
     void setup_framebuffer(int width, int height, Texture_Type type, bool mipmap=false);
     void setup_framebuffer(int width, int height, std::shared_ptr<Frame_Buffer> buffer);
     void setup_framebuffer_depth(int width, int height, bool shadow_vsm);
     void setup_framebuffer_comp_SAT(int width, int height);
 
-    void render(const Mesh &mesh, const Material &material, const IBL_Data &ibl_data);
+    void render_color(const Mesh &mesh, const Material &material, const IBL_Data &ibl_data);
     void render_others(const Mesh &mesh, const Material &material);
     void render_depth(const Mesh &mesh);
     void render_comp_SAT(GLuint shadow_map);
@@ -58,6 +53,8 @@ public:
 
     std::shared_ptr<Pass_Profile_Info> profile_info;
     std::unique_ptr<Time_Query> time_query;
+
+    std::shared_ptr<Scene> scene;
 
 private:
     int buffer_width;
