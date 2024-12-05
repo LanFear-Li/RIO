@@ -11,10 +11,17 @@ void Pass_Rect_To_Cube::render_pass()
         auto &material = scene->model_skybox->materials[0];
         auto &mesh = scene->model_skybox->meshes[0];
 
-        render_cubemap(*mesh, *material->skybox_map);
+        render_cubemap_rect(*mesh, *material->skybox_map);
 
         material->skybox_map = std::move(output);
         scene->ibl_data->environment_map = material->skybox_map;
         scene->cubemap_converted = true;
     }
+}
+
+void Pass_Rect_To_Cube::render_cubemap_rect(const Mesh &mesh, const Texture &texture)
+{
+    frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, texture.get_id(), "equirectangular_map");
+
+    render_cubemap(mesh, texture);
 }

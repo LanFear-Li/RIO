@@ -8,4 +8,6 @@ public:
     Pass_Skybox(const std::string &pass_name, std::shared_ptr<Scene> scene_ptr, bool is_comp=false);
 
     void render_pass() override;
+
+    void render_cube_skybox(const Mesh &mesh, const Material &material);
 };

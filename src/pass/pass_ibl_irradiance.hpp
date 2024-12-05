@@ -8,4 +8,6 @@ public:
     Pass_IBL_Irradiance(const std::string &pass_name, std::shared_ptr<Scene> scene_ptr, bool is_comp=false);
 
     void render_pass() override;
+
+    void render_cubemap_ibl(const Mesh &mesh, const Texture &texture);
 };

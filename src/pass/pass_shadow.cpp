@@ -1,5 +1,7 @@
 #include "pass_shadow.hpp"
 
+#include "platform/api-function.hpp"
+
 Pass_Shadow::Pass_Shadow(const std::string &pass_name, std::shared_ptr<Scene> scene_ptr, bool is_comp)
 : Pass(pass_name, scene_ptr, is_comp) {}
 
@@ -90,4 +92,37 @@ void Pass_Shadow::render_pass()
             scene->spot_shadow_map_list[i] = std::move(output);
         }
     }
+}
+
+void Pass_Shadow::setup_framebuffer_depth(int width, int height, bool shadow_vsm)
+{
+    frame_buffer = std::make_shared<Frame_Buffer>();
+    render_buffer = std::make_unique<Render_Buffer>(width, height, GL_DEPTH_COMPONENT32);
+
+    if (shadow_vsm) {
+        output = create_texture_RG(width, height);
+        frame_buffer->attach_texture(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, output->get_id());
+        frame_buffer->attach_render_buffer(GL_DEPTH_ATTACHMENT, render_buffer->get_id());
+    } else {
+        output = create_texture(Texture_Type::TEXTURE_2D_DEPTH, width, height);
+        frame_buffer->attach_texture(GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, output->get_id());
+    }
+
+    frame_buffer->unbind();
+    render_buffer->unbind();
+
+    buffer_width = width;
+    buffer_height = height;
+}
+
+void Pass_Shadow::render_depth(const Mesh &mesh)
+{
+    Api_Function::set_viewport(buffer_width, buffer_height);
+
+    frame_buffer->bind();
+    mesh.vertex_array->bind();
+
+    Api_Function::draw_elements(GL_TRIANGLES, static_cast<unsigned int>(mesh.indices.size()), GL_UNSIGNED_INT, 0);
+    mesh.vertex_array->unbind();
+    frame_buffer->unbind();
 }

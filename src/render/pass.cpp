@@ -71,47 +71,9 @@ void Pass::setup_framebuffer(int width, int height, Texture_Type type, bool mipm
     buffer_height = height;
 }
 
-void Pass::setup_framebuffer(int width, int height, std::shared_ptr<Frame_Buffer> buffer)
+void Pass::setup_framebuffer_with_copy(int width, int height, std::shared_ptr<Frame_Buffer> buffer)
 {
     frame_buffer = buffer;
-    buffer_width = width;
-    buffer_height = height;
-}
-
-void Pass::setup_framebuffer_depth(int width, int height, bool shadow_vsm)
-{
-    frame_buffer = std::make_shared<Frame_Buffer>();
-    render_buffer = std::make_unique<Render_Buffer>(width, height, GL_DEPTH_COMPONENT32);
-
-    if (shadow_vsm) {
-        output = create_texture_RG(width, height);
-        frame_buffer->attach_texture(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, output->get_id());
-        frame_buffer->attach_render_buffer(GL_DEPTH_ATTACHMENT, render_buffer->get_id());
-    } else {
-        output = create_texture(Texture_Type::TEXTURE_2D_DEPTH, width, height);
-        frame_buffer->attach_texture(GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, output->get_id());
-    }
-
-    frame_buffer->unbind();
-    render_buffer->unbind();
-
-    buffer_width = width;
-    buffer_height = height;
-}
-
-void Pass::setup_framebuffer_comp_SAT(int width, int height)
-{
-    frame_buffer = std::make_shared<Frame_Buffer>();
-
-    SAT_map[0] = create_texture_RG(width, height);
-    frame_buffer->attach_texture(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, SAT_map[0]->get_id());
-    Api_Function::clear_color_and_depth();
-    SAT_map[1] = create_texture_RG(width, height);
-    frame_buffer->attach_texture(GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, SAT_map[1]->get_id());
-    Api_Function::clear_color_and_depth();
-
-    frame_buffer->unbind();
-
     buffer_width = width;
     buffer_height = height;
 }
@@ -211,13 +173,8 @@ void Pass::render_color(const Mesh &mesh, const Material &material, const IBL_Da
     frame_buffer->reset_active_id();
 }
 
-void Pass::render_others(const Mesh &mesh, const Material &material)
+void Pass::render_cube(const Mesh &mesh, const Material &material)
 {
-    // Specially for pass_skybox.
-    if (name == "skybox" && material.skybox_map != nullptr) {
-        frame_buffer->bind_texture(GL_TEXTURE_CUBE_MAP, shader->ID, material.skybox_map->get_id(), "environment_map");
-    }
-
     Api_Function::set_viewport(buffer_width, buffer_height);
 
     frame_buffer->bind();
@@ -228,43 +185,8 @@ void Pass::render_others(const Mesh &mesh, const Material &material)
     frame_buffer->reset_active_id();
 }
 
-void Pass::render_depth(const Mesh &mesh)
-{
-    Api_Function::set_viewport(buffer_width, buffer_height);
-
-    frame_buffer->bind();
-    mesh.vertex_array->bind();
-
-    Api_Function::draw_elements(GL_TRIANGLES, static_cast<unsigned int>(mesh.indices.size()), GL_UNSIGNED_INT, 0);
-    mesh.vertex_array->unbind();
-    frame_buffer->unbind();
-}
-
-void Pass::render_comp_SAT(GLuint shadow_map)
-{
-    Api_Function::set_viewport(buffer_width, buffer_height);
-
-    glBindImageTexture(0, shadow_map, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
-    glBindImageTexture(1, SAT_map[0]->get_id(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
-    glDispatchCompute(buffer_width, 1, 1);
-    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-
-    glBindImageTexture(0, SAT_map[0]->get_id(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
-    glBindImageTexture(1, SAT_map[1]->get_id(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
-    glDispatchCompute(buffer_width, 1, 1);
-    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-}
-
 void Pass::render_cubemap(const Mesh &mesh, const Texture &texture)
 {
-    unsigned int texture_idx = 0;
-
-    if (name == "rect_to_cube") {
-        frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, texture.get_id(), "equirectangular_map");
-    } else if (name == "ibl_irradiance") {
-        frame_buffer->bind_texture(GL_TEXTURE_CUBE_MAP, shader->ID, texture.get_id(), "environment_map");
-    }
-
     glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
     glm::mat4 captureViews[] = {
         glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
@@ -306,55 +228,4 @@ void Pass::render_quad(const Mesh &mesh)
     Api_Function::draw_arrays(GL_TRIANGLE_STRIP, 0, 4);
     mesh.vertex_array->unbind();
     frame_buffer->unbind();
-}
-
-void Pass::render_cubemap_mipmap(const Mesh &mesh, const Texture &texture)
-{
-    unsigned int texture_idx = 0;
-
-    if (name == "ibl_prefiltered_map") {
-        frame_buffer->bind_texture(GL_TEXTURE_CUBE_MAP, shader->ID, texture.get_id(), "environment_map");
-    }
-
-    glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
-    glm::mat4 captureViews[] = {
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
-    };
-
-    shader->setMat4("projection", captureProjection);
-
-    frame_buffer->bind();
-    unsigned int max_mip_levels = 5;
-    for (unsigned int mip = 0; mip < max_mip_levels; ++mip) {
-        // Reisze framebuffer according to mip-level size.
-        unsigned int mip_width  = static_cast<unsigned int>(128 * std::pow(0.5, mip));
-        unsigned int mip_height = static_cast<unsigned int>(128 * std::pow(0.5, mip));
-
-        // TODO: Bind RBO size here don't take effect?
-        // glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-        // glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mip_width, mip_height);
-        Api_Function::set_viewport(mip_width, mip_height);
-
-        float roughness = (float) mip / (float) (max_mip_levels - 1);
-        shader->setFloat("_ibl_roughness", roughness);
-        shader->setFloat("_ibl_resolution", mip_width);
-
-        for (unsigned int i = 0; i < 6; ++i) {
-            shader->setMat4("view", captureViews[i]);
-            frame_buffer->attach_texture(GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, output->get_id(), mip);
-
-            mesh.vertex_array->bind();
-            Api_Function::clear_color_and_depth();
-            Api_Function::draw_arrays(GL_TRIANGLES, 0, 36);
-            mesh.vertex_array->unbind();
-        }
-    }
-
-    frame_buffer->unbind();
-    frame_buffer->reset_active_id();
 }

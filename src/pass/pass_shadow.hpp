@@ -8,4 +8,7 @@ public:
     Pass_Shadow(const std::string &pass_name, std::shared_ptr<Scene> scene_ptr, bool is_comp=false);
 
     void render_pass() override;
+
+    void setup_framebuffer_depth(int width, int height, bool shadow_vsm);
+    void render_depth(const Mesh &mesh);
 };

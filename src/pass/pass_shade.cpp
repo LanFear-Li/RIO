@@ -5,7 +5,7 @@ Pass_Shade::Pass_Shade(const std::string &pass_name, std::shared_ptr<Scene> scen
 
 void Pass_Shade::render_pass()
 {
-    setup_framebuffer(*scene->screen_width, *scene->screen_height, scene->present_fbo);
+    setup_framebuffer_with_copy(*scene->screen_width, *scene->screen_height, scene->present_fbo);
 
     bool shadow_vsm = (scene->scene_config->shadow_method == Shadow_Method::VSM ||
     scene->scene_config->shadow_method == Shadow_Method::VSSM);
