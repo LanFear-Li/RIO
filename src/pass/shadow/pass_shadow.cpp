@@ -1,9 +1,13 @@
 #include "pass_shadow.hpp"
 
+#include "pass_compute_SAT.hpp"
 #include "platform/api-function.hpp"
 
 Pass_Shadow::Pass_Shadow(const std::string &pass_name, std::shared_ptr<Scene> scene_ptr, bool is_comp)
-: Pass(pass_name, scene_ptr, is_comp) {}
+: Pass(pass_name, scene_ptr, is_comp)
+{
+    pass_compute_SAT = std::make_unique<Pass_Compute_SAT>("compute_SAT", scene, true);
+}
 
 void Pass_Shadow::render_pass()
 {
@@ -92,6 +96,9 @@ void Pass_Shadow::render_pass()
             scene->spot_shadow_map_list[i] = std::move(output);
         }
     }
+
+    // Compute SAT for VSM.
+    pass_compute_SAT->render();
 }
 
 void Pass_Shadow::setup_framebuffer_depth(int width, int height, bool shadow_vsm)

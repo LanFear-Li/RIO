@@ -1,7 +1,16 @@
 #include "pass_shade.hpp"
 
+#include "pass_skybox.hpp"
+#include "pass_light.hpp"
+
 Pass_Shade::Pass_Shade(const std::string &pass_name, std::shared_ptr<Scene> scene_ptr, bool is_comp)
-: Pass(pass_name, scene_ptr, is_comp) {}
+: Pass(pass_name, scene_ptr, is_comp)
+{
+    pass_skybox = std::make_unique<Pass_Skybox>("skybox", scene);
+    pass_skybox->depth_func = Depth_Func::less_equal;
+    pass_light = std::make_unique<Pass_Light>("light", scene);
+    pass_light->depth_func = Depth_Func::less_equal;
+}
 
 void Pass_Shade::render_pass()
 {
@@ -114,4 +123,7 @@ void Pass_Shade::render_pass()
             render_color(*mesh, *material, *scene->ibl_data);
         }
     }
+
+    pass_skybox->render();
+    pass_light->render();
 }

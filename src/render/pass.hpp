@@ -16,7 +16,7 @@ class Pass
 {
 public:
     Pass() = delete;
-    Pass(const std::string &pass_name, std::shared_ptr<Scene> scene_ptr, bool is_comp=false);
+    Pass(const std::string &pass_name, std::shared_ptr<Scene> scene_ptr, bool is_comp=false, bool no_shader=false);
 
     void prepare() const;
     void shader_reset() const;

@@ -22,20 +22,13 @@ private:
 
     // Pass for lighting / shadowing.
     std::unique_ptr<Pass> pass_shadow;
-    std::unique_ptr<Pass> pass_compute_SAT;
 
+    // Pass for shading.
     std::unique_ptr<Pass> pass_shade;
-    std::unique_ptr<Pass> pass_light;
 
     // Pass for environment lighting.
-    // Convert Equirectangular Map to CubeMap.
-    std::unique_ptr<Pass> pass_rect_to_cube;
-    std::unique_ptr<Pass> pass_skybox;
+    std::unique_ptr<Pass> pass_ibl;
 
-    // Irradiance Map for diffuse IBL.
-    std::unique_ptr<Pass> pass_ibl_irradiance;
-    // Pre-Filtered Environment Map for specular IBL.
-    std::unique_ptr<Pass> pass_ibl_prefiltered_map;
-    // Precomputed Environment BRDF for specular IBL.
-    std::unique_ptr<Pass> pass_ibl_precomputed_brdf;
+    // Pass for post processing and anti-aliasing.
+    std::unique_ptr<Pass> pass_post_process;
 };

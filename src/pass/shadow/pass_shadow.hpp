@@ -11,4 +11,7 @@ public:
 
     void setup_framebuffer_depth(int width, int height, bool shadow_vsm);
     void render_depth(const Mesh &mesh);
+
+private:
+    std::unique_ptr<Pass> pass_compute_SAT;
 };

@@ -1,16 +1,10 @@
 #include "renderer.hpp"
 
-#include "pass/pass_rect_to_cube.hpp"
-#include "pass/pass_ibl_irradiance.hpp"
-#include "pass/pass_ibl_prefiltered_map.hpp"
-#include "pass/pass_ibl_precomputed_brdf.hpp"
+#include "pass/ibl/pass_ibl.hpp"
+#include "pass/shadow/pass_shadow.hpp"
+#include "pass/shade/pass_shade.hpp"
 
-#include "pass/pass_shadow.hpp"
-#include "pass/pass_compute_SAT.hpp"
-
-#include "pass/pass_shade.hpp"
-#include "pass/pass_skybox.hpp"
-#include "pass/pass_light.hpp"
+#include "platform/api-function.hpp"
 
 #include <utility>
 
@@ -25,19 +19,9 @@ Renderer::Renderer(const std::string &scene_name)
     scene->prepare_present();
 
     // Initialize all render pass.
-    pass_rect_to_cube = std::make_unique<Pass_Rect_To_Cube>("rect_to_cube", scene);
-    pass_ibl_irradiance = std::make_unique<Pass_IBL_Irradiance>("ibl_irradiance", scene);
-    pass_ibl_prefiltered_map = std::make_unique<Pass_IBL_Prefiltered_Map>("ibl_prefiltered_map", scene);
-    pass_ibl_precomputed_brdf = std::make_unique<Pass_IBL_Precomputed_BRDF>("ibl_precomputed_brdf", scene);
-
+    pass_ibl = std::make_unique<Pass_IBL>("ibl", scene, false, true);
     pass_shadow = std::make_unique<Pass_Shadow>("shadow", scene);
-    pass_compute_SAT = std::make_unique<Pass_Compute_SAT>("compute_SAT", scene, true);
-
     pass_shade = std::make_unique<Pass_Shade>("shade", scene);
-    pass_skybox = std::make_unique<Pass_Skybox>("skybox", scene);
-    pass_skybox->depth_func = Depth_Func::less_equal;
-    pass_light = std::make_unique<Pass_Light>("light", scene);
-    pass_light->depth_func = Depth_Func::less_equal;
 }
 
 void Renderer::run() const
@@ -119,21 +103,14 @@ void Renderer::run() const
 
     // Start window mainloop.
     window->main_loop([&]() {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        Api_Function::clear_color_and_depth();
 
         // Pass precompute.
-        pass_rect_to_cube->render();
-        pass_ibl_irradiance->render();
-        pass_ibl_prefiltered_map->render();
-        pass_ibl_precomputed_brdf->render();
+        pass_ibl->render();
 
         // Pass runtime.
         pass_shadow->render();
-        pass_compute_SAT->render();
-
         pass_shade->render();
-        pass_skybox->render();
-        pass_light->render();
 
         // Pass ui.
         panel->render();

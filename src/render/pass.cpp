@@ -5,17 +5,19 @@
 
 #include <iostream>
 
-Pass::Pass(const std::string &pass_name, std::shared_ptr<Scene> scene_ptr, bool is_comp)
+Pass::Pass(const std::string &pass_name, std::shared_ptr<Scene> scene_ptr, bool is_comp, bool no_shader)
 {
-    if (is_comp) {
-        std::string comp_path = "runtime/shaders/pass/" + pass_name + ".comp";
+    if (!no_shader) {
+        if (is_comp) {
+            std::string comp_path = "runtime/shaders/pass/" + pass_name + ".comp";
 
-        shader = std::make_unique<Shader>(File_System::get_path(comp_path).c_str());
-    } else {
-        std::string vert_path = "runtime/shaders/pass/" + pass_name + ".vert";
-        std::string frag_path = "runtime/shaders/pass/" + pass_name + ".frag";
+            shader = std::make_unique<Shader>(File_System::get_path(comp_path).c_str());
+        } else {
+            std::string vert_path = "runtime/shaders/pass/" + pass_name + ".vert";
+            std::string frag_path = "runtime/shaders/pass/" + pass_name + ".frag";
 
-        shader = std::make_unique<Shader>(File_System::get_path(vert_path).c_str(), File_System::get_path(frag_path).c_str());
+            shader = std::make_unique<Shader>(File_System::get_path(vert_path).c_str(), File_System::get_path(frag_path).c_str());
+        }
     }
 
     name = pass_name;
@@ -80,6 +82,10 @@ void Pass::setup_framebuffer_with_copy(int width, int height, std::shared_ptr<Fr
 
 void Pass::shader_reset() const
 {
+    if (shader == nullptr) {
+        return;
+    }
+
     shader->use();
 
     shader->setBool("use_normal_map", false);
