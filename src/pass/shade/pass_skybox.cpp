@@ -6,7 +6,7 @@ Pass_Skybox::Pass_Skybox(const std::string &pass_name, std::shared_ptr<Scene> sc
 void Pass_Skybox::render_pass()
 {
     if (scene->scene_config->show_skybox) {
-        setup_framebuffer_with_copy(*(scene->screen_width), *(scene->screen_height), scene->present_fbo);
+        setup_framebuffer_with_copy(*(scene->screen_width), *(scene->screen_height), scene->shade_fbo);
 
         auto &material = scene->model_skybox->materials[0];
         auto &mesh = scene->model_skybox->meshes[0];

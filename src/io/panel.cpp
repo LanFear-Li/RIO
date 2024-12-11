@@ -41,7 +41,7 @@ void Panel::render()
     // Render Statistics.
     float fps = ImGui::GetIO().Framerate;
     ImGui::Text("Total: %.2f fps / %.4f mspf", fps, 1000.0f / fps);
-    if (ImGui::CollapsingHeader("Statistics (Total Time / GPU Time)", ImGuiTreeNodeFlags_DefaultOpen)) {
+    if (ImGui::CollapsingHeader("Statistics (Total Time / GPU Time)", ImGuiTreeNodeFlags_None)) {
         ImGui::BeginTable("Statistics Table", 2, ImGuiTableFlags_SizingFixedSame);
 
         for (auto& pass_data : scene->pass_data_map) {
@@ -94,6 +94,7 @@ void Panel::render()
         ImGui::PopItemWidth();
 
         // Skybox.
+        ImGui::PushItemWidth(windowWidth * 0.3f);
         ImGui::PushID("Skybox");
         auto &skybox_list = scene->candidate_skybox_list;
 
@@ -104,11 +105,21 @@ void Panel::render()
             }
         }
 
-        if (ImGui::Combo("Skybox Type", &skybox_idx, skybox_list.data(), (int) skybox_list.size())) {
+        if (ImGui::Combo("Skybox", &skybox_idx, skybox_list.data(), (int) skybox_list.size())) {
             panel_config->skybox_name = skybox_list[skybox_idx];
             scene->update_skybox(skybox_list[skybox_idx]);
         }
         ImGui::PopID();
+
+        ImGui::SameLine();
+
+        // Render aa method.
+        auto &aa_list = aa_methods;
+        int aa_idx = panel_config->aa_method;
+        if (ImGui::Combo("AA", &aa_idx, aa_list.data(), (int) aa_list.size())) {
+            panel_config->aa_method = static_cast<AA_Method>(aa_idx);
+        }
+        ImGui::PopItemWidth();
     }
 
     // Scene option.

@@ -6,7 +6,7 @@ Pass_Light::Pass_Light(const std::string &pass_name, std::shared_ptr<Scene> scen
 void Pass_Light::render_pass()
 {
     if (scene->scene_config->render_light) {
-        setup_framebuffer_with_copy(*scene->screen_width, *scene->screen_height, scene->present_fbo);
+        setup_framebuffer_with_copy(*scene->screen_width, *scene->screen_height, scene->shade_fbo);
 
         for (auto& light : scene->point_light_list) {
             auto position = light->position;

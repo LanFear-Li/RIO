@@ -19,6 +19,8 @@ public:
     void bind_texture(GLenum target, GLuint shader_id, GLuint texture_id, const char *tex_name);
     void reset_active_id();
 
+    GLuint get_fbo_id() const { return fbo_id; }
+
 private:
     GLuint active_id;
     GLuint fbo_id;

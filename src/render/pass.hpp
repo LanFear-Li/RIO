@@ -21,6 +21,7 @@ public:
     void prepare() const;
     void shader_reset() const;
     void clear_depth() const;
+    void clear() const;
 
     void render();
     virtual void render_pass() {};

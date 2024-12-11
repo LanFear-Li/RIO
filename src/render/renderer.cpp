@@ -3,8 +3,8 @@
 #include "pass/ibl/pass_ibl.hpp"
 #include "pass/shadow/pass_shadow.hpp"
 #include "pass/shade/pass_shade.hpp"
-
-#include "platform/api-function.hpp"
+// #include "pass/post/pass_post_process.hpp"
+#include "pass/pass_present.hpp"
 
 #include <utility>
 
@@ -16,12 +16,13 @@ Renderer::Renderer(const std::string &scene_name)
 
     // Load model, light, etc.
     scene->prepare_scene(scene_name);
-    scene->prepare_present();
 
     // Initialize all render pass.
     pass_ibl = std::make_unique<Pass_IBL>("ibl", scene, false, true);
     pass_shadow = std::make_unique<Pass_Shadow>("shadow", scene);
     pass_shade = std::make_unique<Pass_Shade>("shade", scene);
+    // pass_post_process = std::make_unique<Pass_Post_Process>("post_process", scene, false, true);
+    pass_present = std::make_unique<Pass_Present>("present", scene, false, true);
 }
 
 void Renderer::run() const
@@ -103,14 +104,18 @@ void Renderer::run() const
 
     // Start window mainloop.
     window->main_loop([&]() {
-        Api_Function::clear_color_and_depth();
-
         // Pass precompute.
         pass_ibl->render();
 
         // Pass runtime.
         pass_shadow->render();
         pass_shade->render();
+
+        // Pass post process.
+        // pass_post_process->render();
+
+        // Pass present.
+        pass_present->render();
 
         // Pass ui.
         panel->render();

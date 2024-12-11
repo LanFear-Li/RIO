@@ -38,6 +38,21 @@ const std::vector<const char *> shadow_methods = {
     "BASIC", "PCF", "PCSS", "VSM", "VSSM"
 };
 
+enum AA_Method {
+    NONE, FXAA, SMAA, TAA
+};
+
+NLOHMANN_JSON_SERIALIZE_ENUM(AA_Method, {
+    { NONE, "NONE" },
+    { FXAA, "FXAA" },
+    { SMAA, "SMAA" },
+    { TAA, "TAA" }
+})
+
+const std::vector<const char *> aa_methods = {
+    "NONE", "FXAA", "SMAA", "TAA"
+};
+
 struct Panel_Config {
     // Render config.
     bool show_skybox = true;
@@ -49,6 +64,7 @@ struct Panel_Config {
 
     Shading_Method shading_method{Shading_Method::BRDF};
     Shadow_Method shadow_method{Shadow_Method::PCSS};
+    AA_Method aa_method{AA_Method::FXAA};
 
     // Scene config.
     std::string model_name;

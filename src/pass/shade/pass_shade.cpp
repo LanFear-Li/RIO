@@ -3,6 +3,8 @@
 #include "pass_skybox.hpp"
 #include "pass_light.hpp"
 
+#include "platform/api-function.hpp"
+
 Pass_Shade::Pass_Shade(const std::string &pass_name, std::shared_ptr<Scene> scene_ptr, bool is_comp)
 : Pass(pass_name, scene_ptr, is_comp)
 {
@@ -12,9 +14,26 @@ Pass_Shade::Pass_Shade(const std::string &pass_name, std::shared_ptr<Scene> scen
     pass_light->depth_func = Depth_Func::less_equal;
 }
 
+void Pass_Shade::setup_framebuffer_shade(int width, int height)
+{
+    scene->shade_fbo = std::make_shared<Frame_Buffer>();
+    scene->shade_color = create_texture(Texture_Type::TEXTURE_2D, width, height);
+    scene->shade_depth = create_texture(Texture_Type::TEXTURE_2D_DEPTH, width, height);
+
+    scene->shade_fbo->attach_texture(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, scene->shade_color->get_id());
+    scene->shade_fbo->attach_texture(GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, scene->shade_depth->get_id());
+
+    Api_Function::clear_color_and_depth();
+    scene->shade_fbo->unbind();
+
+    frame_buffer = scene->shade_fbo;
+    buffer_width = width;
+    buffer_height = height;
+}
+
 void Pass_Shade::render_pass()
 {
-    setup_framebuffer_with_copy(*scene->screen_width, *scene->screen_height, scene->present_fbo);
+    setup_framebuffer_shade(*scene->screen_width, *scene->screen_height);
 
     bool shadow_vsm = (scene->scene_config->shadow_method == Shadow_Method::VSM ||
     scene->scene_config->shadow_method == Shadow_Method::VSSM);

@@ -22,13 +22,13 @@ private:
 
     // Pass for lighting / shadowing.
     std::unique_ptr<Pass> pass_shadow;
-
     // Pass for shading.
     std::unique_ptr<Pass> pass_shade;
-
     // Pass for environment lighting.
     std::unique_ptr<Pass> pass_ibl;
-
     // Pass for post processing and anti-aliasing.
     std::unique_ptr<Pass> pass_post_process;
+
+    // Pass for present.
+    std::unique_ptr<Pass> pass_present;
 };

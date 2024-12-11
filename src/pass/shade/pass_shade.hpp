@@ -9,6 +9,8 @@ public:
 
     void render_pass() override;
 
+    void setup_framebuffer_shade(int width, int height);
+
 private:
     std::unique_ptr<Pass> pass_skybox;
     std::unique_ptr<Pass> pass_light;

@@ -27,7 +27,7 @@ public:
     Scene(const std::string &scene_name);
 
     void prepare_scene(const std::string &scene_name);
-    void prepare_present();
+
     void update_model(const std::string &model_name);
     void update_skybox(const std::string &skybox_name);
 
@@ -71,10 +71,10 @@ public:
     bool cubemap_converted = false;
     bool ibl_generated = false;
 
-    // Present Framebuffer & texture.
-    std::shared_ptr<Frame_Buffer> present_fbo;
-    std::shared_ptr<Texture> present_color;
-    std::shared_ptr<Texture> present_depth;
+    // Independent framebuffer & texture for shading.
+    std::shared_ptr<Frame_Buffer> shade_fbo;
+    std::shared_ptr<Texture> shade_color;
+    std::shared_ptr<Texture> shade_depth;
 
     // Pass statictics data.
     std::map<std::string, std::shared_ptr<Pass_Profile_Info>> pass_data_map;

@@ -65,9 +65,9 @@ void Pass::render()
 void Pass::setup_framebuffer(int width, int height, Texture_Type type, bool mipmap)
 {
     frame_buffer = std::make_shared<Frame_Buffer>();
-    frame_buffer->unbind();
-
     output = create_texture(type, width, height, mipmap);
+    frame_buffer->attach_texture(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, output->get_id());
+    frame_buffer->unbind();
 
     buffer_width = width;
     buffer_height = height;
@@ -105,6 +105,13 @@ void Pass::clear_depth() const
 {
     frame_buffer->bind();
     Api_Function::clear_depth();
+    frame_buffer->unbind();
+}
+
+void Pass::clear() const
+{
+    frame_buffer->bind();
+    Api_Function::clear_color_and_depth();
     frame_buffer->unbind();
 }
 
@@ -227,8 +234,6 @@ void Pass::render_quad(const Mesh &mesh)
     Api_Function::set_viewport(buffer_width, buffer_height);
 
     frame_buffer->bind();
-    frame_buffer->attach_texture(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, output->get_id());
-
     mesh.vertex_array->bind();
     Api_Function::clear_color_and_depth();
     Api_Function::draw_arrays(GL_TRIANGLE_STRIP, 0, 4);

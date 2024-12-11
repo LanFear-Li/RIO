@@ -220,16 +220,6 @@ void Scene::prepare_scene(const std::string &scene_name)
     }
 }
 
-void Scene::prepare_present()
-{
-    present_fbo = std::make_shared<Frame_Buffer>(0);
-    present_color = create_texture(Texture_Type::TEXTURE_2D, *screen_width, *screen_height);
-    present_depth = create_texture(Texture_Type::TEXTURE_2D_DEPTH, *screen_width, *screen_height);
-
-    present_fbo->attach_texture(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, present_color->get_id());
-    present_fbo->attach_texture(GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, present_depth->get_id());
-}
-
 std::string Scene::get_model_path(const std::string &model_name)
 {
     std::string model_path = "runtime/assets/models/" + model_name + "/" + model_name;
