@@ -3,7 +3,7 @@
 #include "pass/ibl/pass_ibl.hpp"
 #include "pass/shadow/pass_shadow.hpp"
 #include "pass/shade/pass_shade.hpp"
-// #include "pass/post/pass_post_process.hpp"
+#include "pass/post/pass_post_process.hpp"
 #include "pass/pass_present.hpp"
 
 #include <utility>
@@ -21,7 +21,7 @@ Renderer::Renderer(const std::string &scene_name)
     pass_ibl = std::make_unique<Pass_IBL>("ibl", scene, false, true);
     pass_shadow = std::make_unique<Pass_Shadow>("shadow", scene);
     pass_shade = std::make_unique<Pass_Shade>("shade", scene);
-    // pass_post_process = std::make_unique<Pass_Post_Process>("post_process", scene, false, true);
+    pass_post_process = std::make_unique<Pass_Post_Process>("post_process", scene, false, true);
     pass_present = std::make_unique<Pass_Present>("present", scene, false, true);
 }
 
@@ -112,7 +112,7 @@ void Renderer::run() const
         pass_shade->render();
 
         // Pass post process.
-        // pass_post_process->render();
+        pass_post_process->render();
 
         // Pass present.
         pass_present->render();

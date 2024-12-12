@@ -35,9 +35,5 @@ void main()
         result = evaluate_brdf(worldPos, eyePos, material);
     }
 
-    // Gamma correction.
-    // sRGB <- Linear Space.
-    result = pow(result, vec3(1.0 / 2.2));
-
     fragColor = vec4(result, 1.0);
 }

@@ -240,3 +240,17 @@ void Pass::render_quad(const Mesh &mesh)
     mesh.vertex_array->unbind();
     frame_buffer->unbind();
 }
+
+void Pass::render_quad_post(const Mesh &mesh, const std::shared_ptr<Texture> &texture, const std::string &name)
+{
+    frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, texture->get_id(), name.c_str());
+
+    Api_Function::set_viewport(buffer_width, buffer_height);
+
+    frame_buffer->bind();
+    mesh.vertex_array->bind();
+    Api_Function::draw_arrays(GL_TRIANGLE_STRIP, 0, 4);
+    mesh.vertex_array->unbind();
+    frame_buffer->unbind();
+    frame_buffer->reset_active_id();
+}
