@@ -1,10 +1,14 @@
+precision highp float;
+precision highp int;
+
 #define SMAA_GLSL_4 1
+#define SMAA_PRESET_ULTRA 1
 
 #include "../post/smaa.glsl"
 
 in vec2 texCoord;
-in vec4 offset[3];
 out vec2 pixCoord;
+in vec4 offset[3];
 
 out vec4 weight_calculation;
 
@@ -15,8 +19,10 @@ float max3(vec3 c)
 
 void main()
 {
-    vec4 subsampleIndices = vec4(0.0); // Just pass zero for SMAA 1x, see @SUBSAMPLE_INDICES.
+    // Just pass zero for SMAA 1x, see @SUBSAMPLE_INDICES.
+    vec4 subsampleIndices = vec4(0.0);
     // subsampleIndices = vec4(1.0, 1.0, 1.0, 0.0);
+
     vec4 weights = vec4(0.0, 0.0, 0.0, 0.0);
     vec2 e = texture2D(edgesTex, texCoord).rg;
 
@@ -30,7 +36,6 @@ void main()
         // horizontal/vertical processing.
         if (weights.r == -weights.g) { // weights.r + weights.g == 0.0
 #endif
-
             vec2 d;
 
             // Find the distance to the left:

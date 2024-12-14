@@ -1,4 +1,7 @@
+precision highp float;
+
 #define SMAA_GLSL_4 1
+#define SMAA_PRESET_ULTRA 1
 
 #include "../post/smaa.glsl"
 
@@ -19,7 +22,7 @@ void main()
 
     // Is there any blending weight with a value greater than 0.0?
     if (dot(a, vec4(1.0, 1.0, 1.0, 1.0)) <= 1e-5) {
-        color = texture2D(blendTex, texCoord); // LinearSampler
+        color = texture2D(colorTex, texCoord); // LinearSampler
     } else {
         bool h = max(a.x, a.z) > max(a.y, a.w); // max(horizontal) > max(vertical)
 
@@ -35,8 +38,8 @@ void main()
 
         // We exploit bilinear filtering to mix current pixel with the chosen
         // neighbor:
-        color = blendingWeight.x * texture2D(blendTex, blendingCoord.xy); // LinearSampler
-        color += blendingWeight.y * texture2D(blendTex, blendingCoord.zw); // LinearSampler
+        color = blendingWeight.x * texture2D(colorTex, blendingCoord.xy); // LinearSampler
+        color += blendingWeight.y * texture2D(colorTex, blendingCoord.zw); // LinearSampler
     }
 
     neighborhood_blending = color;

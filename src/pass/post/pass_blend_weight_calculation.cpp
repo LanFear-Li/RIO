@@ -19,12 +19,12 @@ void Pass_Blend_Weight_Calculation::render_pass()
 
 void Pass_Blend_Weight_Calculation::render_smaa(const Mesh &mesh)
 {
+    shader_reset();
     shader->setVec4("SMAA_RT_METRICS", 1.0f / buffer_width, 1.0f / buffer_height, buffer_width, buffer_height);
 
-    frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, scene->shade_color->get_id(), "colorTex");
+    frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, tex_edge->get_id(), "edgesTex");
     frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, tex_area->get_id(), "areaTex");
     frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, tex_search->get_id(), "searchTex");
-    frame_buffer->bind_texture(GL_TEXTURE_2D, shader->ID, tex_edge->get_id(), "edgeTex");
 
     render_quad(mesh);
 }

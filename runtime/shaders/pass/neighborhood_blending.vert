@@ -1,4 +1,5 @@
 #define SMAA_GLSL_4 1
+#define SMAA_PRESET_ULTRA 1
 
 #include "../post/smaa.glsl"
 

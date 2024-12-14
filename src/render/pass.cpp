@@ -239,6 +239,7 @@ void Pass::render_quad(const Mesh &mesh)
     Api_Function::draw_arrays(GL_TRIANGLE_STRIP, 0, 4);
     mesh.vertex_array->unbind();
     frame_buffer->unbind();
+    frame_buffer->reset_active_id();
 }
 
 void Pass::render_quad_post(const Mesh &mesh, const std::shared_ptr<Texture> &texture, const std::string &name)
