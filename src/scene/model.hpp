@@ -23,6 +23,8 @@ public:
     static std::unique_ptr<Model> construct_cube();
     static std::unique_ptr<Model> construct_quad();
 
+    static std::unique_ptr<Texture> construct_texture(const std::string &file_path);
+
     // Model data storage.
     std::vector<std::unique_ptr<Mesh>> meshes;
     std::vector<std::unique_ptr<Material>> materials;

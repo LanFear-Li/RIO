@@ -1,11 +1,11 @@
 in vec2 texCoord;
 out vec4 fragColor;
 
-uniform sampler2D shade_color;
+uniform sampler2D input_grading;
 
 void main()
 {
-    vec3 color = texture(shade_color, texCoord).rgb;
+    vec3 color = texture(input_grading, texCoord).rgb;
 
     // Gamma correction.
     // Linear Space -> sRGB.

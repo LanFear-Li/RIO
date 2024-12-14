@@ -1,6 +1,7 @@
 #include "model.hpp"
 
 #include "platform/texture.hpp"
+#include "io/filesystem.hpp"
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -140,6 +141,18 @@ std::unique_ptr<Model> Model::construct_quad()
     model->meshes.push_back(std::move(mesh));
 
     return model;
+}
+
+std::unique_ptr<Texture> Model::construct_texture(const std::string &name)
+{
+    std::string full_path = File_System::get_path("runtime/assets/textures/" + name);
+
+    int width, height, n_components;
+    unsigned char *data = stbi_load(full_path.c_str(), &width, &height, &n_components, 0);
+    auto texture = load_texture_2d(width, height, n_components, data);
+    stbi_image_free(data);
+
+    return texture;
 }
 
 // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).

@@ -11,5 +11,7 @@ public:
 
 private:
     std::unique_ptr<Pass> pass_grading;
+
     std::unique_ptr<Pass> pass_fxaa;
+    std::unique_ptr<Pass> pass_smaa;
 };
