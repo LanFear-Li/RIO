@@ -13,14 +13,7 @@ void Pass_Neighborhood_Blending::render_pass()
     render_smaa(*mesh);
 
     // Blit the SMAA framebuffer to the shaded framebuffer.
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, frame_buffer->get_fbo_id());
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, scene->shade_fbo->get_fbo_id());
-
-    Api_Function::set_viewport(buffer_width, buffer_height);
-    glBlitFramebuffer(0, 0, buffer_width, buffer_height, 0, 0, buffer_width, buffer_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    Pass::blit_framebuffer(frame_buffer->get_fbo_id(), scene->shade_fbo->get_fbo_id(), buffer_width, buffer_height);
 }
 
 void Pass_Neighborhood_Blending::render_smaa(const Mesh &mesh)

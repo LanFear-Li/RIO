@@ -35,6 +35,8 @@ public:
     void render_quad(const Mesh &mesh);
     void render_quad_post(const Mesh &mesh, const std::shared_ptr<Texture> &texture, const std::string &name);
 
+    static void blit_framebuffer(GLuint read_buffer, GLuint write_buffer, int width, int height);
+
     std::string name;
     std::unique_ptr<Shader> shader;
 

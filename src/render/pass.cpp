@@ -255,3 +255,15 @@ void Pass::render_quad_post(const Mesh &mesh, const std::shared_ptr<Texture> &te
     frame_buffer->unbind();
     frame_buffer->reset_active_id();
 }
+
+void Pass::blit_framebuffer(GLuint read_buffer, GLuint write_buffer, int width, int height) {
+    // Blit current framebuffer to the given framebuffer.
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, read_buffer);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, write_buffer);
+
+    Api_Function::set_viewport(width, height);
+    glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+}
