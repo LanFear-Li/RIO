@@ -29,8 +29,12 @@ void Panel::render()
     ImGui::NewFrame();
 
     if (scene->scene_config->render_gui == false) {
+        ImGui::Render();
         return;
     }
+
+    // Starts form frame 0.
+    scene->frame_count = ImGui::GetFrameCount() - 1;
 
     // Settings begin.
     ImGui::Begin("Settings");

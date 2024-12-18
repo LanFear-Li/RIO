@@ -78,6 +78,8 @@ void Renderer::run() const
     window->set_resize_callback([&](GLFWwindow* glfw_window, uint32_t width, uint32_t height) {
         *window->window_width = width;
         *window->window_height = height;
+
+        scene->frame_count = 0;
     });
 
     auto process_key = [&] (float dt) {

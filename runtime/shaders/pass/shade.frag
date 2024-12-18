@@ -1,13 +1,17 @@
 #include "../model/blinn-phong.glsl"
 #include "../model/brdf.glsl"
 
-out vec4 fragColor;
+layout(location = 0) out vec4 fragColor;
+layout(location = 1) out vec2 velocity;
 
 in vec2 texCoord;
 in vec3 worldPos;
 in vec3 normal;
 in vec3 tangent;
 in vec3 bitangent;
+
+in vec4 prev_clip_pos;
+in vec4 cur_clip_pos;
 
 void main()
 {
@@ -36,4 +40,8 @@ void main()
     }
 
     fragColor = vec4(result, 1.0);
+
+    vec2 prev_pos = ((prev_clip_pos.xy / prev_clip_pos.w) * 0.5 + 0.5);
+    vec2 cur_pos = ((cur_clip_pos.xy / cur_clip_pos.w) * 0.5 + 0.5);
+    velocity = cur_pos - prev_pos;
 }

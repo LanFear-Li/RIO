@@ -10,9 +10,6 @@ void Pass_FXAA::render_pass()
     auto &mesh = scene->model_quad->meshes[0];
     render_quad_post(*mesh, scene->shade_color, "input_fxaa");
 
-    scene->shade_color = std::move(output);
-
-    scene->shade_fbo->bind();
-    scene->shade_fbo->attach_texture(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, scene->shade_color->get_id());
-    scene->shade_fbo->unbind();
+    // Blit the FXAA framebuffer to the shaded framebuffer.
+    Pass::blit_framebuffer(frame_buffer->get_fbo_id(), scene->shade_fbo->get_fbo_id(), buffer_width, buffer_height);
 }

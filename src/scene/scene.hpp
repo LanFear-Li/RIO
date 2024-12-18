@@ -79,6 +79,12 @@ public:
     // Pass statictics data.
     std::map<std::string, std::shared_ptr<Pass_Profile_Info>> pass_data_map;
 
+    int frame_count = 0;
+
+    // TAA data for velocity buffer (motion vectors).
+    glm::mat4 prev_mvp_matrix;
+    std::unique_ptr<Texture> velocity_tex;
+
 private:
     std::string get_model_path(const std::string &model_name);
 };

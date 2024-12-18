@@ -14,4 +14,5 @@ private:
 
     std::unique_ptr<Pass> pass_fxaa;
     std::unique_ptr<Pass> pass_smaa;
+    std::unique_ptr<Pass> pass_taa;
 };

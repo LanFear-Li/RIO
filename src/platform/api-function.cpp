@@ -25,6 +25,11 @@ void Api_Function::clear_color_and_depth()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
+void Api_Function::draw_buffers(GLsizei n, const GLenum *bufs)
+{
+    glDrawBuffers(n, bufs);
+}
+
 void Api_Function::draw_arrays(GLenum mode, int first, int count)
 {
     glDrawArrays(mode, first, count);

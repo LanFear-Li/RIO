@@ -13,6 +13,7 @@ public:
     static void clear_color();
     static void clear_color_and_depth();
 
+    static void draw_buffers(GLsizei n, const GLenum *bufs);
     static void draw_arrays(GLenum mode, int first, int count);
     static void draw_elements(GLenum mode, int count, GLenum type, const void *indices);
 };

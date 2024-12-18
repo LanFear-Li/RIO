@@ -23,6 +23,15 @@ void Pass_Shade::setup_framebuffer_shade(int width, int height)
     scene->shade_fbo->attach_texture(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, scene->shade_color->get_id());
     scene->shade_fbo->attach_texture(GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, scene->shade_depth->get_id());
 
+    // Attach velocity texture for TAA.
+    if (scene->scene_config->aa_method == AA_Method::TAA) {
+        scene->velocity_tex = create_texture_RG(width, height);
+        scene->shade_fbo->attach_texture(GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, scene->velocity_tex->get_id());
+
+        GLenum draw_buffers[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
+        Api_Function::draw_buffers(2, draw_buffers);
+    }
+
     Api_Function::clear_color_and_depth();
     scene->shade_fbo->unbind();
 
@@ -61,6 +70,15 @@ void Pass_Shade::render_pass()
 
             shader->setBool("render_shadow", scene->scene_config->render_shadow);
             shader->setInt("shadow_method", scene->scene_config->shadow_method);
+
+            shader->setInt("buffer_width", buffer_width);
+            shader->setInt("buffer_height", buffer_height);
+
+            bool enable_taa = scene->scene_config->aa_method == AA_Method::TAA;
+            shader->setBool("enable_taa", enable_taa);
+            shader->setInt("frame_count", scene->frame_count);
+
+            shader->setMat4("prev_mvp_matrix", scene->prev_mvp_matrix);
 
             int point_light_num = scene->point_light_list.size();
             for (int i = 0; i < point_light_num; i++) {
@@ -140,6 +158,8 @@ void Pass_Shade::render_pass()
             shader->setBool("use_ibl_data", scene->scene_config->enable_ibl && scene->ibl_generated);
 
             render_color(*mesh, *material, *scene->ibl_data);
+
+            scene->prev_mvp_matrix = scene->camera->get_projection_matrix() * scene->camera->get_view_matrix() * model_matrix;
         }
     }
 
