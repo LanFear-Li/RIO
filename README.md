@@ -54,9 +54,9 @@ RIO is a real-time rasterization renderer with OpenGL backend. It aims to implem
 
 #### Anti-Aliasing
 
-| No AA                                           | FXAA                                            | SMAA                                            | TAA                                           |
-| ----------------------------------------------- | ----------------------------------------------- | ----------------------------------------------- | --------------------------------------------- |
-| ![none](D:\Projects\RIO\screenshot\aa\none.png) | ![fxaa](D:\Projects\RIO\screenshot\aa\fxaa.png) | ![smaa](D:\Projects\RIO\screenshot\aa\smaa.png) | ![taa](D:\Projects\RIO\screenshot\aa\taa.png) |
+| No AA                                                        | FXAA                                                         | SMAA                                                         | TAA                                                          |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| <img src="screenshot\aa\none.png" alt="none" style="zoom:50%;" /> | <img src="screenshot\aa\fxaa.png" alt="fxaa" style="zoom:50%;" /> | <img src="screenshot\aa\smaa.png" alt="smaa" style="zoom:50%;" /> | <img src="screenshot\aa\taa.png" alt="taa" style="zoom:50%;" /> |
 
 ## Usage
 
