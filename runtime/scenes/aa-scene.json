@@ -1,0 +1,37 @@
+{
+    // Scenes for shadow mapping related method demonstration.
+
+    // Scene settings.
+    "camera": {
+        "position": [0, 0, 3],
+        "resolution": [1280, 720],
+        "draw-distance": [0.1, 5000.0]
+    },
+    "lights": {
+        "spot-light-1": {
+            "type": "spot",
+            "position": [0, 4, 0],
+            "direction": [170.0, 0.0, 0.0],
+            "cutoff": 12.5,
+            "outer-cutoff": 20.0,
+            "color": [1, 1, 1],
+            "radius": 0.1,
+            "intensity": 5.0
+        }
+    },
+    "models": {
+        "model-1": {
+            "name": "DamagedHelmet",
+            "position": [0.0, 0.0, 0.0],
+            "rotation": [90.0, 0.0, 0.0],
+            "scaling": 0.5
+        }
+    },
+    "skybox": {
+        "name": "street"
+    },
+
+    // Rendering settings.
+    "enable_ibl": true,
+    "render_shadow": false
+}
