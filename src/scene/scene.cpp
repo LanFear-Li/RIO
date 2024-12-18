@@ -218,6 +218,10 @@ void Scene::prepare_scene(const std::string &scene_name)
     if (scene_json.contains("shadow_method")) {
         scene_config->shadow_method = scene_json["shadow_method"].get<Shadow_Method>();
     }
+
+    if (scene_json.contains("render_shadow")) {
+        scene_config->render_shadow = scene_json["render_shadow"].get<bool>();
+    }
 }
 
 std::string Scene::get_model_path(const std::string &model_name)
