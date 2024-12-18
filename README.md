@@ -10,7 +10,8 @@ RIO is a real-time rasterization renderer with OpenGL backend. It aims to implem
 #### Basic
 
 - [x] User Interface with Control Panel and Camera Operation
-- [x] Frame Tracer with Total Time and GPU Time
+- [x] Pass Tracer with Total Time and GPU Time
+- [x] Custom Scene Representation loaded from Json
 
 #### Shading
 
@@ -24,6 +25,12 @@ RIO is a real-time rasterization renderer with OpenGL backend. It aims to implem
 - [x] Shadow Mapping with Percentage Closer Filtering (PCF)
 - [x] Percentage Closer Soft Shadow (PCSS)
 - [x] Variance Soft Shadow Mapping (VSSM)
+
+#### Anti-Aliasing
+
+- [x] Fast Approximate Anti-Aliasing (FXAA)
+- [x] Subpixel Morphological Antialiasing (SMAA)
+- [x] Temporal Anti-Aliasing (TAA)
 
 ## Gallery
 
@@ -45,6 +52,12 @@ RIO is a real-time rasterization renderer with OpenGL backend. It aims to implem
 | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | <img src="screenshot\shadow\basic.png" alt="basic" style="zoom:25%;" /> | <img src="screenshot\shadow\pcf.png" alt="pcf" style="zoom:25%;" /> | <img src="screenshot\shadow\pcss.png" alt="pcss" style="zoom:25%;" /> | <img src="screenshot\shadow\vsm.png" alt="vsm" style="zoom:25%;" /> | <img src="screenshot\shadow\vssm.png" alt="vssm" style="zoom:25%;" /> |
 
+#### Anti-Aliasing
+
+| No AA                                           | FXAA                                            | SMAA                                            | TAA                                           |
+| ----------------------------------------------- | ----------------------------------------------- | ----------------------------------------------- | --------------------------------------------- |
+| ![none](D:\Projects\RIO\screenshot\aa\none.png) | ![fxaa](D:\Projects\RIO\screenshot\aa\fxaa.png) | ![smaa](D:\Projects\RIO\screenshot\aa\smaa.png) | ![taa](D:\Projects\RIO\screenshot\aa\taa.png) |
+
 ## Usage
 
 #### **Build**
@@ -58,7 +71,7 @@ Since all dependencies are included with source code, you can build RIO freely w
 The image above shows the RIO interface with ImGui. You can modify several **render options** like
 
 - Show skybox / Enable IBL / Render Light Model / Render shadow, etc.
-- Switch shading method / Switch shadow method / Switch skybox.
+- Switch shading method / Switch shadow method / Switch anti-aliasing method / Switch skybox.
 
 You can modify **scene options** with a camera, all lights, and models with
 
